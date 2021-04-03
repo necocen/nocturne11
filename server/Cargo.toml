@@ -1,0 +1,9 @@
+[package]
+name = "server"
+version = "11.0.0"
+authors = ["necocen <necocen@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
