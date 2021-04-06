@@ -42,3 +42,9 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+## for development
+docker-compose.yml
+.vscode
+elasticsearch
+.env

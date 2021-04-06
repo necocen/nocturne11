@@ -1,11 +1,13 @@
 [package]
-name = "server"
-version = "11.0.0"
+name = "infrastructure"
+version = "0.0.0"
 authors = ["necocen <necocen@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = "^0.4.19"
+anyhow = "^1.0.40"
+diesel = { version = "^1.4.6", features = ["mysql", "postgres", "chrono"] }
 domain = { path = "../domain" }
-infrastructure = { path = "../infrastructure" }
