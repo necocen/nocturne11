@@ -1,6 +1,6 @@
 use domain::repositories::posts::PostsRepository;
 use diesel::prelude::*;
-use crate::old_models::Article as OldArticle;
+use crate::legacy::models::Article as OldArticle;
 use domain::entities::Post;
 use anyhow::Result;
 use chrono::{Utc, TimeZone};
@@ -20,7 +20,7 @@ impl OldPostsRepositoryImpl {
 
 impl PostsRepository for OldPostsRepositoryImpl {
     fn get(&self, id: i32) -> Result<Post> {
-        use crate::old_schema::articles::dsl::{articles, id as article_id};
+        use crate::legacy::schema::articles::dsl::{articles, id as article_id};
         let article = articles.filter(article_id.eq(id)).first::<OldArticle>(&self.connection)?;
         Ok(Post {
             id: article.id,
