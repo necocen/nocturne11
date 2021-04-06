@@ -3,10 +3,9 @@
 #![allow(unused)]
 #![allow(clippy::all)]
 
-
-use chrono::DateTime;
-use chrono::offset::Utc;
 use super::schema::posts;
+use chrono::offset::Utc;
+use chrono::DateTime;
 
 #[derive(Queryable, Insertable, Debug)]
 pub struct Post {
