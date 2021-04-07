@@ -31,17 +31,23 @@ impl PostsRepository for PostsRepositoryImpl {
         })
     }
 
-    fn insert(&self, post: Post) -> Result<()> {
+    fn insert(&self, post: &Post) -> Result<Post> {
         use crate::schema::posts;
-        let _: PostModel = diesel::insert_into(posts::table)
+        let post: PostModel = diesel::insert_into(posts::table)
             .values(&PostModel {
                 id: post.id,
-                title: post.title,
-                body: post.body,
+                title: post.title.clone(),
+                body: post.body.clone(),
                 created_at: post.created_at,
                 updated_at: post.updated_at,
             })
             .get_result(&self.connection)?;
-        Ok(())
+        Ok(Post {
+            id: post.id,
+            title: post.title,
+            body: post.body,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+        })
     }
 }

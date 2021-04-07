@@ -8,5 +8,6 @@ edition = "2018"
 
 [dependencies]
 anyhow = "^1.0.40"
-chrono = "^0.4.19"
+chrono = { version = "^0.4.19", features = ["serde"] }
 async-trait = "^0.1.42"
+serde = "~1"

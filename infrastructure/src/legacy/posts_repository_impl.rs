@@ -1,5 +1,5 @@
 use crate::legacy::models::Article as OldArticle;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use chrono::{TimeZone, Utc};
 use diesel::prelude::*;
 use domain::entities::Post;
@@ -27,12 +27,18 @@ impl PostsRepository for OldPostsRepositoryImpl {
             id: article.id,
             title: article.title,
             body: article.text,
-            created_at: Utc.from_local_datetime(&article.created_at).unwrap(),
-            updated_at: Utc.from_local_datetime(&article.updated_at).unwrap(),
+            created_at: Utc
+                .from_local_datetime(&article.created_at)
+                .single()
+                .context("Failed to fetch created_at")?,
+            updated_at: Utc
+                .from_local_datetime(&article.updated_at)
+                .single()
+                .context("Failed to fetch updated_at")?,
         })
     }
 
-    fn insert(&self, _post: Post) -> Result<()> {
+    fn insert(&self, _post: &Post) -> Result<Post> {
         panic!("Do not call this");
     }
 }
