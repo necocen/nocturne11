@@ -11,3 +11,6 @@ domain = { path = "../domain" }
 infrastructure = { path = "../infrastructure" }
 url = "^2"
 tokio = { version = "^1", features = ["full"] }
+actix-web = "^4.0.0-beta.5"
+actix-files = "^0.6.0-beta.3"
+askama = "^0.10.5"

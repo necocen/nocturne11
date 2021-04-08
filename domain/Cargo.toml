@@ -10,4 +10,4 @@ edition = "2018"
 anyhow = "^1.0.40"
 chrono = { version = "^0.4.19", features = ["serde"] }
 async-trait = "^0.1.42"
-serde = "~1"
+serde = "^1"
