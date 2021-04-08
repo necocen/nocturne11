@@ -9,7 +9,8 @@ edition = "2018"
 [dependencies]
 chrono = { version = "^0.4.19", features = ["serde"] }
 anyhow = "^1.0.40"
-diesel = { version = "^1.4.6", features = ["mysql", "postgres", "chrono"] }
+diesel = { version = "^1.4.6", features = ["mysql", "postgres", "chrono", "r2d2"] }
+r2d2 = "^0.8.9"
 domain = { path = "../domain" }
 elasticsearch = "7.10.1-alpha.1"
 serde = "~1"

@@ -3,16 +3,20 @@ use anyhow::Result;
 use diesel::prelude::*;
 use domain::entities::Post;
 use domain::repositories::posts::PostsRepository;
+use diesel::r2d2::ConnectionManager;
+use r2d2::Pool;
 
 pub struct PostsRepositoryImpl {
-    connection: PgConnection,
+    conn_pool: Pool<ConnectionManager<PgConnection>>,
 }
 
 impl PostsRepositoryImpl {
     pub fn new(database_url: String) -> PostsRepositoryImpl {
-        let connection = PgConnection::establish(&database_url)
-            .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
-        PostsRepositoryImpl { connection }
+        let conn_manager = ConnectionManager::<PgConnection>::new(&database_url);
+        let pool: Pool<ConnectionManager<PgConnection>> = Pool::builder()
+            .build(conn_manager)
+            .expect("Failed to create pool");
+        PostsRepositoryImpl { conn_pool: pool }
     }
 }
 
@@ -21,7 +25,7 @@ impl PostsRepository for PostsRepositoryImpl {
         use crate::schema::posts::dsl::{id as post_id, posts};
         let post = posts
             .filter(post_id.eq(id))
-            .first::<PostModel>(&self.connection)?;
+            .first::<PostModel>(&self.conn_pool.get()?)?;
         Ok(Post {
             id: post.id,
             title: post.title,
@@ -35,7 +39,7 @@ impl PostsRepository for PostsRepositoryImpl {
         use crate::schema::posts::dsl::{created_at, posts};
         posts
             .order_by(created_at)
-            .get_results::<PostModel>(&self.connection)?
+            .get_results::<PostModel>(&self.conn_pool.get()?)?
             .into_iter()
             .map(|post| {
                 Ok(Post {
@@ -59,7 +63,7 @@ impl PostsRepository for PostsRepositoryImpl {
                 created_at: post.created_at,
                 updated_at: post.updated_at,
             })
-            .get_result(&self.connection)?;
+            .get_result(&self.conn_pool.get()?)?;
         Ok(Post {
             id: post.id,
             title: post.title,
