@@ -31,6 +31,24 @@ impl PostsRepository for PostsRepositoryImpl {
         })
     }
 
+    fn get_all(&self) -> Result<Vec<Post>> {
+        use crate::schema::posts::dsl::{created_at, posts};
+        posts
+            .order_by(created_at)
+            .get_results::<PostModel>(&self.connection)?
+            .into_iter()
+            .map(|post| {
+                Ok(Post {
+                    id: post.id,
+                    title: post.title,
+                    body: post.body,
+                    created_at: post.created_at,
+                    updated_at: post.updated_at,
+                })
+            })
+            .collect()
+    }
+
     fn insert(&self, post: &Post) -> Result<Post> {
         use crate::schema::posts;
         let post: PostModel = diesel::insert_into(posts::table)
