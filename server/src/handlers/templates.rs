@@ -1,5 +1,5 @@
 use super::errors::Error;
-use actix_web::{HttpResponse};
+use actix_web::HttpResponse;
 use bytes::BytesMut;
 
 pub trait TemplateToResponse {

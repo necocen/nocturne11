@@ -7,5 +7,9 @@
 
 {% block content %}
     <h1>Index</h1>
-    <p>Hello, {{ name }}</p>
+    <ul>
+        {% for post in posts %}
+        <li>{{ post.title }}</li>
+        {% endfor %}
+    </ul>
 {% endblock %}
