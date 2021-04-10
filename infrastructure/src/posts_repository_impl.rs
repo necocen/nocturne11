@@ -1,11 +1,12 @@
 use crate::models::Post as PostModel;
 use anyhow::Result;
 use diesel::prelude::*;
+use diesel::r2d2::ConnectionManager;
 use domain::entities::Post;
 use domain::repositories::posts::PostsRepository;
-use diesel::r2d2::ConnectionManager;
 use r2d2::Pool;
 
+#[derive(Clone)]
 pub struct PostsRepositoryImpl {
     conn_pool: Pool<ConnectionManager<PgConnection>>,
 }
