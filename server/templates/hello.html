@@ -1,1 +1,11 @@
-Hello, {{ name }}!
+{% extends "base.html" %}
+
+{% block head %}
+    <style>
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>Index</h1>
+    <p>Hello, {{ name }}</p>
+{% endblock %}

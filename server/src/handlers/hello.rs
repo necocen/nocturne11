@@ -8,11 +8,13 @@ use askama::Template;
 #[template(path = "hello.html")]
 struct HelloTemplate<'a> {
     name: &'a str,
+    title: &'a str,
 }
 
 pub async fn hello(server: web::Data<Server>) -> Result<HttpResponse, Error> {
     HelloTemplate {
-        name: "ねこねこ"
+        name: "ねこねこ",
+        title: "タイトル",
     }
     .to_response()
 }
