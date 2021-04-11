@@ -5,8 +5,10 @@
         {% block head %}{% endblock %}
     </head>
     <body>
+        <div id="root"></div>
         <div id="content">
             {% block content %}{% endblock %}
         </div>
+        <script type="module" src="/index.js"></script>
     </body>
 </html>

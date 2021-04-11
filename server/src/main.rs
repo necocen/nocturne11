@@ -11,7 +11,7 @@ async fn main() -> Result<()> {
     let pg_url = url::Url::parse("postgres://root:password@127.0.0.1/andante")?;
     let server = Server::new(es_url, pg_url)?;
     actix_web::HttpServer::new(move || {
-        App::new().configure(config_app(server.clone(), "./".to_string()))
+        App::new().configure(config_app(server.clone(), "./frontend/build/src".to_string()))
     })
     .bind("0.0.0.0:4000")?
     .run()
@@ -23,6 +23,6 @@ fn config_app(server: Server, serve_from: String) -> Box<dyn Fn(&mut web::Servic
     Box::new(move |cfg: &mut web::ServiceConfig| {
         cfg.data(server.clone())
             .service(web::resource("/").route(web::get().to(handlers::hello::hello)))
-            .service(fs::Files::new("/", serve_from.clone()).index_file("index.html"));
+            .service(fs::Files::new("/", serve_from.clone()));
     })
 }
