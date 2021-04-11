@@ -6,10 +6,7 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Index</h1>
-    <ul>
-        {% for post in posts %}
-        <li>{{ post.title }}</li>
-        {% endfor %}
-    </ul>
+    {% for post in posts %}
+        {% include "_post.html" %}
+    {% endfor %}
 {% endblock %}

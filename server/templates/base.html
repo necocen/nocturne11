@@ -5,10 +5,30 @@
         {% block head %}{% endblock %}
     </head>
     <body>
-        <div id="root"></div>
-        <div id="content">
+        <header>
+            <h1>{{ title }}</h1>
+            <nav id="global-nav">
+                <h2>Menu</h2>
+                <ul>
+                    <li><a href="/" title="トップページ" accesskey="1">diary</a></li>
+                    <li><a href="/about" title="このサイトについて" accesskey="2">about</a></li>
+                    <li><a href="/atom" title="Atomフィード" accesskey="3">Atom</a></li>
+                </ul>
+            </nav>
+        </header>
+        <main>
             {% block content %}{% endblock %}
-        </div>
+        </main>
+        <nav id="pager-nav">
+            <ul>
+                <li>newer</li>
+                <li><a href="/?page=2" title="older page" rel="next">older</a></li>
+            </ul>
+        </nav>
+        <nav id="root"></nav>
+        <footer>
+            <address>Presented by κねこせん under <a rel="external" href="http://www.kmonos.net/nysl/nysdl.ja.html">NYSDL</a>.</address>
+        </footer>
         <script type="module" src="/index.js"></script>
     </body>
 </html>

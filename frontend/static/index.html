@@ -1,14 +1,33 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Starter Snowpack App" />
-    <title>Starter Snowpack App</title>
-  </head>
-  <body>
-    <h1>Welcome to Snowpack!</h1>
-    <div id="root"></div>
-    <script type="module" src="/src/index.js"></script>
-  </body>
+    <head>
+        <title>TITLE - andante</title>
+    </head>
+    <body>
+        <header>
+            <h1>TITLE</h1>
+            <nav id="global-nav">
+                <h2>Menu</h2>
+                <ul>
+                    <li><a href="/" title="トップページ" accesskey="1">diary</a></li>
+                    <li><a href="/about" title="このサイトについて" accesskey="2">about</a></li>
+                    <li><a href="/atom" title="Atomフィード" accesskey="3">Atom</a></li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            MAIN CONTENTS
+        </main>
+        <nav id="pager-nav">
+            <ul>
+                <li>newer</li>
+                <li><a href="/?page=2" title="older page" rel="next">older</a></li>
+            </ul>
+        </nav>
+        <nav id="side-nav"></nav>
+        <footer>
+            <address>Presented by κねこせん under <a rel="external" href="http://www.kmonos.net/nysl/nysdl.ja.html">NYSDL</a>.</address>
+        </footer>
+        <script type="module" src="/src/index.js"></script>
+    </body>
 </html>

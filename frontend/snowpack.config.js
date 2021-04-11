@@ -24,4 +24,7 @@ module.exports = {
     bundle: true,
     minify: true
   },
+  routes: [
+    {match: "routes", src: ".*", dest: "/index.html"}
+  ]
 };
