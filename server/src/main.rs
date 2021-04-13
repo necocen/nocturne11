@@ -11,7 +11,10 @@ async fn main() -> Result<()> {
     let pg_url = url::Url::parse("postgres://root:password@127.0.0.1/andante")?;
     let server = Server::new(es_url, pg_url)?;
     actix_web::HttpServer::new(move || {
-        App::new().configure(config_app(server.clone(), "./frontend/build/src".to_string()))
+        App::new().configure(config_app(
+            server.clone(),
+            "./frontend/build/src".to_string(),
+        ))
     })
     .bind("0.0.0.0:4000")?
     .run()
