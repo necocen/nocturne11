@@ -2,10 +2,10 @@
     <header>
         <h3>{{ post.title }}</h3>
     </header>
-    {{ post.body }}
+    {{ post.body | post_body | safe }}
     <aside>
         <div class="timestamps">
-            <time class="created-at">{{ post.created_at }}</time>
+            <time class="created-at" datetime="{{ post.created_at | iso8601 }}">{{ post.created_at | format_date }}</time>
         </div>
     </aside>
 </article>
