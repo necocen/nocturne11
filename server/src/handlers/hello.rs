@@ -35,8 +35,8 @@ mod filters {
     }
 
     pub fn post_body(body: &str) -> ::askama::Result<String> {
-        let separator = Regex::new("\\n{3,}").unwrap();
-        let paragraph = Regex::new("\\n\\n").unwrap();
+        let separator = Regex::new(r"\n{3,}").unwrap();
+        let paragraph = Regex::new(r"\n\n").unwrap();
         Ok(separator
             .split(body)
             .map(|topic| {
