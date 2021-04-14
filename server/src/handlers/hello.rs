@@ -46,7 +46,7 @@ mod filters {
                         .map(|paragraph| {
                             paragraph
                                 .split("\n")
-                                .map(|line| escape(line, Html).to_string())
+                                .map(convert_line)
                                 .collect::<Vec<_>>()
                                 .join("<br />")
                         })
@@ -58,9 +58,44 @@ mod filters {
             .join("\n<hr />\n"))
     }
 
+    fn convert_line(line: &str) -> String {
+        if line.len() == 0 {
+            return "".to_string();
+        }
+        let url_pattern = Regex::new(r"https?://[-_.!~*'()a-zA-Z0-9;/?:@&=+$,%#]+").unwrap();
+        let mut pos: usize = 0;
+        let mut fragments: Vec<String> = vec![];
+        for m in url_pattern.find_iter(line) {
+            fragments.push(escape(&line[pos..m.start()], Html).to_string());
+            fragments.push(
+                "<a href=\"".to_owned()
+                    + m.as_str()
+                    + "\" rel=\"external\">"
+                    + &escape(m.as_str(), Html).to_string()
+                    + "</a>",
+            );
+            pos = m.end();
+        }
+        fragments.push(escape(&line[pos..], Html).to_string());
+        fragments.join("")
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
+
+        #[test]
+        fn has_no_links_in_a_line() {
+            assert_eq!(convert_line("LINE"), "LINE");
+        }
+
+        #[test]
+        fn has_link_in_a_line() {
+            assert_eq!(convert_line("LINE http://example.com LINE"), "LINE <a href=\"http://example.com\" rel=\"external\">http:&#x2f;&#x2f;example.com</a> LINE");
+            assert_eq!(convert_line("LINE http://example.com/?query=value LINE"), "LINE <a href=\"http://example.com/?query=value\" rel=\"external\">http:&#x2f;&#x2f;example.com&#x2f;?query=value</a> LINE");
+            assert_eq!(convert_line("LINE http://example.com/path LINE"), "LINE <a href=\"http://example.com/path\" rel=\"external\">http:&#x2f;&#x2f;example.com&#x2f;path</a> LINE");
+            assert_eq!(convert_line("LINE https://example.com/path LINE"), "LINE <a href=\"https://example.com/path\" rel=\"external\">https:&#x2f;&#x2f;example.com&#x2f;path</a> LINE");
+        }
 
         #[test]
         fn has_one_paragraph() {
