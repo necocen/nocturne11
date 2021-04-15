@@ -1,3 +1,4 @@
+use std::path::Path;
 use actix_files as fs;
 use actix_web::{web, App};
 use anyhow::Result;
@@ -13,7 +14,7 @@ async fn main() -> Result<()> {
     actix_web::HttpServer::new(move || {
         App::new().configure(config_app(
             server.clone(),
-            "./frontend/build/src".to_string(),
+            "./frontend/build/src",
         ))
     })
     .bind("0.0.0.0:4000")?
@@ -22,10 +23,11 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-fn config_app(server: Server, serve_from: String) -> Box<dyn Fn(&mut web::ServiceConfig)> {
+fn config_app(server: Server, static_path: impl AsRef<Path>) -> Box<dyn FnOnce(&mut web::ServiceConfig)> {
+    let static_path = static_path.as_ref().to_owned();
     Box::new(move |cfg: &mut web::ServiceConfig| {
         cfg.data(server.clone())
             .service(web::resource("/").route(web::get().to(handlers::posts::posts)))
-            .service(fs::Files::new("/", serve_from.clone()));
+            .service(fs::Files::new("/static", static_path));
     })
 }

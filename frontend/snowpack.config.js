@@ -9,7 +9,8 @@ module.exports = {
   },
   plugins: [
     "@snowpack/plugin-typescript",
-    "@snowpack/plugin-react-refresh"
+    "@snowpack/plugin-react-refresh",
+    "@snowpack/plugin-sass"
   ],
   packageOptions: {
     /* ... */
