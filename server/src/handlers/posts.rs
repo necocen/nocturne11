@@ -7,14 +7,14 @@ use domain::entities::Post;
 use domain::use_cases::get_posts;
 
 #[derive(Template)]
-#[template(path = "hello.html")]
-struct HelloTemplate<'a> {
+#[template(path = "posts.html")]
+struct PostsTemplate<'a> {
     title: &'a str,
     posts: Vec<Post>,
 }
 
-pub async fn hello(server: web::Data<Server>) -> Result<HttpResponse, Error> {
-    HelloTemplate {
+pub async fn posts(server: web::Data<Server>) -> Result<HttpResponse, Error> {
+    PostsTemplate {
         posts: get_posts(&server.posts_repository)?,
         title: "タイトル",
     }

@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
 fn config_app(server: Server, serve_from: String) -> Box<dyn Fn(&mut web::ServiceConfig)> {
     Box::new(move |cfg: &mut web::ServiceConfig| {
         cfg.data(server.clone())
-            .service(web::resource("/").route(web::get().to(handlers::hello::hello)))
+            .service(web::resource("/").route(web::get().to(handlers::posts::posts)))
             .service(fs::Files::new("/", serve_from.clone()));
     })
 }
