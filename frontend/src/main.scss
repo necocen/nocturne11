@@ -1,3 +1,125 @@
-.test {
-    display: none;
+@charset "utf-8";
+
+body {
+    position: relative;
+    margin: 0 auto;
+    height: 100%;
+    max-width: 832px;
+    font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo, sans-serif;
+    font-size: small;
+    background-color: #faf8f4;
+    color: #222;
+    line-height: 100%;
+
+    $gradient-height: 32px;
+
+    > header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #faf8f4;
+        margin-bottom: $gradient-height;
+
+        &::after {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 100%;
+            width: 100%;
+            height: $gradient-height;
+            background: linear-gradient(to top, transparent, #faf8f4);
+            pointer-events: none;
+        }
+
+        h1 {
+            height: 26px;
+            margin: 0;
+            padding: 22px 0 32px;
+            line-height: 26px;
+            font-size: 26px;
+            font-weight: normal;
+        }
+    }
+
+    > footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        margin-top: $gradient-height;
+        background-color: #faf8f4;
+
+        &::before {
+            content: "";
+            display: block;
+            position: absolute;
+            bottom: 100%;
+            width: 100%;
+            height: $gradient-height;
+            background: linear-gradient(to bottom, transparent, #faf8f4);
+            pointer-events: none;
+        }
+    }
+}
+
+a, a:visited
+{
+    text-decoration: none;
+    color: inherit;
+    &:hover {
+        color: #448;
+    }
+}
+
+#side-nav {
+
+}
+
+article {
+    position: relative;
+
+    h3 {
+        height: auto;
+        line-height: 19px;
+        vertical-align: middle;
+        border-bottom: 1px solid #ddd;
+        font-size: 18px;
+        font-weight: normal;
+    }
+
+    hr {
+        display: block;
+        height: 0;
+        margin: 2ex 6em;
+        border-style: none;
+        border-top: 1px #eee solid;
+    }
+
+    p {
+        margin: 2ex 0;
+        font-size: 90%;
+        line-height: 170%;
+        text-align: justify;
+        text-indent: 1em;
+    }
+
+    > aside {
+        position: absolute;
+        bottom: calc(100% - 4.6ex);
+        text-align: right;
+        width: 100%;
+    }
+
+    time {
+        display: block;
+        height: 100%;
+        line-height: 100%;
+    }
+
+    time.created-at::before {
+        content: "posted at: ";
+    }
+
+    time.updated-at::before {
+        content: "updated at: ";
+    }
 }
