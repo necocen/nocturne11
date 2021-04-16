@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import dayjs from "dayjs";
 import { match, compile } from "path-to-regexp";
 
@@ -17,20 +17,28 @@ export function Calendar() {
     const dateComponents = dateMatcher(path);
     const idComponents = idMatcher(path);
 
-    let currentMonth = dayjs().startOf("month");
+    let thisMonth = dayjs().startOf("month");
     if (dateComponents != false) {
         // 日付がある場合はそれを設定
         const { year, month } = dateComponents.params;
-        currentMonth = dayjs(`${year}-${month}-01`);
+        thisMonth = dayjs(`${year}-${month}-01`);
     } else {
         // 日付はないがIDはある場合は記事のcreated-atを読み取る
         if (idComponents != false) {
             const id = idComponents.params.id;
             const post = document.getElementById(`post-${id}`);
             const createdAt = post?.querySelector("time.created-at")?.getAttribute("datetime");
-            currentMonth = createdAt ? dayjs(createdAt).startOf("month") : currentMonth;
+            thisMonth = createdAt ? dayjs(createdAt).startOf("month") : thisMonth;
         }
     }
+    const [currentMonth, setCurrentMonth] = useState(thisMonth);
+
+    const moveToPrevMonth = () => {
+        setCurrentMonth(currentMonth.subtract(1, "month"));
+    };
+    const moveToNextMonth = () => {
+        setCurrentMonth(currentMonth.add(1, "month"));
+    };
 
     const firstDayOnCalendar = currentMonth.startOf("week");
     const lastDayOnCalendar = currentMonth.endOf("month").endOf("week");
@@ -38,7 +46,11 @@ export function Calendar() {
 
     return (
         <table id="calendar" summary="calendar">
-            <caption>&lt;&lt;{currentMonth.format("YYYY-MM")}&gt;&gt;</caption>
+            <caption>
+                <button onClick={moveToPrevMonth}>&lt;&lt;</button>
+                {currentMonth.format("YYYY-MM")}
+                <button onClick={moveToNextMonth}>&gt;&gt;</button>
+            </caption>
             <thead>
                 <tr>
                     <th scope="col">Su</th>
