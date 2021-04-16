@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "snowpack dev",
-    "build": "snowpack build"
+    "build": "snowpack build",
+    "format": "prettier --write '{src,tests}/**/*.{ts,tsx}'"
   },
   "author": "necocen",
   "license": "ISC",
@@ -15,6 +16,7 @@
     "@snowpack/plugin-typescript": "^1.2.1",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
+    "prettier": "^2.2.1",
     "sass": "^1.32.8",
     "snowpack": "^3.2.2",
     "typescript": "^4.2.4"
