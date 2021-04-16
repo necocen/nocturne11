@@ -1,6 +1,6 @@
 import React from "react";
+import {Calendar} from "./Calendar";
 
 export function Nav() {
-    const location = window.location.pathname;
-    return (<b>{location}</b>);
+    return (<Calendar />);
 }
