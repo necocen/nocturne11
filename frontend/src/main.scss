@@ -3,6 +3,22 @@ $max-width: 832px;
 $sidebar-width: 144px;
 $header-height: 100px;
 $global-nav-height: 20px;
+$background-color: #faf8f4;
+$border-color1: #ddd;
+$border-color2: #eee;
+$text-color: #222;
+$text-color-dim: #999;
+$link-color-hover: #448;
+$menu-color: #999;
+$menu-color-dim: #ddd;
+
+@mixin link-hover {
+    a {
+        &:hover {
+            color: $link-color-hover;
+        }
+    }
+}
 
 body {
     display: grid;
@@ -13,8 +29,8 @@ body {
     max-width: $max-width;
     font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo, sans-serif;
     font-size: small;
-    background-color: #faf8f4;
-    color: #222;
+    background-color: $background-color;
+    color: $text-color;
     line-height: 100%;
 
     $gradient-height: 32px;
@@ -26,7 +42,7 @@ body {
         z-index: 10;
         height: $header-height;
         margin-bottom: $gradient-height;
-        background-color: #faf8f4;
+        background-color: $background-color;
 
         &::after {
             content: "";
@@ -35,7 +51,7 @@ body {
             top: 100%;
             width: 100%;
             height: $gradient-height;
-            background: linear-gradient(to top, transparent, #faf8f4);
+            background: linear-gradient(to top, transparent, $background-color);
             pointer-events: none;
         }
 
@@ -60,7 +76,7 @@ body {
         bottom: 0;
         z-index: 10;
         margin-top: $gradient-height;
-        background-color: #faf8f4;
+        background-color: $background-color;
 
         &::before {
             content: "";
@@ -69,7 +85,7 @@ body {
             bottom: 100%;
             width: 100%;
             height: $gradient-height;
-            background: linear-gradient(to bottom, transparent, #faf8f4);
+            background: linear-gradient(to bottom, transparent, $background-color);
             pointer-events: none;
         }
     }
@@ -77,6 +93,8 @@ body {
 
 #global-nav {
     height: $global-nav-height;
+    color: $menu-color-dim;
+    transform: translateZ(100px);
 
     h2 {
         display: none;
@@ -93,6 +111,11 @@ body {
             margin: 0 0.33em;
         }
     }
+
+    a {
+        color: $menu-color;
+    }
+    @include link-hover;
 }
 
 #pager-nav {
@@ -101,11 +124,14 @@ body {
     z-index: 20;
     margin: 0;
     width: 100%;
-    height: $global-nav-height;
     max-width: $max-width;
+    color: $menu-color-dim;
 
     ul {
+        position: absolute;
         display: flex;
+        right: 0;
+        height: $global-nav-height;
         margin: 0;
         padding: 0;
         list-style: none;
@@ -116,6 +142,11 @@ body {
             margin: 0 0.33em;
         }
     }
+
+    a {
+        color: $menu-color;
+    }
+    @include link-hover;
 }
 
 #side-nav {
@@ -123,15 +154,43 @@ body {
     & > * {
        position: fixed;
     }
+
+    table#calendar {
+        width: $sidebar-width;
+        text-align: center;
+        table-layout: fixed;
+        border-spacing: 2px;
+        line-height: 140%;
+
+        caption {
+            color: $menu-color;
+        }
+
+        th {
+            margin: 0;
+            padding: 0;
+            font-size: 8pt;
+            color: $menu-color;
+        }
+
+        td {
+            margin: 0;
+            padding: 0;
+            font-size: 9pt;
+            color: $menu-color-dim;
+
+            a {
+                color: $menu-color;
+            }
+        }
+    }
 }
 
 a, a:visited {
     text-decoration: none;
     color: inherit;
-    &:hover {
-        color: #448;
-    }
 }
+@include link-hover;
 
 article {
     position: relative;
@@ -140,7 +199,7 @@ article {
         height: auto;
         line-height: 19px;
         vertical-align: middle;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid $border-color1;
         font-size: 18px;
         font-weight: normal;
     }
@@ -150,7 +209,7 @@ article {
         height: 0;
         margin: 2ex 6em;
         border-style: none;
-        border-top: 1px #eee solid;
+        border-top: 1px solid $border-color2;
     }
 
     p {
