@@ -5,7 +5,9 @@ import { useRouting } from "./routing";
 
 export function Months() {
     // 記事のある月の一覧を取得
-    const [{ data: { years } = { years: [] } }] = useAxios<{ years: { year: number; months: number[] }[] }>({
+    // デフォルトは2010年から現在まで（レイアウト崩れを防ぐためのものなので記事はない）
+    const defaultYears = [...Array(dayjs().year() - 2010).keys()].map((y) => ({ year: y + 2010, months: [] }));
+    const [{ data: { years } = { years: defaultYears } }] = useAxios<{ years: { year: number; months: number[] }[] }>({
         url: "http://localhost:4000/api/months",
     });
 
