@@ -21,7 +21,7 @@ function Month({ year }: MonthProps) {
         [7, 8, 9, 10, 11, 12],
     ].map((row) => row.map((m) => dayjs(`${year}-${m.toString().padStart(2, "0")}-01`)));
     return (
-        <table>
+        <table className="year-month">
             <caption>{year}</caption>
             <tbody>
                 {monthRows.map((monthRow, index) => (

@@ -20,6 +20,12 @@ $menu-color-dim: #ddd;
     }
 }
 
+a, a:visited {
+    text-decoration: none;
+    color: inherit;
+}
+@include link-hover;
+
 body {
     display: grid;
     grid-template-columns: calc(100% - #{$sidebar-width}) 1fr;
@@ -157,12 +163,11 @@ body {
        width: $sidebar-width;
     }
 
-    table#calendar {
+    @mixin side-nav-table {
         width: 100%;
         text-align: center;
         table-layout: fixed;
         border-spacing: 2px;
-        line-height: 140%;
 
         caption {
             color: $menu-color;
@@ -171,8 +176,9 @@ body {
         th {
             margin: 0;
             padding: 0;
-            font-size: 8pt;
+            font-size: 7pt;
             color: $menu-color;
+            line-height: 140%;
         }
 
         td {
@@ -180,19 +186,34 @@ body {
             padding: 0;
             font-size: 9pt;
             color: $menu-color-dim;
+            line-height: 140%;
 
             a {
                 color: $menu-color;
             }
         }
     }
-}
 
-a, a:visited {
-    text-decoration: none;
-    color: inherit;
+    table#calendar {
+        @include side-nav-table;
+
+        caption {
+            font-size: 9pt;
+        }
+    }
+
+    table.year-month {
+        @include side-nav-table;
+        margin-top: 1ex;
+
+        caption {
+            font-weight: bold;
+            font-size: 8pt;
+            text-align: left;
+            padding: 0 .33em;
+        }
+    }
 }
-@include link-hover;
 
 article {
     position: relative;
