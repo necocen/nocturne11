@@ -151,12 +151,14 @@ body {
 
 #side-nav {
     grid-column: -2;
-    & > * {
+
+    #side-nav-content {
        position: fixed;
+       width: $sidebar-width;
     }
 
     table#calendar {
-        width: $sidebar-width;
+        width: 100%;
         text-align: center;
         table-layout: fixed;
         border-spacing: 2px;
