@@ -1,37 +1,9 @@
 import React, { useState } from "react";
-import dayjs from "dayjs";
 import useAxios from "axios-hooks";
-import { match, compile } from "path-to-regexp";
+import { useRouting } from "./routing";
 
 export function Calendar() {
-    const path = window.location.pathname;
-    const datePattern = String.raw`/:year(\d{4})-:month(\d{2}){-:day(\d{2})}?`;
-    const dateMatcher = match<{ year: string; month: string; day?: string }>(datePattern);
-    const dateToPath = compile<{ year: string; month: string; day?: string }>(datePattern);
-    const dayjsToPath = (dayjs: dayjs.Dayjs, noDay: boolean = false) =>
-        dateToPath({
-            year: dayjs.format("YYYY"),
-            month: dayjs.format("MM"),
-            day: noDay ? undefined : dayjs.format("DD"),
-        });
-    const idMatcher = match<{ id: string }>(String.raw`/:id(\d+)`);
-    const dateComponents = dateMatcher(path);
-    const idComponents = idMatcher(path);
-
-    let thisMonth = dayjs().startOf("month");
-    if (dateComponents != false) {
-        // 日付がある場合はそれを設定
-        const { year, month } = dateComponents.params;
-        thisMonth = dayjs(`${year}-${month}-01`);
-    } else {
-        // 日付はないがIDはある場合は記事のcreated-atを読み取る
-        if (idComponents != false) {
-            const id = idComponents.params.id;
-            const post = document.getElementById(`post-${id}`);
-            const createdAt = post?.querySelector("time.created-at")?.getAttribute("datetime");
-            thisMonth = createdAt ? dayjs(createdAt).startOf("month") : thisMonth;
-        }
-    }
+    const { thisMonth, dayjsToPath } = useRouting();
     const [currentMonth, setCurrentMonth] = useState(thisMonth);
 
     // 記事のある日付一覧を取得
@@ -39,7 +11,6 @@ export function Calendar() {
         url: `http://localhost:4000/api/days/${currentMonth.format("YYYY-MM")}`,
     });
 
-    console.log(days);
     const moveToPrevMonth = () => {
         setCurrentMonth(currentMonth.subtract(1, "month"));
     };
@@ -75,11 +46,11 @@ export function Calendar() {
                         {[...Array(7).keys()].map((d) => {
                             const day = firstDayOnCalendar.add(w * 7 + d, "day");
                             if (day.isSame(currentMonth, "month")) {
-                                if (days.includes(day.date())) {
-                                    return <td key={day.format("YYYY-MM-DD")}><a href={dayjsToPath(day)}>{day.format("D")}</a></td>;
-                                } else {
-                                    return <td key={day.format("YYYY-MM-DD")}>{day.format("D")}</td>;
-                                }
+                                return (
+                                    <td key={day.format("YYYY-MM-DD")}>
+                                        {days.includes(day.date()) ? <a href={dayjsToPath(day)}>{day.format("D")}</a> : day.format("D")}
+                                    </td>
+                                );
                             } else {
                                 return <td key={day.format("YYYY-MM-DD")}></td>;
                             }
