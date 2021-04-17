@@ -47,10 +47,7 @@ fn config_app(
                 web::resource(r"/api/days/{year:\d{4}}-{month:\d{2}}")
                     .route(web::get().to(handlers::api::days_in_year_month)),
             )
-            .service(
-                web::resource(r"/api/months")
-                    .route(web::get().to(handlers::api::months)),
-            )
+            .service(web::resource(r"/api/months").route(web::get().to(handlers::api::months)))
             .service(fs::Files::new("/static", static_path));
     })
 }

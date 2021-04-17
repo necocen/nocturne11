@@ -72,16 +72,15 @@ mod filters {
 
     pub fn post_body(body: &str) -> ::askama::Result<String> {
         let separator = Regex::new(r"\n{3,}").unwrap();
-        let paragraph = Regex::new(r"\n\n").unwrap();
         Ok(separator
             .split(body)
             .map(|topic| {
                 "<p>".to_owned()
-                    + &paragraph
-                        .split(topic)
+                    + &topic
+                        .split("\n\n")
                         .map(|paragraph| {
                             paragraph
-                                .split("\n")
+                                .split('\n')
                                 .map(convert_line)
                                 .collect::<Vec<_>>()
                                 .join("<br />")
@@ -95,7 +94,7 @@ mod filters {
     }
 
     fn convert_line(line: &str) -> String {
-        if line.len() == 0 {
+        if line.is_empty() {
             return "".to_string();
         }
         let url_pattern = Regex::new(r"https?://[-_.!~*'()a-zA-Z0-9;/?:@&=+$,%#]+").unwrap();

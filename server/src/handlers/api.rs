@@ -26,7 +26,7 @@ struct Year {
 }
 
 pub async fn days_in_year_month(
-    server: web::Data<Server>,
+    _server: web::Data<Server>,
     args: web::Path<YearMonthArguments>,
 ) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().json(DaysResponse {
@@ -34,7 +34,7 @@ pub async fn days_in_year_month(
     }))
 }
 
-pub async fn months(server: web::Data<Server>) -> Result<HttpResponse, Error> {
+pub async fn months(_server: web::Data<Server>) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().json(MonthsResponse {
         years: vec![
             Year {
