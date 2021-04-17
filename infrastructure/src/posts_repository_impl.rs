@@ -2,7 +2,8 @@ use crate::models::Post as PostModel;
 use anyhow::Result;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
-use domain::entities::Post;
+use diesel::sql_types::*;
+use domain::entities::{date::YearMonth, Post};
 use domain::repositories::posts::PostsRepository;
 use r2d2::Pool;
 
@@ -54,6 +55,20 @@ impl PostsRepository for PostsRepositoryImpl {
             .collect()
     }
 
+    fn get_year_months(&self) -> Result<Vec<YearMonth>> {
+        use crate::schema::posts::dsl::{created_at, posts};
+        Ok(posts
+            .select((
+                date_part("YEAR", created_at),
+                date_part("MONTH", created_at),
+            ))
+            .distinct()
+            .get_results::<(f64, f64)>(&self.conn_pool.get()?)?
+            .into_iter()
+            .map(|(y, m)| YearMonth(y as u16, m as u8))
+            .collect::<Vec<_>>())
+    }
+
     fn insert(&self, post: &Post) -> Result<Post> {
         use crate::schema::posts;
         let post: PostModel = diesel::insert_into(posts::table)
@@ -73,4 +88,8 @@ impl PostsRepository for PostsRepositoryImpl {
             updated_at: post.updated_at,
         })
     }
+}
+
+sql_function! {
+    fn date_part(part: Text, ts: Timestamptz) -> Double;
 }
