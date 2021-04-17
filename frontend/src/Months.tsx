@@ -4,18 +4,18 @@ import dayjs from "dayjs";
 export function Months() {
     return (
         <>
-            <Month year={2019} />
-            <Month year={2020} />
-            <Month year={2021} />
+            <Year year={2019} />
+            <Year year={2020} />
+            <Year year={2021} />
         </>
     );
 }
 
-type MonthProps = {
+type YearProps = {
     year: number;
 };
 
-function Month({ year }: MonthProps) {
+function Year({ year }: YearProps) {
     const monthRows = [
         [1, 2, 3, 4, 5, 6],
         [7, 8, 9, 10, 11, 12],
