@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import dayjs from "dayjs";
+import useAxios from "axios-hooks";
 import { match, compile } from "path-to-regexp";
 
 export function Calendar() {
@@ -33,6 +34,12 @@ export function Calendar() {
     }
     const [currentMonth, setCurrentMonth] = useState(thisMonth);
 
+    // 記事のある日付一覧を取得
+    const [{ data: { days } = { days: [] } }] = useAxios<{ days: number[] }>({
+        url: `http://localhost:4000/api/days/${currentMonth.format("YYYY-MM")}`,
+    });
+
+    console.log(days);
     const moveToPrevMonth = () => {
         setCurrentMonth(currentMonth.subtract(1, "month"));
     };
@@ -68,7 +75,11 @@ export function Calendar() {
                         {[...Array(7).keys()].map((d) => {
                             const day = firstDayOnCalendar.add(w * 7 + d, "day");
                             if (day.isSame(currentMonth, "month")) {
-                                return <td key={day.format("YYYY-MM-DD")}>{day.format("D")}</td>;
+                                if (days.includes(day.date())) {
+                                    return <td key={day.format("YYYY-MM-DD")}><a href={dayjsToPath(day)}>{day.format("D")}</a></td>;
+                                } else {
+                                    return <td key={day.format("YYYY-MM-DD")}>{day.format("D")}</td>;
+                                }
                             } else {
                                 return <td key={day.format("YYYY-MM-DD")}></td>;
                             }

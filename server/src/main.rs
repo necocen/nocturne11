@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_files as fs;
 use actix_web::{web, App};
 use anyhow::Result;
@@ -12,7 +13,10 @@ async fn main() -> Result<()> {
     let pg_url = url::Url::parse("postgres://root:password@127.0.0.1/andante")?;
     let server = Server::new(es_url, pg_url)?;
     actix_web::HttpServer::new(move || {
-        App::new().configure(config_app(server.clone(), "./frontend/build/src"))
+        let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
+        App::new()
+            .wrap(cors)
+            .configure(config_app(server.clone(), "./frontend/build/src"))
     })
     .bind("0.0.0.0:4000")?
     .run()

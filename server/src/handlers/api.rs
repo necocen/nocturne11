@@ -23,5 +23,7 @@ pub async fn days_in_year_month(
     server: web::Data<Server>,
     args: web::Path<YearMonthArguments>,
 ) -> Result<HttpResponse, Error> {
-    Ok(HttpResponse::Ok().json(DaysResponse { days: vec![4, 6, 8] }))
+    Ok(HttpResponse::Ok().json(DaysResponse {
+        days: vec![4, 6, 8, args.month],
+    }))
 }
