@@ -5,6 +5,7 @@ use actix_web::{web, HttpResponse};
 use askama::Template;
 use domain::entities::Post;
 use domain::use_cases::get_posts;
+use serde::Deserialize;
 
 #[derive(Template)]
 #[template(path = "posts.html")]
@@ -13,7 +14,42 @@ struct PostsTemplate<'a> {
     posts: Vec<Post>,
 }
 
-pub async fn posts(server: web::Data<Server>) -> Result<HttpResponse, Error> {
+#[derive(Debug, Clone, Deserialize)]
+pub struct DateArguments {
+    year: u16,
+    month: u8,
+    day: Option<u8>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct IdArguments {
+    id: i32,
+}
+
+pub async fn all_posts(server: web::Data<Server>) -> Result<HttpResponse, Error> {
+    PostsTemplate {
+        posts: get_posts(&server.posts_repository)?,
+        title: "タイトル",
+    }
+    .to_response()
+}
+
+pub async fn post_with_id(
+    server: web::Data<Server>,
+    args: web::Path<IdArguments>,
+) -> Result<HttpResponse, Error> {
+    dbg!(args);
+    PostsTemplate {
+        posts: get_posts(&server.posts_repository)?,
+        title: "タイトル",
+    }
+    .to_response()
+}
+pub async fn posts_with_date(
+    server: web::Data<Server>,
+    args: web::Path<DateArguments>,
+) -> Result<HttpResponse, Error> {
+    dbg!(args);
     PostsTemplate {
         posts: get_posts(&server.posts_repository)?,
         title: "タイトル",

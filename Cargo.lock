@@ -1616,6 +1616,7 @@ dependencies = [
  "domain",
  "infrastructure",
  "regex",
+ "serde",
  "thiserror",
  "tokio",
  "url 2.2.1",
