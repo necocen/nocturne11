@@ -132,5 +132,6 @@ impl PostsRepository for PostsRepositoryImpl {
 }
 
 sql_function! {
+    #[sql_name = "DATE_PART"]
     fn date_part(part: Text, ts: Timestamptz) -> Double;
 }
