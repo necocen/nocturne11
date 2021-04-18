@@ -9,6 +9,7 @@ mod handlers;
 
 #[actix_web::main]
 async fn main() -> Result<()> {
+    env_logger::init();
     let es_url = url::Url::parse("http://localhost:9200")?;
     let pg_url = url::Url::parse("postgres://root:password@127.0.0.1/andante")?;
     let server = Server::new(es_url, pg_url)?;
