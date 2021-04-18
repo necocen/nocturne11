@@ -6,8 +6,8 @@ import { useRouting } from "./routing";
 export function Months() {
     // 記事のある月の一覧を取得
     // デフォルトは2010年から現在まで（レイアウト崩れを防ぐためのものなので記事はない）
-    const defaultYears = [...Array(dayjs().year() - 2010).keys()].map((y) => ({ year: y + 2010, months: [] }));
-    const [{ data: { years } = { years: defaultYears } }] = useAxios<{ years: { year: number; months: number[] }[] }>({
+    const defaultYears = [...Array(dayjs().year() - 2010).keys()].map((y) => ({ year: y + 2010, months: undefined }));
+    const [{ data: { years } = { years: defaultYears } }] = useAxios<{ years: { year: number; months?: number[] }[] }>({
         url: "http://localhost:4000/api/months",
     });
 
@@ -24,7 +24,7 @@ export function Months() {
 
 type YearProps = {
     year: number;
-    months: number[];
+    months?: number[];
 };
 
 function Year({ year, months }: YearProps) {
@@ -41,7 +41,7 @@ function Year({ year, months }: YearProps) {
                     <tr key={index}>
                         {monthRow.map((month) => (
                             <td key={month.format("YYYY-MM")}>
-                                {months.includes(month.month() + 1) ? (
+                                {!months || months.includes(month.month() + 1) ? (
                                     <a href={dayjsToPath(month, true)}>{month.format("MM")}</a>
                                 ) : (
                                     month.format("MM")

@@ -7,7 +7,7 @@ export function Calendar() {
     const [currentMonth, setCurrentMonth] = useState(thisMonth);
 
     // 記事のある日付一覧を取得
-    const [{ data: { days } = { days: [] } }] = useAxios<{ days: number[] }>({
+    const [{ data: { days } = { days: undefined } }] = useAxios<{ days?: number[] }>({
         url: `http://localhost:4000/api/days/${currentMonth.format("YYYY-MM")}`,
     });
 
@@ -48,7 +48,7 @@ export function Calendar() {
                             if (day.isSame(currentMonth, "month")) {
                                 return (
                                     <td key={day.format("YYYY-MM-DD")}>
-                                        {days.includes(day.date()) ? <a href={dayjsToPath(day)}>{day.format("D")}</a> : day.format("D")}
+                                        {!days || days.includes(day.date()) ? <a href={dayjsToPath(day)}>{day.format("D")}</a> : day.format("D")}
                                     </td>
                                 );
                             } else {
