@@ -1,11 +1,13 @@
 use crate::models::Post as PostModel;
 use anyhow::Result;
+use chrono::offset::Local;
+use chrono::TimeZone;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use diesel::sql_types::*;
 use domain::entities::{date::YearMonth, Post};
 use domain::repositories::posts::PostsRepository;
-use r2d2::Pool;
+use r2d2::{CustomizeConnection, Pool};
 
 #[derive(Clone)]
 pub struct PostsRepositoryImpl {
@@ -15,10 +17,27 @@ pub struct PostsRepositoryImpl {
 impl PostsRepositoryImpl {
     pub fn new(database_url: String) -> PostsRepositoryImpl {
         let conn_manager = ConnectionManager::<PgConnection>::new(&database_url);
-        let pool: Pool<ConnectionManager<PgConnection>> = Pool::builder()
+        let customizer = TimezoneCustomizer {
+            timezone: "Asia/Tokyo".to_string(),
+        };
+        let conn_pool: Pool<ConnectionManager<PgConnection>> = Pool::builder()
+            .connection_customizer(Box::new(customizer))
             .build(conn_manager)
             .expect("Failed to create pool");
-        PostsRepositoryImpl { conn_pool: pool }
+        PostsRepositoryImpl { conn_pool }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct TimezoneCustomizer {
+    timezone: String,
+}
+
+impl CustomizeConnection<PgConnection, diesel::r2d2::Error> for TimezoneCustomizer {
+    fn on_acquire(&self, conn: &mut PgConnection) -> std::result::Result<(), diesel::r2d2::Error> {
+        conn.execute(&format!("SET TIME ZONE '{}';", self.timezone))
+            .map_err(|e| diesel::r2d2::Error::QueryError(e))?;
+        Ok(())
     }
 }
 
@@ -66,6 +85,28 @@ impl PostsRepository for PostsRepositoryImpl {
             .get_results::<(f64, f64)>(&self.conn_pool.get()?)?
             .into_iter()
             .map(|(y, m)| YearMonth(y as u16, m as u8))
+            .collect::<Vec<_>>())
+    }
+
+    fn get_days(&self, YearMonth(year, month): YearMonth) -> Result<Vec<u8>> {
+        use crate::schema::posts::dsl::{created_at, posts};
+        let (next_year, next_month) = if month == 12 {
+            (year + 1, 1)
+        } else {
+            (year, month + 1)
+        };
+        let created_after = Local.ymd(year.into(), month.into(), 1).and_hms(0, 0, 0);
+        let created_before = Local
+            .ymd(next_year.into(), next_month.into(), 1)
+            .and_hms(0, 0, 0);
+        Ok(posts
+            .filter(created_at.ge(created_after))
+            .filter(created_at.lt(created_before))
+            .select(date_part("DAY", created_at))
+            .distinct()
+            .get_results::<f64>(&self.conn_pool.get()?)?
+            .into_iter()
+            .map(|d| d as u8)
             .collect::<Vec<_>>())
     }
 

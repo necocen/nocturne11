@@ -35,5 +35,7 @@ pub fn get_years(repository: &impl PostsRepository) -> Result<Vec<Year>> {
 }
 
 pub fn get_days(repository: &impl PostsRepository, ym: YearMonth) -> Result<Vec<u8>> {
-    todo!()
+    let mut days = repository.get_days(ym)?;
+    days.sort();
+    Ok(days)
 }

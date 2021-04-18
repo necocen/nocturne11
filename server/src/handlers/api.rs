@@ -1,8 +1,8 @@
 use super::Error;
 use crate::server::Server;
 use actix_web::{web, HttpResponse};
-use domain::entities::date::Year;
-use domain::use_cases::get_years;
+use domain::entities::date::{Year, YearMonth};
+use domain::use_cases::{get_days, get_years};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize)]
@@ -22,11 +22,11 @@ struct MonthsResponse {
 }
 
 pub async fn days_in_year_month(
-    _server: web::Data<Server>,
+    server: web::Data<Server>,
     args: web::Path<YearMonthArguments>,
 ) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().json(DaysResponse {
-        days: vec![4, 6, 8, args.month],
+        days: get_days(&server.posts_repository, YearMonth(args.year, args.month))?,
     }))
 }
 

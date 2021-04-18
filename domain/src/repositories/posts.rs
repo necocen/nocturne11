@@ -8,5 +8,7 @@ pub trait PostsRepository {
 
     fn get_year_months(&self) -> Result<Vec<YearMonth>>;
 
+    fn get_days(&self, ym: YearMonth) -> Result<Vec<u8>>;
+
     fn insert(&self, post: &Post) -> Result<Post>;
 }

@@ -66,6 +66,10 @@ impl PostsRepository for OldPostsRepositoryImpl {
         unimplemented!("This impl is Legacy");
     }
 
+    fn get_days(&self, _ym: YearMonth) -> Result<Vec<u8>> {
+        unimplemented!("This impl is Legacy");
+    }
+
     fn insert(&self, _post: &Post) -> Result<Post> {
         unimplemented!("This impl is Legacy");
     }
