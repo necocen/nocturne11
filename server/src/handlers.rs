@@ -30,7 +30,7 @@ pub(crate) fn routing(
                 web::resource(r"/api/days/{year:\d{4}}-{month:\d{2}}")
                     .route(web::get().to(api::days_in_year_month)),
             )
-            .service(web::resource(r"/api/months").route(web::get().to(api::months)))
+            .service(web::resource("/api/months").route(web::get().to(api::months)))
             .service(fs::Files::new("/static", static_path));
     })
 }
