@@ -39,7 +39,7 @@ function Year({ year, months, expand, expanded }: YearProps) {
     ].map((row) => row.map((m) => dayjs(`${year}-${m.toString().padStart(2, "0")}-01`)));
     return (
         <table className="year-month">
-            <caption onClick={() => expand(year)}>{year}</caption>
+            <caption><button onClick={() => expand(year)}>{year}</button></caption>
             <tbody className={expanded ? "expanded" : undefined}>
                 {monthRows.map((monthRow, index) => (
                     <tr key={index}>
