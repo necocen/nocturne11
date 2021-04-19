@@ -20,7 +20,7 @@ impl PostsRepositoryImpl {
         let customizer = TimezoneCustomizer {
             offset: *Local::now().offset(),
         };
-        let conn_pool: Pool<ConnectionManager<PgConnection>> = Pool::builder()
+        let conn_pool = Pool::builder()
             .connection_customizer(Box::new(customizer))
             .build(conn_manager)
             .expect("Failed to create pool");
