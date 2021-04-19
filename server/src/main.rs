@@ -2,7 +2,7 @@ use actix_cors::Cors;
 use actix_files as fs;
 use actix_web::{web, App};
 use anyhow::Result;
-use std::path::Path;
+use std::path::PathBuf;
 mod server;
 use server::Server;
 mod handlers;
@@ -27,9 +27,9 @@ async fn main() -> Result<()> {
 
 fn config_app(
     server: Server,
-    static_path: impl AsRef<Path>,
+    static_path: impl Into<PathBuf>,
 ) -> Box<dyn FnOnce(&mut web::ServiceConfig)> {
-    let static_path = static_path.as_ref().to_owned();
+    let static_path: PathBuf = static_path.into();
     Box::new(move |cfg: &mut web::ServiceConfig| {
         cfg.data(server.clone())
             .service(web::resource("/").route(web::get().to(handlers::posts::all_posts)))
