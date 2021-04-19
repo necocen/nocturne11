@@ -15,18 +15,18 @@ struct PostsTemplate<'a> {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct DateArguments {
+pub(super) struct DateArguments {
     year: u16,
     month: u8,
     day: Option<u8>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct IdArguments {
+pub(super) struct IdArguments {
     id: i32,
 }
 
-pub async fn all_posts(server: web::Data<Server>) -> Result<HttpResponse, Error> {
+pub(super) async fn all_posts(server: web::Data<Server>) -> Result<HttpResponse, Error> {
     PostsTemplate {
         posts: get_posts(&server.posts_repository)?,
         title: "タイトル",
@@ -34,7 +34,7 @@ pub async fn all_posts(server: web::Data<Server>) -> Result<HttpResponse, Error>
     .to_response()
 }
 
-pub async fn post_with_id(
+pub(super) async fn post_with_id(
     server: web::Data<Server>,
     args: web::Path<IdArguments>,
 ) -> Result<HttpResponse, Error> {
@@ -45,7 +45,7 @@ pub async fn post_with_id(
     }
     .to_response()
 }
-pub async fn posts_with_date(
+pub(super) async fn posts_with_date(
     server: web::Data<Server>,
     args: web::Path<DateArguments>,
 ) -> Result<HttpResponse, Error> {

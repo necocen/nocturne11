@@ -5,7 +5,7 @@
 
 use chrono::NaiveDateTime;
 #[derive(Queryable, Debug)]
-pub struct Article {
+pub(super) struct Article {
     pub id: i32,
     pub title: String,
     pub text: String,

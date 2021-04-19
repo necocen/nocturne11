@@ -1,13 +1,13 @@
+use crate::diesel_helpers::{date_part, TimezoneCustomizer};
 use crate::models::Post as PostModel;
 use anyhow::Result;
+use chrono::offset::Local;
 use chrono::TimeZone;
-use chrono::{offset::Local, FixedOffset};
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
-use diesel::sql_types::*;
 use domain::entities::{date::YearMonth, Post};
 use domain::repositories::posts::PostsRepository;
-use r2d2::{CustomizeConnection, Pool};
+use r2d2::Pool;
 
 #[derive(Clone)]
 pub struct PostsRepositoryImpl {
@@ -15,33 +15,15 @@ pub struct PostsRepositoryImpl {
 }
 
 impl PostsRepositoryImpl {
-    pub fn new(database_url: String) -> PostsRepositoryImpl {
-        let conn_manager = ConnectionManager::<PgConnection>::new(&database_url);
+    pub fn new(pq_url: url::Url) -> Result<PostsRepositoryImpl> {
+        let conn_manager = ConnectionManager::<PgConnection>::new(pq_url.as_str());
         let customizer = TimezoneCustomizer {
             offset: *Local::now().offset(),
         };
         let conn_pool = Pool::builder()
             .connection_customizer(Box::new(customizer))
-            .build(conn_manager)
-            .expect("Failed to create pool");
-        PostsRepositoryImpl { conn_pool }
-    }
-}
-
-/// 各コネクションのタイムゾーンを設定するためのCustomizer
-#[derive(Debug, Clone)]
-struct TimezoneCustomizer {
-    offset: FixedOffset,
-}
-
-impl<C: Connection> CustomizeConnection<C, diesel::r2d2::Error> for TimezoneCustomizer {
-    fn on_acquire(&self, conn: &mut C) -> std::result::Result<(), diesel::r2d2::Error> {
-        conn.execute(&format!(
-            "SET TIME ZONE INTERVAL '{}' HOUR TO MINUTE;",
-            &self.offset
-        ))
-        .map_err(diesel::r2d2::Error::QueryError)?;
-        Ok(())
+            .build(conn_manager)?;
+        Ok(PostsRepositoryImpl { conn_pool })
     }
 }
 
@@ -133,9 +115,4 @@ impl PostsRepository for PostsRepositoryImpl {
             updated_at: post.updated_at,
         })
     }
-}
-
-sql_function! {
-    #[sql_name = "DATE_PART"]
-    fn date_part(part: Text, ts: Timestamptz) -> Double;
 }

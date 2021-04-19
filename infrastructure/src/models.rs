@@ -8,7 +8,7 @@ use chrono::offset::Utc;
 use chrono::DateTime;
 
 #[derive(Queryable, Insertable, Debug)]
-pub struct Post {
+pub(crate) struct Post {
     pub id: i32,
     pub title: String,
     pub body: String,

@@ -3,6 +3,7 @@ extern crate diesel;
 #[macro_use]
 extern crate log;
 
+mod diesel_helpers;
 pub mod legacy;
 mod models;
 pub mod posts_repository_impl;

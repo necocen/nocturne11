@@ -2,7 +2,7 @@ use super::errors::Error;
 use actix_web::HttpResponse;
 use bytes::BytesMut;
 
-pub trait TemplateToResponse {
+pub(super) trait TemplateToResponse {
     fn to_response(&self) -> Result<HttpResponse, Error>;
 }
 

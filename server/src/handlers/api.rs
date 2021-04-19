@@ -6,7 +6,7 @@ use domain::use_cases::{get_days, get_years};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct YearMonthArguments {
+pub(super) struct YearMonthArguments {
     year: u16,
     month: u8,
 }
@@ -21,7 +21,7 @@ struct MonthsResponse {
     years: Vec<Year>,
 }
 
-pub async fn days_in_year_month(
+pub(super) async fn days_in_year_month(
     server: web::Data<Server>,
     args: web::Path<YearMonthArguments>,
 ) -> Result<HttpResponse, Error> {
@@ -30,7 +30,7 @@ pub async fn days_in_year_month(
     }))
 }
 
-pub async fn months(server: web::Data<Server>) -> Result<HttpResponse, Error> {
+pub(super) async fn months(server: web::Data<Server>) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().json(MonthsResponse {
         years: get_years(&server.posts_repository)?,
     }))
