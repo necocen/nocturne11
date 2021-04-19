@@ -1,7 +1,7 @@
 use crate::models::Post as PostModel;
 use anyhow::Result;
-use chrono::offset::Local;
 use chrono::TimeZone;
+use chrono::{offset::Local, FixedOffset};
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use diesel::sql_types::*;
@@ -18,7 +18,7 @@ impl PostsRepositoryImpl {
     pub fn new(database_url: String) -> PostsRepositoryImpl {
         let conn_manager = ConnectionManager::<PgConnection>::new(&database_url);
         let customizer = TimezoneCustomizer {
-            timezone: "Asia/Tokyo".to_string(),
+            offset: *Local::now().offset(),
         };
         let conn_pool: Pool<ConnectionManager<PgConnection>> = Pool::builder()
             .connection_customizer(Box::new(customizer))
@@ -28,15 +28,19 @@ impl PostsRepositoryImpl {
     }
 }
 
+/// 各コネクションのタイムゾーンを設定するためのCustomizer
 #[derive(Debug, Clone)]
 struct TimezoneCustomizer {
-    timezone: String,
+    offset: FixedOffset,
 }
 
-impl CustomizeConnection<PgConnection, diesel::r2d2::Error> for TimezoneCustomizer {
-    fn on_acquire(&self, conn: &mut PgConnection) -> std::result::Result<(), diesel::r2d2::Error> {
-        conn.execute(&format!("SET TIME ZONE '{}';", self.timezone))
-            .map_err(|e| diesel::r2d2::Error::QueryError(e))?;
+impl<C: Connection> CustomizeConnection<C, diesel::r2d2::Error> for TimezoneCustomizer {
+    fn on_acquire(&self, conn: &mut C) -> std::result::Result<(), diesel::r2d2::Error> {
+        conn.execute(&format!(
+            "SET TIME ZONE INTERVAL '{}' HOUR TO MINUTE;",
+            &self.offset
+        ))
+        .map_err(diesel::r2d2::Error::QueryError)?;
         Ok(())
     }
 }
