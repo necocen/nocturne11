@@ -170,6 +170,19 @@ body {
 
         caption {
             color: $menu-color;
+
+            button {
+                margin: 0;
+                padding: 0 .33em;
+                color: inherit;
+                font: inherit;
+                background: inherit;
+                border: none;
+                cursor: pointer;
+                &:hover {
+                    color: $link-color-hover;
+                }
+            }
         }
 
         th {
@@ -211,15 +224,8 @@ body {
 
         caption {
             display: inline;
-            margin: 0;
             font-weight: bold;
             font-size: 8pt;
-            padding: 0 .33em;
-            cursor: pointer;
-
-            &:hover {
-                color: $link-color-hover;
-            }
         }
 
         tbody {
@@ -235,14 +241,14 @@ body {
                 height: 0;
                 opacity: 0;
             }
-        }
 
-        tr {
-            display: flex;
-        }
+            tr {
+                display: flex;
 
-        td {
-            flex: 1;
+                td {
+                    flex: 1;
+                }
+            }
         }
     }
 }
