@@ -20,6 +20,13 @@ $menu-color-dim: #ddd;
     }
 }
 
+@mixin post-text-style {
+    font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    font-feature-settings: "palt" 1;
+    letter-spacing: 0.08em;
+    text-align: justify;
+}
+
 a, a:visited {
     text-decoration: none;
     color: inherit;
@@ -33,7 +40,6 @@ body {
     margin: 0 auto;
     height: 100%;
     max-width: $max-width;
-    font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo, sans-serif;
     font-size: small;
     background-color: $background-color;
     color: $text-color;
@@ -182,6 +188,9 @@ body {
                 &:hover {
                     color: $link-color-hover;
                 }
+                &:focus:not(:focus-visible) {
+                    outline: none;
+                }
             }
         }
 
@@ -224,7 +233,7 @@ body {
 
         caption {
             display: inline;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 8pt;
         }
 
@@ -255,6 +264,7 @@ body {
 
 article {
     position: relative;
+    margin-right: 1em;
 
     h3 {
         height: auto;
@@ -263,6 +273,7 @@ article {
         border-bottom: 1px solid $border-color1;
         font-size: 18px;
         font-weight: normal;
+        @include post-text-style;
     }
 
     hr {
@@ -277,9 +288,9 @@ article {
         margin: 2ex 0;
         font-size: 90%;
         line-height: 170%;
-        text-align: justify;
         text-indent: 1em;
         overflow: hidden;
+        @include post-text-style;
     }
 
     > aside {
