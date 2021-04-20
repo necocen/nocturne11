@@ -39,3 +39,13 @@ pub fn get_days(repository: &impl PostsRepository, ym: YearMonth) -> Result<Vec<
     days.sort();
     Ok(days)
 }
+
+pub fn transport(
+    old_repository: &impl PostsRepository,
+    new_repository: &impl PostsRepository,
+) -> Result<()> {
+    for post in old_repository.get_all()?.into_iter() {
+        new_repository.insert(&post)?;
+    }
+    Ok(())
+}

@@ -10,10 +10,9 @@ pub struct OldPostsRepositoryImpl {
 }
 
 impl OldPostsRepositoryImpl {
-    pub fn new(database_url: String) -> OldPostsRepositoryImpl {
-        let connection = MysqlConnection::establish(&database_url)
-            .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
-        OldPostsRepositoryImpl { connection }
+    pub fn new(database_url: url::Url) -> Result<OldPostsRepositoryImpl> {
+        let connection = MysqlConnection::establish(database_url.as_str())?;
+        Ok(OldPostsRepositoryImpl { connection })
     }
 }
 
