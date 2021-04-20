@@ -1,11 +1,15 @@
-<article>
+<article id="post-{{ post.id }}">
     <header>
-        <h3>{{ post.title }}</h3>
+        <h3><a href="/{{ post.id }}">{{ post.title }}</a></h3>
     </header>
     {{ post.body | post_body | safe }}
     <aside>
         <div class="timestamps">
             <time class="created-at" datetime="{{ post.created_at | iso8601 }}">{{ post.created_at | format_date }}</time>
+            {% if post.created_at != post.updated_at %}
+            <time class="updated-at" datetime="{{ post.updated_at | iso8601 }}">{{ post.updated_at | format_date }}</time>
+            {% endif %}
         </div>
+        <a class="permalink" href="{{ post.id | permalink }}">{{ post.id | permalink }}</a>
     </aside>
 </article>

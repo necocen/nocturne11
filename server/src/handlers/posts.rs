@@ -93,6 +93,10 @@ mod filters {
             .join("\n<hr />\n"))
     }
 
+    pub fn permalink(id: &i32) -> ::askama::Result<String> {
+        Ok(format!("https://ofni.necocen.info/{}", id))
+    }
+
     fn convert_line(line: &str) -> String {
         if line.is_empty() {
             return "".to_string();
