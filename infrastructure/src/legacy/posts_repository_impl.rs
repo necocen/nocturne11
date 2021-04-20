@@ -40,7 +40,7 @@ impl PostsRepository for OldPostsRepositoryImpl {
     fn get_all(&self) -> Result<Vec<Post>> {
         use crate::legacy::schema::articles::dsl::{articles, created_at};
         articles
-            .order_by(created_at)
+            .order_by(created_at.desc())
             .get_results::<OldArticle>(&self.connection)?
             .into_iter()
             .map(|article| {

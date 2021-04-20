@@ -45,7 +45,7 @@ impl PostsRepository for PostsRepositoryImpl {
     fn get_all(&self) -> Result<Vec<Post>> {
         use crate::schema::posts::dsl::{created_at, posts};
         posts
-            .order_by(created_at)
+            .order_by(created_at.desc())
             .get_results::<PostModel>(&self.conn_pool.get()?)?
             .into_iter()
             .map(|post| {

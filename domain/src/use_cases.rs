@@ -44,7 +44,9 @@ pub fn transport(
     old_repository: &impl PostsRepository,
     new_repository: &impl PostsRepository,
 ) -> Result<()> {
-    for post in old_repository.get_all()?.into_iter() {
+    let mut old_posts = old_repository.get_all()?;
+    old_posts.sort_by_key(|p| p.id);
+    for post in old_posts.into_iter() {
         new_repository.insert(&post)?;
     }
     Ok(())
