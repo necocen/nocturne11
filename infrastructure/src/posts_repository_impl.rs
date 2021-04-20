@@ -36,7 +36,7 @@ impl PostsRepository for PostsRepositoryImpl {
         Ok(Post {
             id: post.id,
             title: post.title,
-            body: post.body,
+            body: post.body.replace("\r\n", "\n").replace("\r", "\n"),
             created_at: post.created_at,
             updated_at: post.updated_at,
         })
@@ -52,7 +52,7 @@ impl PostsRepository for PostsRepositoryImpl {
                 Ok(Post {
                     id: post.id,
                     title: post.title,
-                    body: post.body,
+                    body: post.body.replace("\r\n", "\n").replace("\r", "\n"),
                     created_at: post.created_at,
                     updated_at: post.updated_at,
                 })

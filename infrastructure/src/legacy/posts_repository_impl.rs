@@ -26,7 +26,7 @@ impl PostsRepository for OldPostsRepositoryImpl {
         Ok(Post {
             id: article.id,
             title: article.title,
-            body: article.text,
+            body: article.text.replace("\r\n", "\n").replace("\r", "\n"),
             created_at: Utc
                 .from_local_datetime(&article.created_at)
                 .single()
@@ -48,7 +48,7 @@ impl PostsRepository for OldPostsRepositoryImpl {
                 Ok(Post {
                     id: article.id,
                     title: article.title,
-                    body: article.text,
+                    body: article.text.replace("\r\n", "\n").replace("\r", "\n"),
                     created_at: Utc
                         .from_local_datetime(&article.created_at)
                         .single()
