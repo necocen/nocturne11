@@ -6,6 +6,7 @@ use std::path::PathBuf;
 use templates::TemplateToResponse;
 mod api;
 mod errors;
+mod filters;
 mod posts;
 mod templates;
 
