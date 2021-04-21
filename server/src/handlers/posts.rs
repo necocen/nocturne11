@@ -153,19 +153,13 @@ mod templates {
         #[test]
         fn has_linebreaks_in_a_paragraph() {
             let body = "Line1\nLine2\nLine3";
-            assert_eq!(
-                convert_body(body),
-                "<p>Line1<br />Line2<br />Line3</p>"
-            );
+            assert_eq!(convert_body(body), "<p>Line1<br />Line2<br />Line3</p>");
         }
 
         #[test]
         fn has_two_paragraphs() {
             let body = "Paragraph 1\n\nParagraph 2";
-            assert_eq!(
-                convert_body(body),
-                "<p>Paragraph 1</p>\n<p>Paragraph 2</p>"
-            );
+            assert_eq!(convert_body(body), "<p>Paragraph 1</p>\n<p>Paragraph 2</p>");
         }
 
         #[test]

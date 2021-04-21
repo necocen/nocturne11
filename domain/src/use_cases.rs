@@ -20,15 +20,13 @@ pub fn get_years(repository: &impl PostsRepository) -> Result<Vec<Year>> {
                     year,
                     months: vec![month],
                 });
+            } else if years.last().unwrap().year == year {
+                years.last_mut().unwrap().months.push(month);
             } else {
-                if years.last().unwrap().year == year {
-                    years.last_mut().unwrap().months.push(month);
-                } else {
-                    years.push(Year {
-                        year,
-                        months: vec![month],
-                    });
-                }
+                years.push(Year {
+                    year,
+                    months: vec![month],
+                });
             }
             years
         }))
@@ -36,7 +34,7 @@ pub fn get_years(repository: &impl PostsRepository) -> Result<Vec<Year>> {
 
 pub fn get_days(repository: &impl PostsRepository, ym: YearMonth) -> Result<Vec<u8>> {
     let mut days = repository.get_days(ym)?;
-    days.sort();
+    days.sort_unstable();
     Ok(days)
 }
 

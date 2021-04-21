@@ -1,3 +1,4 @@
+#![allow(clippy::unnecessary_wraps)]
 use chrono::{DateTime, Local, Utc};
 
 pub(super) fn format_date(date: &DateTime<Utc>) -> ::askama::Result<String> {
