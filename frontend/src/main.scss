@@ -21,10 +21,11 @@ $menu-color-dim: #ddd;
 }
 
 @mixin post-text-style {
-    font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Yu Gothic Medium", Meiryo, sans-serif;
     font-feature-settings: "palt" 1;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
     text-align: justify;
+    font-weight: 300;
 }
 
 a, a:visited {
