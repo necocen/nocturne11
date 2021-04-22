@@ -4,7 +4,7 @@ $sidebar-width: 144px;
 $header-height: 100px;
 $footer-height: 24px;
 $global-nav-height: 20px;
-$gradient-height: 4ex;
+$gradient-height: 2ex;
 $background-color: #faf8f4;
 $border-color1: #ddd;
 $border-color2: #eee;
@@ -83,7 +83,7 @@ body {
     > main {
         grid-column: 1;
         grid-row: 2;
-        margin: ($gradient-height / 2) 0;
+        margin: $gradient-height 0;
     }
 
     > footer {
@@ -172,7 +172,7 @@ body {
     #side-nav-content {
        position: fixed;
        width: $sidebar-width;
-       margin-top: $gradient-height / 2;
+       margin-top: $gradient-height;
     }
 
     @mixin side-nav-table {
@@ -276,6 +276,7 @@ article {
         position: relative;
         height: auto;
         z-index: 1;
+        margin: 0;
         line-height: 19px;
         vertical-align: middle;
         border-bottom: 1px solid $border-color1;
