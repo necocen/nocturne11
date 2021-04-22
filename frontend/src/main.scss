@@ -153,9 +153,13 @@ body {
         list-style: none;
         justify-content: flex-end;
 
-        li:not(:last-child)::after {
+        li:not(:first-child)::before {
             content: "/";
             margin: 0 0.33em;
+        }
+
+        li + li:empty::before, li:empty + li::before {
+            content: none;
         }
     }
 
