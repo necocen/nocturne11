@@ -1,6 +1,6 @@
 use crate::legacy::models::Article as OldArticle;
 use anyhow::{Context, Result};
-use chrono::{TimeZone, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use diesel::prelude::*;
 use domain::entities::{date::YearMonth, Post};
 use domain::repositories::posts::PostsRepository;
@@ -59,6 +59,14 @@ impl PostsRepository for OldPostsRepositoryImpl {
                 })
             })
             .collect()
+    }
+
+    fn get_from_date<Tz: TimeZone>(&self, _from: DateTime<Tz>, _limit: usize) -> Result<Vec<Post>> {
+        unimplemented!("This impl is Legacy");
+    }
+
+    fn get_until_date<Tz: TimeZone>(&self, _until: DateTime<Tz>, _limit: usize) -> Result<Vec<Post>> {
+        unimplemented!("This impl is Legacy");
     }
 
     fn get_year_months(&self) -> Result<Vec<YearMonth>> {

@@ -9,6 +9,25 @@ pub fn get_posts(repository: &impl PostsRepository) -> Result<Vec<Post>> {
     Ok(repository.get_all()?[..10].to_vec())
 }
 
+pub fn get_post_with_id(repository: &impl PostsRepository, id: i32) -> Result<(Post, bool)> {
+    let post = repository.get(id)?;
+    let posts = repository.get_from_date(post.created_at, 2)?;
+    if posts.len() > 1 {
+        Ok((post, true))
+    } else {
+        Ok((post, false))
+    }
+}
+
+pub fn get_posts_with_day(
+    repository: &impl PostsRepository,
+    ym: YearMonth,
+    day: u8,
+    limit: usize,
+) -> Result<Vec<Post>> {
+    Ok(repository.get_all()?[..10].to_vec())
+}
+
 pub fn get_years(repository: &impl PostsRepository) -> Result<Vec<Year>> {
     let mut year_months = repository.get_year_months()?;
     year_months.sort();

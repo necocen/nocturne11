@@ -2,7 +2,7 @@ use super::Error;
 use super::TemplateToResponse;
 use crate::server::Server;
 use actix_web::{web, HttpResponse};
-use domain::use_cases::get_posts;
+use domain::use_cases::{get_post_with_id, get_posts};
 use serde::Deserialize;
 use templates::PostsTemplate;
 
@@ -30,9 +30,10 @@ pub(super) async fn post_with_id(
     server: web::Data<Server>,
     args: web::Path<IdArguments>,
 ) -> Result<HttpResponse, Error> {
-    dbg!(args);
+    let (post, has_next) = get_post_with_id(&server.posts_repository, args.id)?;
+    dbg!(has_next);
     PostsTemplate {
-        posts: get_posts(&server.posts_repository)?,
+        posts: vec![post],
         title: "タイトル",
     }
     .to_response()

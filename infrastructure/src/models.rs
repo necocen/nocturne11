@@ -6,12 +6,25 @@
 use super::schema::posts;
 use chrono::offset::Utc;
 use chrono::DateTime;
+use domain::entities::Post as PostEntity;
 
-#[derive(Queryable, Insertable, Debug)]
+#[derive(Queryable, Insertable, Debug, Clone)]
 pub(crate) struct Post {
     pub id: i32,
     pub title: String,
     pub body: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+impl From<Post> for PostEntity {
+    fn from(post: Post) -> PostEntity {
+        PostEntity {
+            id: post.id,
+            title: post.title,
+            body: post.body.replace("\r\n", "\n").replace("\r", "\n"),
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+        }
+    }
 }

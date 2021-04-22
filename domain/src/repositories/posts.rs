@@ -1,8 +1,14 @@
 use crate::entities::{date::YearMonth, Post};
 use anyhow::Result;
+use chrono::{DateTime, TimeZone};
 
 pub trait PostsRepository {
     fn get(&self, id: i32) -> Result<Post>;
+
+    /// `from`以降（`from`を**含む**）のPostを`created_at`昇順で最大`limit`件返します
+    fn get_from_date<Tz: TimeZone>(&self, from: DateTime<Tz>, limit: usize) -> Result<Vec<Post>>;
+    /// `until`以前（`until`を**含まない**）のPostを`created_at`降順で最大`limit`件返します
+    fn get_until_date<Tz: TimeZone>(&self, until: DateTime<Tz>, limit: usize) -> Result<Vec<Post>>;
 
     fn get_all(&self) -> Result<Vec<Post>>;
 
