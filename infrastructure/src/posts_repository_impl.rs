@@ -28,11 +28,11 @@ impl PostsRepositoryImpl {
 }
 
 trait IntoVec<U> {
-    fn into(self) -> Vec<U>;
+    fn into_vec(self) -> Vec<U>;
 }
 
 impl<T, U: From<T>> IntoVec<U> for Vec<T> {
-    fn into(self) -> Vec<U> {
+    fn into_vec(self) -> Vec<U> {
         self.into_iter().map(|e| e.into()).collect()
     }
 }
@@ -53,7 +53,7 @@ impl PostsRepository for PostsRepositoryImpl {
             .filter(created_at.ge(from))
             .limit(limit as i64)
             .get_results::<PostModel>(&self.conn_pool.get()?)?;
-        Ok(IntoVec::into(results))
+        Ok(results.into_vec())
     }
 
     fn get_until_date<Tz: TimeZone>(&self, until: DateTime<Tz>, limit: usize) -> Result<Vec<Post>> {
@@ -63,7 +63,7 @@ impl PostsRepository for PostsRepositoryImpl {
             .filter(created_at.lt(until))
             .limit(limit as i64)
             .get_results::<PostModel>(&self.conn_pool.get()?)?;
-        Ok(IntoVec::into(results))
+        Ok(results.into_vec())
     }
 
     fn get_all(&self) -> Result<Vec<Post>> {
@@ -71,7 +71,7 @@ impl PostsRepository for PostsRepositoryImpl {
         let results = posts
             .order_by(created_at.desc())
             .get_results::<PostModel>(&self.conn_pool.get()?)?;
-        Ok(IntoVec::into(results))
+        Ok(results.into_vec())
     }
 
     fn get_year_months(&self) -> Result<Vec<YearMonth>> {
