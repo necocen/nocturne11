@@ -54,7 +54,7 @@ pub fn get_posts_with_day(
             posts: posts.into_iter().take(per_page).collect(),
             per_page,
             page,
-            prev_page: if page == 0 { None } else { Some(page - 1) },
+            prev_page: if page <= 1 { None } else { Some(page - 1) },
             next_page: Some(page + 1),
         })
     } else {
@@ -62,7 +62,7 @@ pub fn get_posts_with_day(
             posts: posts.into_iter().take(per_page).collect(),
             per_page,
             page,
-            prev_page: if page == 0 { None } else { Some(page - 1) },
+            prev_page: if page <= 1 { None } else { Some(page - 1) },
             next_page: None,
         })
     }
