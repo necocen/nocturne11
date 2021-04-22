@@ -46,21 +46,33 @@ impl PostsRepository for PostsRepositoryImpl {
         Ok(post.into())
     }
 
-    fn get_from_date<Tz: TimeZone>(&self, from: DateTime<Tz>, limit: usize) -> Result<Vec<Post>> {
+    fn get_from_date<Tz: TimeZone>(
+        &self,
+        from: DateTime<Tz>,
+        offset: usize,
+        limit: usize,
+    ) -> Result<Vec<Post>> {
         use crate::schema::posts::dsl::{created_at, posts};
         let results = posts
             .order_by(created_at.asc())
             .filter(created_at.ge(from))
+            .offset(offset as i64)
             .limit(limit as i64)
             .get_results::<PostModel>(&self.conn_pool.get()?)?;
         Ok(results.into_vec())
     }
 
-    fn get_until_date<Tz: TimeZone>(&self, until: DateTime<Tz>, limit: usize) -> Result<Vec<Post>> {
+    fn get_until_date<Tz: TimeZone>(
+        &self,
+        until: DateTime<Tz>,
+        offset: usize,
+        limit: usize,
+    ) -> Result<Vec<Post>> {
         use crate::schema::posts::dsl::{created_at, posts};
         let results = posts
             .order_by(created_at.asc())
             .filter(created_at.lt(until))
+            .offset(offset as i64)
             .limit(limit as i64)
             .get_results::<PostModel>(&self.conn_pool.get()?)?;
         Ok(results.into_vec())

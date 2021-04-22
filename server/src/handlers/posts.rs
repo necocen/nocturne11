@@ -43,14 +43,16 @@ pub(super) async fn posts_with_date(
     server: web::Data<Server>,
     args: web::Path<DateArguments>,
 ) -> Result<HttpResponse, Error> {
-    let posts = get_posts_with_day(
+    let page = get_posts_with_day(
         &server.posts_repository,
         YearMonth(args.year, args.month),
         args.day,
         10,
+        1,
     )?;
+
     PostsTemplate {
-        posts,
+        posts: page.posts,
         title: "タイトル",
     }
     .to_response()
