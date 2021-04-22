@@ -19,6 +19,11 @@ pub(super) struct IdArguments {
     id: i32,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+pub(super) struct PageQuery {
+    page: Option<usize>,
+}
+
 pub(super) async fn all_posts(server: web::Data<Server>) -> Result<HttpResponse, Error> {
     PostsTemplate {
         posts: get_posts(&server.posts_repository)?,
@@ -42,13 +47,14 @@ pub(super) async fn post_with_id(
 pub(super) async fn posts_with_date(
     server: web::Data<Server>,
     args: web::Path<DateArguments>,
+    query: web::Query<PageQuery>,
 ) -> Result<HttpResponse, Error> {
     let page = get_posts_with_day(
         &server.posts_repository,
         YearMonth(args.year, args.month),
         args.day,
         10,
-        1,
+        query.page.unwrap_or(1),
     )?;
 
     PostsTemplate {
