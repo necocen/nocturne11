@@ -71,7 +71,7 @@ pub fn get_posts_with_day(
 pub fn get_years(repository: &impl PostsRepository) -> Result<Vec<Year>> {
     let mut year_months = repository.get_year_months()?;
     year_months.sort();
-    Ok(year_months
+    let years = year_months
         .into_iter()
         .fold(vec![], |mut years, YearMonth(year, month)| {
             if years.is_empty() {
@@ -88,7 +88,8 @@ pub fn get_years(repository: &impl PostsRepository) -> Result<Vec<Year>> {
                 });
             }
             years
-        }))
+        });
+    Ok(years)
 }
 
 pub fn get_days(repository: &impl PostsRepository, ym: YearMonth) -> Result<Vec<u8>> {
