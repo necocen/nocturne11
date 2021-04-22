@@ -40,59 +40,53 @@ impl<T, U: From<T>> IntoVec<U> for Vec<T> {
 impl PostsRepository for PostsRepositoryImpl {
     fn get(&self, id: i32) -> Result<Post> {
         use crate::schema::posts::dsl::posts;
-        posts
+        let post = posts
             .find(id)
-            .get_result::<PostModel>(&self.conn_pool.get()?)
-            .map(Into::into)
-            .map_err(Into::into)
+            .get_result::<PostModel>(&self.conn_pool.get()?)?;
+        Ok(post.into())
     }
 
     fn get_from_date<Tz: TimeZone>(&self, from: DateTime<Tz>, limit: usize) -> Result<Vec<Post>> {
         use crate::schema::posts::dsl::{created_at, posts};
-        posts
+        let results = posts
             .order_by(created_at.desc())
             .filter(created_at.ge(from))
             .limit(limit as i64)
-            .get_results::<PostModel>(&self.conn_pool.get()?)
-            .map(IntoVec::into)
-            .map_err(Into::into)
+            .get_results::<PostModel>(&self.conn_pool.get()?)?;
+        Ok(IntoVec::into(results))
     }
 
     fn get_until_date<Tz: TimeZone>(&self, until: DateTime<Tz>, limit: usize) -> Result<Vec<Post>> {
         use crate::schema::posts::dsl::{created_at, posts};
-        posts
+        let results = posts
             .order_by(created_at.asc())
             .filter(created_at.lt(until))
             .limit(limit as i64)
-            .get_results::<PostModel>(&self.conn_pool.get()?)
-            .map(IntoVec::into)
-            .map_err(Into::into)
+            .get_results::<PostModel>(&self.conn_pool.get()?)?;
+        Ok(IntoVec::into(results))
     }
 
     fn get_all(&self) -> Result<Vec<Post>> {
         use crate::schema::posts::dsl::{created_at, posts};
-        posts
+        let results = posts
             .order_by(created_at.desc())
-            .get_results::<PostModel>(&self.conn_pool.get()?)
-            .map(IntoVec::into)
-            .map_err(Into::into)
+            .get_results::<PostModel>(&self.conn_pool.get()?)?;
+        Ok(IntoVec::into(results))
     }
 
     fn get_year_months(&self) -> Result<Vec<YearMonth>> {
         use crate::schema::posts::dsl::{created_at, posts};
-        posts
+        let results = posts
             .select((
                 date_part("YEAR", created_at),
                 date_part("MONTH", created_at),
             ))
             .distinct()
-            .get_results::<(f64, f64)>(&self.conn_pool.get()?)
-            .map(|v| {
-                v.into_iter()
-                    .map(|(y, m)| YearMonth(y as u16, m as u8))
-                    .collect()
-            })
-            .map_err(Into::into)
+            .get_results::<(f64, f64)>(&self.conn_pool.get()?)?;
+        Ok(results
+            .into_iter()
+            .map(|(y, m)| YearMonth(y as u16, m as u8))
+            .collect())
     }
 
     fn get_days(&self, YearMonth(year, month): YearMonth) -> Result<Vec<u8>> {
@@ -106,19 +100,19 @@ impl PostsRepository for PostsRepositoryImpl {
         let created_before = Local
             .ymd(next_year.into(), next_month.into(), 1)
             .and_hms(0, 0, 0);
-        posts
+
+        let results = posts
             .filter(created_at.ge(created_after))
             .filter(created_at.lt(created_before))
             .select(date_part("DAY", created_at))
             .distinct()
-            .get_results::<f64>(&self.conn_pool.get()?)
-            .map(|v| v.into_iter().map(|d| d as u8).collect())
-            .map_err(Into::into)
+            .get_results::<f64>(&self.conn_pool.get()?)?;
+        Ok(results.into_iter().map(|d| d as u8).collect())
     }
 
     fn insert(&self, post: &Post) -> Result<Post> {
         use crate::schema::posts;
-        diesel::insert_into(posts::table)
+        let post = diesel::insert_into(posts::table)
             .values(&PostModel {
                 id: post.id,
                 title: post.title.clone(),
@@ -126,8 +120,7 @@ impl PostsRepository for PostsRepositoryImpl {
                 created_at: post.created_at,
                 updated_at: post.updated_at,
             })
-            .get_result::<PostModel>(&self.conn_pool.get()?)
-            .map(Into::into)
-            .map_err(Into::into)
+            .get_result::<PostModel>(&self.conn_pool.get()?)?;
+        Ok(post.into())
     }
 }

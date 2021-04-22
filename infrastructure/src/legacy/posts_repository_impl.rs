@@ -65,7 +65,11 @@ impl PostsRepository for OldPostsRepositoryImpl {
         unimplemented!("This impl is Legacy");
     }
 
-    fn get_until_date<Tz: TimeZone>(&self, _until: DateTime<Tz>, _limit: usize) -> Result<Vec<Post>> {
+    fn get_until_date<Tz: TimeZone>(
+        &self,
+        _until: DateTime<Tz>,
+        _limit: usize,
+    ) -> Result<Vec<Post>> {
         unimplemented!("This impl is Legacy");
     }
 
