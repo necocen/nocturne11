@@ -2,7 +2,9 @@
 $max-width: 832px;
 $sidebar-width: 144px;
 $header-height: 100px;
+$footer-height: 24px;
 $global-nav-height: 20px;
+$gradient-height: 4ex;
 $background-color: #faf8f4;
 $border-color1: #ddd;
 $border-color2: #eee;
@@ -36,25 +38,24 @@ a, a:visited {
 
 body {
     display: grid;
-    grid-template-columns: calc(100% - #{$sidebar-width}) 1fr;
+    grid-template-columns: calc(100% - #{$sidebar-width}) auto;
+    grid-template-rows: $header-height auto $footer-height;
     position: relative;
     margin: 0 auto;
-    height: 100%;
+    min-height: 100vh;
     max-width: $max-width;
     font-size: small;
     background-color: $background-color;
     color: $text-color;
     line-height: 100%;
 
-    $gradient-height: 32px;
-
     > header {
-        grid-column: 1 / -1;
+        grid-column: 1;
+        grid-row: 1;
         position: sticky;
         top: 0;
         z-index: 10;
         height: $header-height;
-        margin-bottom: $gradient-height;
         background-color: $background-color;
 
         &::after {
@@ -70,7 +71,7 @@ body {
 
         h1 {
             box-sizing: border-box;
-            height: #{$header-height - $global-nav-height};
+            height: $header-height - $global-nav-height;
             margin: 0;
             padding: 22px 0 32px;
             line-height: 26px;
@@ -81,14 +82,16 @@ body {
 
     > main {
         grid-column: 1;
+        grid-row: 2;
+        margin: ($gradient-height / 2) 0;
     }
 
     > footer {
         grid-column: 1 / -1;
+        grid-row: 3;
         position: sticky;
         bottom: 0;
         z-index: 10;
-        margin-top: $gradient-height;
         background-color: $background-color;
 
         &::before {
@@ -133,7 +136,7 @@ body {
 
 #pager-nav {
     position: fixed;
-    top: #{$header-height - $global-nav-height};
+    top: $header-height - $global-nav-height;
     z-index: 20;
     margin: 0;
     width: 100%;
@@ -164,10 +167,12 @@ body {
 
 #side-nav {
     grid-column: -2;
+    grid-row: 2 / -1;
 
     #side-nav-content {
        position: fixed;
        width: $sidebar-width;
+       margin-top: $gradient-height / 2;
     }
 
     @mixin side-nav-table {
@@ -268,7 +273,9 @@ article {
     margin-right: 1em;
 
     h3 {
+        position: relative;
         height: auto;
+        z-index: 1;
         line-height: 19px;
         vertical-align: middle;
         border-bottom: 1px solid $border-color1;
@@ -296,6 +303,7 @@ article {
 
     > aside {
         position: absolute;
+        z-index: 0;
         bottom: calc(100% - 4.6ex);
         text-align: right;
         width: 100%;
