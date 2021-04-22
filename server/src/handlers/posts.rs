@@ -5,7 +5,7 @@ use actix_web::{web, HttpResponse};
 use domain::entities::date::YearMonth;
 use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_day};
 use serde::Deserialize;
-use templates::PostsTemplate;
+use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate};
 
 #[derive(Debug, Clone, Deserialize)]
 pub(super) struct DateArguments {
@@ -25,7 +25,7 @@ pub(super) struct PageQuery {
 }
 
 pub(super) async fn all_posts(server: web::Data<Server>) -> Result<HttpResponse, Error> {
-    PostsTemplate {
+    AllPostsTemplate {
         posts: get_posts(&server.posts_repository)?,
         title: "タイトル",
     }
@@ -38,8 +38,8 @@ pub(super) async fn post_with_id(
 ) -> Result<HttpResponse, Error> {
     let (post, has_next) = get_post_with_id(&server.posts_repository, args.id)?;
     dbg!(has_next);
-    PostsTemplate {
-        posts: vec![post],
+    PostTemplate {
+        post,
         title: "タイトル",
     }
     .to_response()
@@ -57,7 +57,7 @@ pub(super) async fn posts_with_date(
         query.page.unwrap_or(1),
     )?;
 
-    PostsTemplate {
+    PostsWithDateTemplate {
         posts: page.posts,
         title: "タイトル",
     }
@@ -72,10 +72,24 @@ mod templates {
     use regex::Regex;
 
     #[derive(Template)]
-    #[template(path = "posts.html")]
-    pub(super) struct PostsTemplate<'a> {
+    #[template(path = "all_posts.html")]
+    pub(super) struct AllPostsTemplate<'a> {
         pub(super) title: &'a str,
         pub(super) posts: Vec<Post>,
+    }
+
+    #[derive(Template)]
+    #[template(path = "posts_with_date.html")]
+    pub(super) struct PostsWithDateTemplate<'a> {
+        pub(super) title: &'a str,
+        pub(super) posts: Vec<Post>,
+    }
+
+    #[derive(Template)]
+    #[template(path = "post.html")]
+    pub(super) struct PostTemplate<'a> {
+        pub(super) title: &'a str,
+        pub(super) post: Post,
     }
 
     trait PostExt {

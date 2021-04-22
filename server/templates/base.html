@@ -4,7 +4,6 @@
         <title>{{ title }} - andante</title>
         <link rel="stylesheet" href="/static/main.css">
         <meta charset="UTF-8" />
-        {% block head %}{% endblock %}
     </head>
     <body>
         <header>
@@ -23,8 +22,8 @@
         </main>
         <nav id="pager-nav">
             <ul>
-                <li>newer</li>
-                <li><a href="/?page=2" title="older page" rel="next">older</a></li>
+                <li>{% block next_page %}next{% endblock %}</li>
+                <li>{% block prev_page %}prev{% endblock %}</li>
             </ul>
         </nav>
         <nav id="side-nav"></nav>

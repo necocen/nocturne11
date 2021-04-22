@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 
-{% block head %}
-    <style>
-    </style>
-{% endblock %}
-
 {% block content %}
     {% for post in posts %}
         {% include "_post.html" %}
     {% endfor %}
+{% endblock %}
+
+{% block prev_page %}
+{% endblock %}
+
+{% block next_page %}
 {% endblock %}
