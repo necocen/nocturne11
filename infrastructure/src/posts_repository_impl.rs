@@ -49,7 +49,7 @@ impl PostsRepository for PostsRepositoryImpl {
     fn get_from_date<Tz: TimeZone>(&self, from: DateTime<Tz>, limit: usize) -> Result<Vec<Post>> {
         use crate::schema::posts::dsl::{created_at, posts};
         let results = posts
-            .order_by(created_at.desc())
+            .order_by(created_at.asc())
             .filter(created_at.ge(from))
             .limit(limit as i64)
             .get_results::<PostModel>(&self.conn_pool.get()?)?;

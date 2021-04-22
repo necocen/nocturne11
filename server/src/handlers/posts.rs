@@ -2,7 +2,8 @@ use super::Error;
 use super::TemplateToResponse;
 use crate::server::Server;
 use actix_web::{web, HttpResponse};
-use domain::use_cases::{get_post_with_id, get_posts};
+use domain::entities::date::YearMonth;
+use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_day};
 use serde::Deserialize;
 use templates::PostsTemplate;
 
@@ -42,9 +43,14 @@ pub(super) async fn posts_with_date(
     server: web::Data<Server>,
     args: web::Path<DateArguments>,
 ) -> Result<HttpResponse, Error> {
-    dbg!(args);
+    let posts = get_posts_with_day(
+        &server.posts_repository,
+        YearMonth(args.year, args.month),
+        args.day,
+        10,
+    )?;
     PostsTemplate {
-        posts: get_posts(&server.posts_repository)?,
+        posts,
         title: "タイトル",
     }
     .to_response()

@@ -4,6 +4,7 @@ use crate::entities::{
 };
 use crate::repositories::posts::PostsRepository;
 use anyhow::Result;
+use chrono::{Local, TimeZone};
 
 pub fn get_posts(repository: &impl PostsRepository) -> Result<Vec<Post>> {
     Ok(repository.get_all()?[..10].to_vec())
@@ -22,10 +23,13 @@ pub fn get_post_with_id(repository: &impl PostsRepository, id: i32) -> Result<(P
 pub fn get_posts_with_day(
     repository: &impl PostsRepository,
     ym: YearMonth,
-    day: u8,
+    day: Option<u8>,
     limit: usize,
 ) -> Result<Vec<Post>> {
-    Ok(repository.get_all()?[..10].to_vec())
+    let from_date = Local
+        .ymd(ym.0 as i32, ym.1 as u32, day.unwrap_or(1) as u32)
+        .and_hms(0, 0, 0);
+    repository.get_from_date(from_date, limit)
 }
 
 pub fn get_years(repository: &impl PostsRepository) -> Result<Vec<Year>> {
