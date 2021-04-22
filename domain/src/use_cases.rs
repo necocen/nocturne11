@@ -46,12 +46,12 @@ pub fn get_posts_with_day(
         .get_from_date(from_date, per_page * (page - 1), per_page + 1)?
         .into_iter()
         .filter(|post| post.created_at.with_timezone(&Local) < to_date)
-        .take(per_page)
         .collect::<Vec<_>>();
+
     if posts.len() > per_page {
         // 残りがある場合は次のページがある
         Ok(Page {
-            posts,
+            posts: posts.into_iter().take(per_page).collect(),
             per_page,
             page,
             prev_page: if page == 0 { None } else { Some(page - 1) },
@@ -59,7 +59,7 @@ pub fn get_posts_with_day(
         })
     } else {
         Ok(Page {
-            posts,
+            posts: posts.into_iter().take(per_page).collect(),
             per_page,
             page,
             prev_page: if page == 0 { None } else { Some(page - 1) },
