@@ -70,7 +70,7 @@ impl PostsRepository for PostsRepositoryImpl {
     ) -> Result<Vec<Post>> {
         use crate::schema::posts::dsl::{created_at, posts};
         let results = posts
-            .order_by(created_at.asc())
+            .order_by(created_at.desc())
             .filter(created_at.lt(until))
             .offset(offset as i64)
             .limit(limit as i64)
