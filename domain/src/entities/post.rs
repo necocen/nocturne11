@@ -10,10 +10,21 @@ pub struct Post {
 }
 
 #[derive(Debug, Clone)]
-pub struct Page {
+pub struct Page<'a, C> {
+    pub condition: &'a C,
     pub posts: Vec<Post>,
     pub per_page: usize,
     pub page: usize,
     pub prev_page: Option<usize>,
-    pub next_page: Option<usize>,
+    pub next_page: NextPage<C>,
+}
+
+#[derive(Debug, Clone)]
+pub enum NextPage<C> {
+    /// 次のページに該当するものはない
+    None,
+    /// 次のページ番号がある
+    Page(usize),
+    /// 次の条件がある
+    Condition(C),
 }

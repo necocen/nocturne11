@@ -8,16 +8,18 @@
 
 {%- block prev_page -%}
     {%- match page.prev_page -%}
-        {%- when Some with (page) -%}
-            <a href="/{{ date }}?page={{ page }}">prev</a>
+        {%- when Some with (number) -%}
+            <a href="/{{ page.condition.to_string() }}?page={{ number }}">prev</a>
         {%- when None -%}
     {%- endmatch -%}
 {%- endblock -%}
 
 {%- block next_page -%}
     {%- match page.next_page -%}
-        {%- when Some with (page) -%}
-            <a href="/{{ date }}?page={{ page }}">next</a>
-        {%- when None -%}
+        {%- when NextPage::Condition with (next_condition) -%}
+            <a href="/{{ next_condition.to_string() }}">next</a>
+        {%- when NextPage::Page with (number) -%}
+            <a href="/{{ page.condition.to_string() }}?page={{ number }}">next</a>
+        {%- when NextPage::None -%}
     {%- endmatch -%}
 {%- endblock -%}

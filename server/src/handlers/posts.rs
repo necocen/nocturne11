@@ -2,8 +2,7 @@ use super::Error;
 use super::TemplateToResponse;
 use crate::server::Server;
 use actix_web::{web, HttpResponse};
-use chrono::NaiveDate;
-use domain::entities::date::YearMonth;
+use domain::entities::date::{DateCondition, YearMonth};
 use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_day};
 use serde::Deserialize;
 use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate};
@@ -13,6 +12,15 @@ pub(super) struct DateArguments {
     year: u16,
     month: u8,
     day: Option<u8>,
+}
+
+impl From<DateArguments> for DateCondition {
+    fn from(args: DateArguments) -> DateCondition {
+        DateCondition {
+            ym: YearMonth(args.year, args.month),
+            day: args.day,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -50,29 +58,17 @@ pub(super) async fn posts_with_date(
     args: web::Path<DateArguments>,
     query: web::Query<PageQuery>,
 ) -> Result<HttpResponse, Error> {
+    let condition = args.to_owned().into();
     let page = get_posts_with_day(
         &server.posts_repository,
-        YearMonth(args.year, args.month),
-        args.day,
+        &condition,
         10,
         query.page.unwrap_or(1),
     )?;
 
-    let date = NaiveDate::from_ymd(
-        args.year as i32,
-        args.month as u32,
-        args.day.unwrap_or(1) as u32,
-    );
     PostsWithDateTemplate {
         title: "タイトル",
         page,
-        date: date
-            .format(if args.day.is_some() {
-                "%Y-%m-%d"
-            } else {
-                "%Y-%m"
-            })
-            .to_string(),
     }
     .to_response()
 }
@@ -81,7 +77,8 @@ mod templates {
     pub(super) use super::super::filters;
     use askama::Template;
     use askama_escape::{escape, Html};
-    use domain::entities::{Page, Post};
+    use chrono::NaiveDate;
+    use domain::entities::{date::DateCondition, NextPage, Page, Post};
     use regex::Regex;
 
     #[derive(Template)]
@@ -95,8 +92,7 @@ mod templates {
     #[template(path = "posts_with_date.html")]
     pub(super) struct PostsWithDateTemplate<'a> {
         pub(super) title: &'a str,
-        pub(super) page: Page,
-        pub(super) date: String,
+        pub(super) page: Page<'a, DateCondition>,
     }
 
     #[derive(Template)]
@@ -122,6 +118,26 @@ mod templates {
         fn permalink(&self) -> url::Url {
             let base_url = url::Url::parse("https://ofni.necocen.info/").unwrap();
             base_url.join(&self.id.to_string()).unwrap()
+        }
+    }
+
+    trait DateConditionToString {
+        fn to_string(&self) -> String;
+    }
+
+    impl DateConditionToString for DateCondition {
+        fn to_string(&self) -> String {
+            NaiveDate::from_ymd(
+                self.ym.0.into(),
+                self.ym.1.into(),
+                self.day.unwrap_or(1).into(),
+            )
+            .format(if self.day.is_some() {
+                "%Y-%m-%d"
+            } else {
+                "%Y-%m"
+            })
+            .to_string()
         }
     }
 
@@ -173,6 +189,7 @@ mod templates {
     #[cfg(test)]
     mod tests {
         use super::*;
+        use domain::entities::date::*;
 
         #[test]
         fn has_no_links_in_a_line() {
@@ -245,6 +262,24 @@ mod templates {
                 convert_body(body),
                 "<p>Paragraph 1</p>\n<hr />\n<p>Paragraph 2</p>"
             );
+        }
+
+        #[test]
+        fn year_month_to_string() {
+            let condition = DateCondition {
+                ym: YearMonth(1989, 9),
+                day: None,
+            };
+            assert_eq!(condition.to_string(), "1989-09");
+        }
+
+        #[test]
+        fn year_month_day_to_string() {
+            let condition = DateCondition {
+                ym: YearMonth(1989, 9),
+                day: Some(30),
+            };
+            assert_eq!(condition.to_string(), "1989-09-30");
         }
     }
 }

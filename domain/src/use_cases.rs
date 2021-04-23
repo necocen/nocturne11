@@ -1,6 +1,6 @@
 use crate::entities::{
-    date::{Year, YearMonth},
-    Page, Post,
+    date::{DateCondition, Year, YearMonth},
+    NextPage, Page, Post,
 };
 use crate::repositories::posts::PostsRepository;
 use anyhow::Result;
@@ -20,17 +20,20 @@ pub fn get_post_with_id(repository: &impl PostsRepository, id: i32) -> Result<(P
     }
 }
 
-pub fn get_posts_with_day(
+pub fn get_posts_with_day<'a>(
     repository: &impl PostsRepository,
-    ym: YearMonth,
-    day: Option<u8>,
+    condition: &'a DateCondition,
     per_page: usize,
     page: usize,
-) -> Result<Page> {
+) -> Result<Page<'a, DateCondition>> {
     let from_date = Local
-        .ymd(ym.0 as i32, ym.1 as u32, day.unwrap_or(1) as u32)
+        .ymd(
+            condition.ym.0 as i32,
+            condition.ym.1 as u32,
+            condition.day.unwrap_or(1) as u32,
+        )
         .and_hms(0, 0, 0);
-    let to_date = if day.is_some() {
+    let to_date = if condition.day.is_some() {
         from_date + Duration::days(1)
     } else {
         let (next_year, next_month) = if from_date.month() == 12 {
@@ -51,19 +54,21 @@ pub fn get_posts_with_day(
     if posts.len() > per_page {
         // 残りがある場合は次のページがある
         Ok(Page {
+            condition,
             posts: posts.into_iter().take(per_page).collect(),
             per_page,
             page,
             prev_page: if page <= 1 { None } else { Some(page - 1) },
-            next_page: Some(page + 1),
+            next_page: NextPage::Page(page + 1),
         })
     } else {
         Ok(Page {
+            condition,
             posts: posts.into_iter().take(per_page).collect(),
             per_page,
             page,
             prev_page: if page <= 1 { None } else { Some(page - 1) },
-            next_page: None,
+            next_page: NextPage::None,
         })
     }
 }
