@@ -3,7 +3,7 @@ use crate::entities::{
     NextPage, Page, Post,
 };
 use crate::repositories::posts::PostsRepository;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use chrono::{Datelike, Duration, Local, TimeZone};
 
 pub fn get_posts(repository: &impl PostsRepository) -> Result<Vec<Post>> {
@@ -42,7 +42,7 @@ pub fn get_posts_with_day<'a>(
             (from_date.year(), from_date.month() + 1)
         };
         Local
-            .ymd(next_year.into(), next_month.into(), 1)
+            .ymd(next_year, next_month, 1)
             .and_hms(0, 0, 0)
     };
     let posts = repository
@@ -62,13 +62,49 @@ pub fn get_posts_with_day<'a>(
             next_page: NextPage::Page(page + 1),
         })
     } else {
+        // 次のページがない場合、次の区間を探す
+        // 次の月（日付単位の場合は月末でなければ使わない）
+        let next_ym = repository
+            .get_year_months()?
+            .into_iter()
+            .filter(|ym| *ym > condition.ym)
+            .min();
+
+        let next_condition = if let Some(day) = condition.day {
+            // 日単位の場合、その月の次の日を探す
+            let next_day = repository
+                .get_days(condition.ym)?
+                .into_iter()
+                .filter(|d| *d > day)
+                .min();
+            if next_day.is_some() {
+                Some(DateCondition {
+                    ym: condition.ym,
+                    day: next_day,
+                })
+            } else if let Some(ym) = next_ym {
+                // 次の日がない場合は次の月の最初の日を返す
+                let day = repository
+                    .get_days(ym)?
+                    .into_iter()
+                    .min()
+                    .context("Logic Error")?;
+                Some(DateCondition { ym, day: Some(day) })
+            } else {
+                // 次の月もない場合はNone
+                None
+            }
+        } else {
+            next_ym.map(|ym| DateCondition { ym, day: None })
+        };
+
         Ok(Page {
             condition,
             posts: posts.into_iter().take(per_page).collect(),
             per_page,
             page,
             prev_page: if page <= 1 { None } else { Some(page - 1) },
-            next_page: NextPage::None,
+            next_page: next_condition.map_or(NextPage::None, NextPage::Condition),
         })
     }
 }
