@@ -2,7 +2,7 @@ use crate::legacy::models::Article as OldArticle;
 use anyhow::{Context, Result};
 use chrono::{DateTime, TimeZone, Utc};
 use diesel::prelude::*;
-use domain::entities::{date::YearMonth, Post};
+use domain::entities::{date::YearMonth, Post, PostId};
 use domain::repositories::posts::PostsRepository;
 
 pub struct OldPostsRepositoryImpl {
@@ -17,7 +17,7 @@ impl OldPostsRepositoryImpl {
 }
 
 impl PostsRepository for OldPostsRepositoryImpl {
-    fn get(&self, id: i32) -> Result<Post> {
+    fn get(&self, id: PostId) -> Result<Post> {
         use crate::legacy::schema::articles::dsl::{articles, id as article_id};
         let article = articles
             .filter(article_id.eq(id))

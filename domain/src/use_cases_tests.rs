@@ -42,7 +42,7 @@ impl PostRepositoryMock {
 }
 
 impl PostsRepository for PostRepositoryMock {
-    fn get(&self, id: i32) -> Result<Post> {
+    fn get(&self, id: PostId) -> Result<Post> {
         Ok(self
             .posts
             .iter()

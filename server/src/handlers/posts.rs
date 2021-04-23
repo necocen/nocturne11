@@ -2,7 +2,10 @@ use super::Error;
 use super::TemplateToResponse;
 use crate::server::Server;
 use actix_web::{web, HttpResponse};
-use domain::entities::date::{DateCondition, YearMonth};
+use domain::entities::{
+    date::{DateCondition, YearMonth},
+    PostId,
+};
 use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_date_condition};
 use serde::Deserialize;
 use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate};
@@ -25,7 +28,7 @@ impl From<DateArguments> for DateCondition {
 
 #[derive(Debug, Clone, Deserialize)]
 pub(super) struct IdArguments {
-    id: i32,
+    id: PostId,
 }
 
 #[derive(Debug, Clone, Deserialize)]

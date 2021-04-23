@@ -1,6 +1,6 @@
 use crate::entities::{
     date::{DateCondition, Year, YearMonth},
-    AdjacentPage, Page, Post,
+    AdjacentPage, Page, Post, PostId,
 };
 use crate::repositories::posts::PostsRepository;
 use anyhow::{Context, Result};
@@ -10,7 +10,7 @@ pub fn get_posts(repository: &impl PostsRepository) -> Result<Vec<Post>> {
     Ok(repository.get_all()?[..10].to_vec())
 }
 
-pub fn get_post_with_id(repository: &impl PostsRepository, id: i32) -> Result<(Post, bool)> {
+pub fn get_post_with_id(repository: &impl PostsRepository, id: PostId) -> Result<(Post, bool)> {
     let post = repository.get(id)?;
     let posts = repository.get_from_date(post.created_at, 0, 2)?;
     if posts.len() > 1 {
@@ -56,7 +56,11 @@ pub fn get_posts_with_date_condition<'a>(
             posts: posts.into_iter().take(per_page).collect(),
             per_page,
             page,
-            prev_page: if page <= 1 { AdjacentPage::None } else { AdjacentPage::Page(page - 1) },
+            prev_page: if page <= 1 {
+                AdjacentPage::None
+            } else {
+                AdjacentPage::Page(page - 1)
+            },
             next_page: AdjacentPage::Page(page + 1),
         })
     } else {
@@ -101,7 +105,11 @@ pub fn get_posts_with_date_condition<'a>(
             posts: posts.into_iter().take(per_page).collect(),
             per_page,
             page,
-            prev_page: if page <= 1 { AdjacentPage::None } else { AdjacentPage::Page(page - 1) },
+            prev_page: if page <= 1 {
+                AdjacentPage::None
+            } else {
+                AdjacentPage::Page(page - 1)
+            },
             next_page: next_condition.map_or(AdjacentPage::None, AdjacentPage::Condition),
         })
     }

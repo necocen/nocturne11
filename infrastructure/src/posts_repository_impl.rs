@@ -5,7 +5,7 @@ use chrono::offset::Local;
 use chrono::{DateTime, TimeZone};
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
-use domain::entities::{date::YearMonth, Post};
+use domain::entities::{date::YearMonth, Post, PostId};
 use domain::repositories::posts::PostsRepository;
 use r2d2::Pool;
 
@@ -38,7 +38,7 @@ impl<T, U: From<T>> IntoVec<U> for Vec<T> {
 }
 
 impl PostsRepository for PostsRepositoryImpl {
-    fn get(&self, id: i32) -> Result<Post> {
+    fn get(&self, id: PostId) -> Result<Post> {
         use crate::schema::posts::dsl::posts;
         let post = posts
             .find(id)
