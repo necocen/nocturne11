@@ -3,7 +3,7 @@ use super::TemplateToResponse;
 use crate::server::Server;
 use actix_web::{web, HttpResponse};
 use domain::entities::date::{DateCondition, YearMonth};
-use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_day};
+use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_date_condition};
 use serde::Deserialize;
 use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate};
 
@@ -59,7 +59,7 @@ pub(super) async fn posts_with_date(
     query: web::Query<PageQuery>,
 ) -> Result<HttpResponse, Error> {
     let condition = args.to_owned().into();
-    let page = get_posts_with_day(
+    let page = get_posts_with_date_condition(
         &server.posts_repository,
         &condition,
         10,

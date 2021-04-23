@@ -20,7 +20,7 @@ pub fn get_post_with_id(repository: &impl PostsRepository, id: i32) -> Result<(P
     }
 }
 
-pub fn get_posts_with_day<'a>(
+pub fn get_posts_with_date_condition<'a>(
     repository: &impl PostsRepository,
     condition: &'a DateCondition,
     per_page: usize,
