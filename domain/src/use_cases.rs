@@ -28,9 +28,9 @@ pub fn get_posts_with_day<'a>(
 ) -> Result<Page<'a, DateCondition>> {
     let from_date = Local
         .ymd(
-            condition.ym.0 as i32,
-            condition.ym.1 as u32,
-            condition.day.unwrap_or(1) as u32,
+            condition.ym.0.into(),
+            condition.ym.1.into(),
+            condition.day.unwrap_or(1).into(),
         )
         .and_hms(0, 0, 0);
     let to_date = if condition.day.is_some() {
