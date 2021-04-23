@@ -41,9 +41,7 @@ pub fn get_posts_with_day<'a>(
         } else {
             (from_date.year(), from_date.month() + 1)
         };
-        Local
-            .ymd(next_year, next_month, 1)
-            .and_hms(0, 0, 0)
+        Local.ymd(next_year, next_month, 1).and_hms(0, 0, 0)
     };
     let posts = repository
         .get_from_date(from_date, per_page * (page - 1), per_page + 1)?
