@@ -8,9 +8,11 @@
 
 {%- block prev_page -%}
     {%- match page.prev_page -%}
-        {%- when Some with (number) -%}
+        {%- when AdjacentPage::Condition with (prev_condition) -%}
+            <a href="/{{ prev_condition.to_string() }}">next</a>
+        {%- when AdjacentPage::Page with (number) -%}
             <a href="/{{ page.condition.to_string() }}?page={{ number }}">prev</a>
-        {%- when None -%}
+        {%- when AdjacentPage::None -%}
     {%- endmatch -%}
 {%- endblock -%}
 

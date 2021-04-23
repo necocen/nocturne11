@@ -15,7 +15,7 @@ pub struct Page<'a, C> {
     pub posts: Vec<Post>,
     pub per_page: usize,
     pub page: usize,
-    pub prev_page: Option<usize>,
+    pub prev_page: AdjacentPage<C>,
     pub next_page: AdjacentPage<C>,
 }
 
