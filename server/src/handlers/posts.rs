@@ -91,14 +91,14 @@ mod templates {
     }
 
     #[derive(Template)]
-    #[template(path = "posts_with_date.html")]
+    #[template(path = "posts.html")]
     pub(super) struct PostsWithDateTemplate<'a> {
         pub(super) title: &'a str,
         pub(super) page: Page<'a, DateCondition>,
     }
 
     #[derive(Template)]
-    #[template(path = "post.html")]
+    #[template(path = "posts.html")]
     pub(super) struct PostTemplate<'a> {
         pub(super) title: &'a str,
         pub(super) page: Page<'a, PostId>,
