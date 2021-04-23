@@ -1,6 +1,6 @@
-use crate::entities::*;
+use crate::entities::{date::*, *};
+use crate::repositories::posts::PostsRepository;
 use crate::use_cases::*;
-use crate::{entities::date::YearMonth, repositories::posts::PostsRepository};
 use anyhow::{Context, Result};
 use chrono::{Local, TimeZone, Utc};
 
@@ -14,32 +14,23 @@ impl PostRepositoryMock {
         let posts = (1..=6)
             .flat_map(|m| {
                 (1..=14).flat_map(move |d| {
+                    let date = Local.ymd(2020i32, (m * 2) as u32, (d * 2 - m % 2) as u32);
+                    let date_time00 = date.and_hms(0, 0, 0).with_timezone(&Utc);
+                    let date_time12 = date.and_hms(12, 0, 0).with_timezone(&Utc);
                     vec![
                         Post {
-                            id: m * 2 * 100 + d * 2 as i32,
-                            title: format!("{}-{}-00", m * 2, d * 2 - m % 2).to_string(),
-                            body: format!("{}-{}-00", m * 2, d * 2 - m % 2).to_string(),
-                            created_at: Local
-                                .ymd(2020, (m * 2) as u32, (d * 2 - m % 2) as u32)
-                                .and_hms(0, 0, 0)
-                                .with_timezone(&Utc),
-                            updated_at: Local
-                                .ymd(2020, (m * 2) as u32, (d * 2 - m % 2) as u32)
-                                .and_hms(0, 0, 0)
-                                .with_timezone(&Utc),
+                            id: m * 2 * 100 + d * 2,
+                            title: String::new(),
+                            body: String::new(),
+                            created_at: date_time00,
+                            updated_at: date_time00,
                         },
                         Post {
-                            id: m * 2 * 100 + d * 2 + 1 as i32,
-                            title: format!("{}-{}-12", m * 2, d * 2 - m % 2).to_string(),
-                            body: format!("{}-{}-12", m * 2, d * 2 - m % 2).to_string(),
-                            created_at: Local
-                                .ymd(2020, (m * 2) as u32, (d * 2 - m % 2) as u32)
-                                .and_hms(12, 0, 0)
-                                .with_timezone(&Utc),
-                            updated_at: Local
-                                .ymd(2020, (m * 2) as u32, (d * 2 - m % 2) as u32)
-                                .and_hms(12, 0, 0)
-                                .with_timezone(&Utc),
+                            id: m * 2 * 100 + d * 2 + 1,
+                            title: String::new(),
+                            body: String::new(),
+                            created_at: date_time12,
+                            updated_at: date_time12,
                         },
                     ]
                 })
@@ -142,5 +133,168 @@ fn test_get_years() -> Result<()> {
         .flat_map(|y| y.months)
         .collect::<Vec<_>>();
     assert_eq!(months, [2, 4, 6, 8, 10, 12]);
+    Ok(())
+}
+
+#[test]
+fn test_get_post_with_id() {
+    let repo = PostRepositoryMock::new();
+    let post_228 = get_post_with_id(&repo, 228);
+    assert!(post_228.is_ok());
+    let post_231 = get_post_with_id(&repo, 231);
+    assert!(post_231.is_err());
+}
+
+#[test]
+fn test_get_post_by_month_not_found() -> Result<()> {
+    let repo = PostRepositoryMock::new();
+    let cond = DateCondition {
+        ym: YearMonth(2020, 3),
+        day: None,
+    };
+    let Page {
+        posts, next_page, ..
+    } = get_posts_with_date_condition(&repo, &cond, 5, 1)?;
+    assert!(posts.is_empty());
+    assert_eq!(
+        next_page,
+        NextPage::<DateCondition>::Condition(DateCondition {
+            ym: YearMonth(2020, 4),
+            day: None
+        })
+    );
+    Ok(())
+}
+
+#[test]
+fn test_get_post_by_month_first_page() -> Result<()> {
+    let repo = PostRepositoryMock::new();
+    let cond = DateCondition {
+        ym: YearMonth(2020, 2),
+        day: None,
+    };
+    let Page {
+        posts,
+        next_page,
+        prev_page,
+        ..
+    } = get_posts_with_date_condition(&repo, &cond, 5, 1)?;
+    assert_eq!(
+        posts.into_iter().map(|p| p.id).collect::<Vec<_>>(),
+        [202, 203, 204, 205, 206]
+    );
+    assert_eq!(next_page, NextPage::<DateCondition>::Page(2));
+    assert_eq!(prev_page, None);
+    Ok(())
+}
+
+#[test]
+fn test_get_post_by_month_second_page() -> Result<()> {
+    let repo = PostRepositoryMock::new();
+    let cond = DateCondition {
+        ym: YearMonth(2020, 2),
+        day: None,
+    };
+    let Page {
+        posts,
+        next_page,
+        prev_page,
+        ..
+    } = get_posts_with_date_condition(&repo, &cond, 5, 2)?;
+    assert_eq!(
+        posts.into_iter().map(|p| p.id).collect::<Vec<_>>(),
+        [207, 208, 209, 210, 211]
+    );
+    assert_eq!(next_page, NextPage::<DateCondition>::Page(3));
+    assert_eq!(prev_page, Some(1));
+    Ok(())
+}
+
+#[test]
+fn test_get_post_by_month_last_page() -> Result<()> {
+    let repo = PostRepositoryMock::new();
+    let cond = DateCondition {
+        ym: YearMonth(2020, 2),
+        day: None,
+    };
+    let Page {
+        posts, next_page, ..
+    } = get_posts_with_date_condition(&repo, &cond, 5, 6)?;
+    assert_eq!(
+        posts.into_iter().map(|p| p.id).collect::<Vec<_>>(),
+        [227, 228, 229]
+    );
+    assert_eq!(
+        next_page,
+        NextPage::<DateCondition>::Condition(DateCondition {
+            ym: YearMonth(2020, 4),
+            day: None
+        })
+    );
+    Ok(())
+}
+
+#[test]
+fn test_get_post_by_day_not_found() -> Result<()> {
+    let repo = PostRepositoryMock::new();
+    let cond = DateCondition {
+        ym: YearMonth(2020, 3),
+        day: Some(1),
+    };
+    let Page {
+        posts, next_page, ..
+    } = get_posts_with_date_condition(&repo, &cond, 1, 1)?;
+    assert!(posts.is_empty());
+    assert_eq!(
+        next_page,
+        NextPage::<DateCondition>::Condition(DateCondition {
+            ym: YearMonth(2020, 3),
+            day: Some(3)
+        })
+    );
+    Ok(())
+}
+
+#[test]
+fn test_get_post_by_day_first_page() -> Result<()> {
+    let repo = PostRepositoryMock::new();
+    let cond = DateCondition {
+        ym: YearMonth(2020, 2),
+        day: Some(1),
+    };
+    let Page {
+        posts,
+        next_page,
+        prev_page,
+        ..
+    } = get_posts_with_date_condition(&repo, &cond, 1, 1)?;
+    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [202]);
+    assert_eq!(next_page, NextPage::<DateCondition>::Page(2));
+    assert_eq!(prev_page, None);
+    Ok(())
+}
+
+#[test]
+fn test_get_post_by_day_last_page() -> Result<()> {
+    let repo = PostRepositoryMock::new();
+    let cond = DateCondition {
+        ym: YearMonth(2020, 2),
+        day: Some(1),
+    };
+    let Page {
+        posts,
+        next_page,
+        prev_page,
+        ..
+    } = get_posts_with_date_condition(&repo, &cond, 1, 2)?;
+    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [203]);
+    assert_eq!(prev_page, Some(1));
+    assert_eq!(
+        next_page,
+        NextPage::<DateCondition>::Condition(DateCondition {
+            ym: YearMonth(2020, 2),
+            day: Some(2)
+        })
+    );
     Ok(())
 }

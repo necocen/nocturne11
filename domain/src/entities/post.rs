@@ -19,7 +19,7 @@ pub struct Page<'a, C> {
     pub next_page: NextPage<C>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum NextPage<C> {
     /// 次のページに該当するものはない
     None,

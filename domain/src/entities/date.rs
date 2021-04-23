@@ -8,7 +8,7 @@ pub struct Year {
     pub months: Vec<u8>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DateCondition {
     pub ym: YearMonth,
     pub day: Option<u8>,
