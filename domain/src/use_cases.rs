@@ -1,6 +1,6 @@
 use crate::entities::{
     date::{DateCondition, Year, YearMonth},
-    NextPage, Page, Post,
+    AdjacentPage, Page, Post,
 };
 use crate::repositories::posts::PostsRepository;
 use anyhow::{Context, Result};
@@ -57,7 +57,7 @@ pub fn get_posts_with_date_condition<'a>(
             per_page,
             page,
             prev_page: if page <= 1 { None } else { Some(page - 1) },
-            next_page: NextPage::Page(page + 1),
+            next_page: AdjacentPage::Page(page + 1),
         })
     } else {
         // 次のページがない場合、次の区間を探す
@@ -102,7 +102,7 @@ pub fn get_posts_with_date_condition<'a>(
             per_page,
             page,
             prev_page: if page <= 1 { None } else { Some(page - 1) },
-            next_page: next_condition.map_or(NextPage::None, NextPage::Condition),
+            next_page: next_condition.map_or(AdjacentPage::None, AdjacentPage::Condition),
         })
     }
 }

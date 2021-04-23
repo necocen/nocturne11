@@ -78,7 +78,7 @@ mod templates {
     use askama::Template;
     use askama_escape::{escape, Html};
     use chrono::NaiveDate;
-    use domain::entities::{date::DateCondition, NextPage, Page, Post};
+    use domain::entities::{date::DateCondition, AdjacentPage, Page, Post};
     use regex::Regex;
 
     #[derive(Template)]

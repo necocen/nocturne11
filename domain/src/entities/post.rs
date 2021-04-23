@@ -16,11 +16,11 @@ pub struct Page<'a, C> {
     pub per_page: usize,
     pub page: usize,
     pub prev_page: Option<usize>,
-    pub next_page: NextPage<C>,
+    pub next_page: AdjacentPage<C>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum NextPage<C> {
+pub enum AdjacentPage<C> {
     /// 次のページに該当するものはない
     None,
     /// 次のページ番号がある

@@ -16,10 +16,10 @@
 
 {%- block next_page -%}
     {%- match page.next_page -%}
-        {%- when NextPage::Condition with (next_condition) -%}
+        {%- when AdjacentPage::Condition with (next_condition) -%}
             <a href="/{{ next_condition.to_string() }}">next</a>
-        {%- when NextPage::Page with (number) -%}
+        {%- when AdjacentPage::Page with (number) -%}
             <a href="/{{ page.condition.to_string() }}?page={{ number }}">next</a>
-        {%- when NextPage::None -%}
+        {%- when AdjacentPage::None -%}
     {%- endmatch -%}
 {%- endblock -%}
