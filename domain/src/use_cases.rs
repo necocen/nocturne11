@@ -10,14 +10,31 @@ pub fn get_posts(repository: &impl PostsRepository) -> Result<Vec<Post>> {
     Ok(repository.get_all()?[..10].to_vec())
 }
 
-pub fn get_post_with_id(repository: &impl PostsRepository, id: PostId) -> Result<(Post, bool)> {
-    let post = repository.get(id)?;
-    let posts = repository.get_from_date(post.created_at, 0, 2)?;
-    if posts.len() > 1 {
-        Ok((post, true))
-    } else {
-        Ok((post, false))
-    }
+pub fn get_post_with_id<'a>(
+    repository: &impl PostsRepository,
+    id: &'a PostId,
+) -> Result<Page<'a, PostId>> {
+    let post = repository.get(*id)?;
+    let prev_post = repository
+        .get_until_date(post.created_at, 0, 1)?
+        .first()
+        .cloned();
+    let next_post = repository
+        .get_from_date(post.created_at, 1, 1)?
+        .first()
+        .cloned();
+    Ok(Page {
+        condition: id,
+        posts: vec![post],
+        per_page: 1,
+        page: 1,
+        next_page: next_post
+            .map(|p| p.id)
+            .map_or(AdjacentPage::None, AdjacentPage::Condition),
+        prev_page: prev_post
+            .map(|p| p.id)
+            .map_or(AdjacentPage::None, AdjacentPage::Condition),
+    })
 }
 
 pub fn get_posts_with_date_condition<'a>(

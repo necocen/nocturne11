@@ -48,10 +48,9 @@ pub(super) async fn post_with_id(
     server: web::Data<Server>,
     args: web::Path<IdArguments>,
 ) -> Result<HttpResponse, Error> {
-    let (post, has_next) = get_post_with_id(&server.posts_repository, args.id)?;
-    dbg!(has_next);
+    let page = get_post_with_id(&server.posts_repository, &args.id)?;
     PostTemplate {
-        post,
+        page,
         title: "タイトル",
     }
     .to_response()
@@ -81,7 +80,7 @@ mod templates {
     use askama::Template;
     use askama_escape::{escape, Html};
     use chrono::NaiveDate;
-    use domain::entities::{date::DateCondition, AdjacentPage, Page, Post};
+    use domain::entities::{date::DateCondition, AdjacentPage, Page, Post, PostId};
     use regex::Regex;
 
     #[derive(Template)]
@@ -102,7 +101,7 @@ mod templates {
     #[template(path = "post.html")]
     pub(super) struct PostTemplate<'a> {
         pub(super) title: &'a str,
-        pub(super) post: Post,
+        pub(super) page: Page<'a, PostId>,
     }
 
     trait PostExt {
