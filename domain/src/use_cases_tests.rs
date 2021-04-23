@@ -137,12 +137,70 @@ fn test_get_years() -> Result<()> {
 }
 
 #[test]
-fn test_get_post_with_id() {
+fn test_get_post_with_id_not_found() {
     let repo = PostRepositoryMock::new();
-    let post_228 = get_post_with_id(&repo, &228);
-    assert!(post_228.is_ok());
-    let post_231 = get_post_with_id(&repo, &231);
-    assert!(post_231.is_err());
+    let page = get_post_with_id(&repo, &9999);
+    assert!(page.is_err());
+}
+
+#[test]
+fn test_get_post_with_id_which_has_prev_only() -> Result<()> {
+    let repo = PostRepositoryMock::new();
+    let Page {
+        posts,
+        prev_page,
+        next_page,
+        ..
+    } = get_post_with_id(&repo, &1229)?;
+    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [1229]);
+    assert_eq!(prev_page, AdjacentPage::Condition(1228));
+    assert_eq!(next_page, AdjacentPage::None);
+    Ok(())
+}
+
+#[test]
+fn test_get_post_with_id_which_has_next_only() -> Result<()> {
+    let repo = PostRepositoryMock::new();
+    let Page {
+        posts,
+        prev_page,
+        next_page,
+        ..
+    } = get_post_with_id(&repo, &202)?;
+    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [202]);
+    assert_eq!(prev_page, AdjacentPage::None);
+    assert_eq!(next_page, AdjacentPage::Condition(203));
+    Ok(())
+}
+
+#[test]
+fn test_get_post_with_id_which_has_prev_and_next() -> Result<()> {
+    let repo = PostRepositoryMock::new();
+    let Page {
+        posts,
+        prev_page,
+        next_page,
+        ..
+    } = get_post_with_id(&repo, &228)?;
+    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [228]);
+    assert_eq!(prev_page, AdjacentPage::Condition(227));
+    assert_eq!(next_page, AdjacentPage::Condition(229));
+    Ok(())
+}
+
+#[test]
+fn test_get_post_with_id_which_has_prev() -> Result<()> {
+    let repo = PostRepositoryMock::new();
+    let Page {
+        posts,
+        prev_page,
+        next_page,
+        ..
+    } = get_post_with_id(&repo, &228)?;
+    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [228]);
+    assert_eq!(prev_page, AdjacentPage::Condition(227));
+    assert_eq!(next_page, AdjacentPage::Condition(229));
+    Ok(())
 }
 
 #[test]
