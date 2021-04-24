@@ -16,11 +16,8 @@ pub(crate) struct TimezoneCustomizer {
 
 impl<C: Connection> CustomizeConnection<C, diesel::r2d2::Error> for TimezoneCustomizer {
     fn on_acquire(&self, conn: &mut C) -> std::result::Result<(), diesel::r2d2::Error> {
-        conn.execute(&format!(
-            "SET TIME ZONE INTERVAL '{}' HOUR TO MINUTE;",
-            &self.offset
-        ))
-        .map_err(diesel::r2d2::Error::QueryError)?;
+        conn.execute(format!("SET TIME ZONE INTERVAL '{}' HOUR TO MINUTE;", &self.offset).as_str())
+            .map_err(diesel::r2d2::Error::QueryError)?;
         Ok(())
     }
 }
