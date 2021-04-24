@@ -60,16 +60,16 @@ pub(crate) struct Extracted<TS> {
 }
 
 impl<TS> Expression for Extracted<TS> {
-    type SqlType = Double;
+    type SqlType = Integer;
 }
 
 impl<DB: Backend, TS: QueryFragment<DB>> QueryFragment<DB> for Extracted<TS> {
     fn walk_ast(&self, mut out: AstPass<DB>) -> QueryResult<()> {
-        out.push_sql("EXTRACT(");
+        out.push_sql("CAST(EXTRACT(");
         QueryFragment::walk_ast(&self.part, out.reborrow())?;
         out.push_sql(" FROM ");
         QueryFragment::walk_ast(&self.timestamp, out.reborrow())?;
-        out.push_sql(")");
+        out.push_sql(") AS INTEGER)");
         Ok(())
     }
 }

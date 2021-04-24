@@ -94,7 +94,7 @@ impl PostsRepository for PostsRepositoryImpl {
                 extract(DatePart::Month, created_at),
             ))
             .distinct()
-            .get_results::<(f64, f64)>(&self.conn_pool.get()?)?;
+            .get_results::<(i32, i32)>(&self.conn_pool.get()?)?;
         Ok(results
             .into_iter()
             .map(|(y, m)| YearMonth(y as u16, m as u8))
@@ -118,7 +118,7 @@ impl PostsRepository for PostsRepositoryImpl {
             .filter(created_at.lt(created_before))
             .select(extract(DatePart::Day, created_at))
             .distinct()
-            .get_results::<f64>(&self.conn_pool.get()?)?;
+            .get_results::<i32>(&self.conn_pool.get()?)?;
         Ok(results.into_iter().map(|d| d as u8).collect())
     }
 
