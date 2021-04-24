@@ -11,7 +11,7 @@ async fn main() -> Result<()> {
     env_logger::init();
     let es_url = url::Url::parse("http://localhost:9200")?;
     let pg_url = url::Url::parse("postgres://root:password@127.0.0.1/andante")?;
-    let server = Server::new(es_url, pg_url)?;
+    let server = Server::new(&es_url, &pg_url)?;
     actix_web::HttpServer::new(move || {
         let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
         App::new()

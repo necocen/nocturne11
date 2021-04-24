@@ -10,7 +10,7 @@ pub(crate) struct Server {
 }
 
 impl Server {
-    pub fn new(es_url: url::Url, pg_url: url::Url) -> Result<Self> {
+    pub fn new(es_url: &url::Url, pg_url: &url::Url) -> Result<Self> {
         let search_repository = SearchRepositoryImpl::new(es_url)?;
         let posts_repository = PostsRepositoryImpl::new(pg_url)?;
         Ok(Server {

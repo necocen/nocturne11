@@ -15,8 +15,8 @@ pub struct PostsRepositoryImpl {
 }
 
 impl PostsRepositoryImpl {
-    pub fn new(pq_url: url::Url) -> Result<PostsRepositoryImpl> {
-        let conn_manager = ConnectionManager::<PgConnection>::new(pq_url.as_str());
+    pub fn new(pg_url: &url::Url) -> Result<PostsRepositoryImpl> {
+        let conn_manager = ConnectionManager::<PgConnection>::new(pg_url.as_str());
         let customizer = TimezoneCustomizer {
             offset: *Local::now().offset(),
         };

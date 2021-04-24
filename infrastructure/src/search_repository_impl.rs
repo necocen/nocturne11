@@ -26,8 +26,8 @@ pub struct SearchRepositoryImpl {
 impl SearchRepositoryImpl {
     const INDEX_NAME: &'static str = "andante";
 
-    pub fn new(es_url: url::Url) -> Result<SearchRepositoryImpl> {
-        let conn_pool = SingleNodeConnectionPool::new(es_url);
+    pub fn new(es_url: &url::Url) -> Result<SearchRepositoryImpl> {
+        let conn_pool = SingleNodeConnectionPool::new(es_url.clone());
         let transport = TransportBuilder::new(conn_pool).disable_proxy().build()?;
         let client = Elasticsearch::new(transport);
         Ok(SearchRepositoryImpl {
@@ -39,13 +39,13 @@ impl SearchRepositoryImpl {
         })
     }
     pub fn new_for_snapshot(
-        es_url: url::Url,
+        es_url: &url::Url,
         repository_name: String,
         s3_bucket_name: Option<String>,
         aws_access_key_id: Option<String>,
         aws_secret_access_key: Option<String>,
     ) -> Result<SearchRepositoryImpl> {
-        let conn_pool = SingleNodeConnectionPool::new(es_url);
+        let conn_pool = SingleNodeConnectionPool::new(es_url.clone());
         let transport = TransportBuilder::new(conn_pool).disable_proxy().build()?;
         let client = Elasticsearch::new(transport);
         Ok(SearchRepositoryImpl {
