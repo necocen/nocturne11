@@ -1,3 +1,4 @@
+use chrono::FixedOffset;
 use diesel::{
     backend::Backend,
     expression::{AppearsOnTable, AsExpression, NonAggregate, SelectableExpression},
@@ -5,6 +6,24 @@ use diesel::{
     sql_types::*,
     Connection, Expression, QueryResult, RunQueryDsl,
 };
+use r2d2::CustomizeConnection;
+
+/// 各コネクションのタイムゾーンを設定するためのCustomizer
+#[derive(Debug, Clone)]
+pub(crate) struct TimezoneCustomizer {
+    pub offset: FixedOffset,
+}
+
+impl<C: Connection> CustomizeConnection<C, diesel::r2d2::Error> for TimezoneCustomizer {
+    fn on_acquire(&self, conn: &mut C) -> std::result::Result<(), diesel::r2d2::Error> {
+        conn.execute(&format!(
+            "SET TIME ZONE INTERVAL '{}' HOUR TO MINUTE;",
+            &self.offset
+        ))
+        .map_err(diesel::r2d2::Error::QueryError)?;
+        Ok(())
+    }
+}
 
 #[derive(Debug, Clone, Copy, QueryId)]
 pub(crate) enum DatePart {
@@ -25,12 +44,12 @@ impl<DB: Backend> QueryFragment<DB> for DatePart {
     }
 }
 
-pub(crate) fn extract<TS: AsExpression<Timestamp>>(
-    timestamp: TS,
+pub(crate) fn extract<TS: AsExpression<Timestamptz>>(
     part: DatePart,
+    from: TS,
 ) -> Extracted<TS::Expression> {
     Extracted {
-        timestamp: timestamp.as_expression(),
+        timestamp: from.as_expression(),
         part,
     }
 }

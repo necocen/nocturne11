@@ -13,8 +13,8 @@ pub(crate) struct Post {
     pub id: i32,
     pub title: String,
     pub body: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 impl From<Post> for PostEntity {
@@ -23,8 +23,8 @@ impl From<Post> for PostEntity {
             id: post.id,
             title: post.title,
             body: post.body.replace("\r\n", "\n").replace("\r", "\n"),
-            created_at: Utc.from_utc_datetime(&post.created_at),
-            updated_at: Utc.from_utc_datetime(&post.updated_at),
+            created_at: post.created_at,
+            updated_at: post.created_at,
         }
     }
 }

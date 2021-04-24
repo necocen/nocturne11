@@ -1,4 +1,4 @@
-use crate::diesel_helpers::{extract, DatePart};
+use crate::diesel_helpers::{extract, DatePart, TimezoneCustomizer};
 use crate::models::Post as PostModel;
 use anyhow::Result;
 use chrono::offset::Local;
@@ -17,7 +17,12 @@ pub struct PostsRepositoryImpl {
 impl PostsRepositoryImpl {
     pub fn new(pq_url: url::Url) -> Result<PostsRepositoryImpl> {
         let conn_manager = ConnectionManager::<PgConnection>::new(pq_url.as_str());
-        let conn_pool = Pool::builder().build(conn_manager)?;
+        let customizer = TimezoneCustomizer {
+            offset: *Local::now().offset(),
+        };
+        let conn_pool = Pool::builder()
+            .connection_customizer(Box::new(customizer))
+            .build(conn_manager)?;
         Ok(PostsRepositoryImpl { conn_pool })
     }
 }
@@ -50,7 +55,7 @@ impl PostsRepository for PostsRepositoryImpl {
         use crate::schema::posts::dsl::{created_at, posts};
         let results = posts
             .order_by(created_at.asc())
-            .filter(created_at.ge(from.naive_utc()))
+            .filter(created_at.ge(from))
             .offset(offset as i64)
             .limit(limit as i64)
             .get_results::<PostModel>(&self.conn_pool.get()?)?;
@@ -66,7 +71,7 @@ impl PostsRepository for PostsRepositoryImpl {
         use crate::schema::posts::dsl::{created_at, posts};
         let results = posts
             .order_by(created_at.desc())
-            .filter(created_at.lt(until.naive_utc()))
+            .filter(created_at.lt(until))
             .offset(offset as i64)
             .limit(limit as i64)
             .get_results::<PostModel>(&self.conn_pool.get()?)?;
@@ -85,8 +90,8 @@ impl PostsRepository for PostsRepositoryImpl {
         use crate::schema::posts::dsl::{created_at, posts};
         let results = posts
             .select((
-                extract(created_at, DatePart::Year),
-                extract(created_at, DatePart::Month),
+                extract(DatePart::Year, created_at),
+                extract(DatePart::Month, created_at),
             ))
             .distinct()
             .get_results::<(f64, f64)>(&self.conn_pool.get()?)?;
@@ -107,10 +112,11 @@ impl PostsRepository for PostsRepositoryImpl {
         let created_before = Local
             .ymd(next_year.into(), next_month.into(), 1)
             .and_hms(0, 0, 0);
+
         let results = posts
-            .filter(created_at.ge(created_after.naive_utc()))
-            .filter(created_at.lt(created_before.naive_utc()))
-            .select(extract(created_at, DatePart::Day))
+            .filter(created_at.ge(created_after))
+            .filter(created_at.lt(created_before))
+            .select(extract(DatePart::Day, created_at))
             .distinct()
             .get_results::<f64>(&self.conn_pool.get()?)?;
         Ok(results.into_iter().map(|d| d as u8).collect())
@@ -123,8 +129,8 @@ impl PostsRepository for PostsRepositoryImpl {
                 id: post.id,
                 title: post.title.clone(),
                 body: post.body.clone(),
-                created_at: post.created_at.naive_utc(),
-                updated_at: post.updated_at.naive_utc(),
+                created_at: post.created_at,
+                updated_at: post.updated_at,
             })
             .get_result::<PostModel>(&self.conn_pool.get()?)?;
         Ok(post.into())
