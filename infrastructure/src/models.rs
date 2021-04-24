@@ -4,8 +4,8 @@
 #![allow(clippy::all)]
 
 use super::schema::posts;
-use chrono::offset::Utc;
-use chrono::DateTime;
+use chrono::{offset::Utc, TimeZone};
+use chrono::{DateTime, NaiveDateTime};
 use domain::entities::Post as PostEntity;
 
 #[derive(Queryable, Insertable, Debug, Clone)]
@@ -13,8 +13,8 @@ pub(crate) struct Post {
     pub id: i32,
     pub title: String,
     pub body: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 impl From<Post> for PostEntity {
@@ -23,8 +23,8 @@ impl From<Post> for PostEntity {
             id: post.id,
             title: post.title,
             body: post.body.replace("\r\n", "\n").replace("\r", "\n"),
-            created_at: post.created_at,
-            updated_at: post.updated_at,
+            created_at: Utc.from_utc_datetime(&post.created_at),
+            updated_at: Utc.from_utc_datetime(&post.updated_at),
         }
     }
 }
