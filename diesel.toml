@@ -2,4 +2,7 @@
 # see diesel.rs/guides/configuring-diesel-cli
 
 [print_schema]
-file = "src/schema.rs"
+file = "infrastructure/src/schema.rs"
+
+[migrations_directory]
+dir = "infrastructure/migrations"
