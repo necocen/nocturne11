@@ -6,6 +6,11 @@ extern crate log;
 extern crate diesel_migrations;
 embed_migrations!("migrations/");
 
+#[cfg(test)]
+#[macro_use]
+#[allow(unused_imports)]
+extern crate function_name;
+
 mod diesel_helpers;
 pub mod legacy;
 pub mod migration;
