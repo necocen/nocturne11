@@ -47,7 +47,7 @@ fn insert_duplicated_id() -> Result<()> {
         updated_at: Utc::now(),
     });
     assert_matches!(
-        result.unwrap_err().downcast().unwrap(),
+        result.unwrap_err().downcast()?,
         Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)
     );
     Ok(())
