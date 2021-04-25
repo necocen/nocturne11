@@ -1,6 +1,4 @@
-// @generated automatically by Diesel CLI.
-
-diesel::table! {
+table! {
     posts (id) {
         id -> Int4,
         title -> Varchar,
