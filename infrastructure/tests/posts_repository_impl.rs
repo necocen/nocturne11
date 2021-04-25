@@ -1,6 +1,5 @@
-#[macro_use]
-extern crate assert_matches;
 use anyhow::Result;
+use assert_matches::assert_matches;
 use chrono::{Local, TimeZone, Utc};
 use domain::entities::*;
 use domain::repositories::posts::*;
