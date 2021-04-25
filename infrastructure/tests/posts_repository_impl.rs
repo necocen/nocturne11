@@ -4,12 +4,12 @@ use domain::entities::*;
 use domain::repositories::posts::*;
 use infrastructure::posts_repository_impl::*;
 use pretty_assertions::assert_eq;
-mod test_database;
-use test_database::*;
+mod database_mock;
+use database_mock::*;
 
 #[test]
-fn test_insert_and_find() -> Result<()> {
-    let TestDatabase { ref pg_url, .. } = test_db()?;
+fn insert_and_find() -> Result<()> {
+    let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
     repo.insert(&Post {
         id: 1,

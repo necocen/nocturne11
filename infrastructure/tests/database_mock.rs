@@ -5,13 +5,13 @@ use infrastructure::migration::*;
 use std::env;
 use uuid::Uuid;
 
-pub struct TestDatabase {
+pub struct DatabaseMock {
     pub pg_url: url::Url,
     pg_base_url: url::Url,
     db_name: String,
 }
 
-impl TestDatabase {
+impl DatabaseMock {
     fn new(pg_base_url: url::Url, db_name: impl Into<String>) -> Result<Self> {
         let conn = PgConnection::establish(pg_base_url.join("postgres")?.as_str())?;
         let db_name = db_name.into();
@@ -29,7 +29,7 @@ impl TestDatabase {
     }
 }
 
-impl Drop for TestDatabase {
+impl Drop for DatabaseMock {
     fn drop(&mut self) {
         // cf. https://snoozetime.github.io/2019/06/16/integration-test-diesel.html
         let conn = PgConnection::establish(
@@ -54,8 +54,8 @@ impl Drop for TestDatabase {
     }
 }
 
-pub fn test_db() -> Result<TestDatabase> {
+pub fn mock_db() -> Result<DatabaseMock> {
     dotenv().ok();
     let db_name = Uuid::new_v4().to_simple().to_string();
-    TestDatabase::new(url::Url::parse(&env::var("POSTGRES_URL")?)?, db_name)
+    DatabaseMock::new(url::Url::parse(&env::var("POSTGRES_URL")?)?, db_name)
 }
