@@ -1,7 +1,11 @@
 use anyhow::Result;
+use dotenv::dotenv;
 use infrastructure::migration::migrate;
+use std::env;
 
 fn main() -> Result<()> {
-    let pg_url = url::Url::parse("postgres://root:password@127.0.0.1/andante")?;
+    env_logger::init();
+    dotenv().ok();
+    let pg_url = url::Url::parse(&env::var("DATABASE_NAME")?)?;
     migrate(&pg_url)
 }

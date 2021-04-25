@@ -1,6 +1,8 @@
 use anyhow::Result;
 use diesel::prelude::*;
+use dotenv::dotenv;
 use infrastructure::migration::*;
+use std::env;
 
 pub struct TestDatabase {
     pub pg_url: url::Url,
@@ -52,8 +54,6 @@ impl Drop for TestDatabase {
 }
 
 pub fn test_db(db_name: impl Into<String>) -> Result<TestDatabase> {
-    TestDatabase::new(
-        url::Url::parse("postgres://root:password@127.0.0.1")?,
-        db_name,
-    )
+    dotenv().ok();
+    TestDatabase::new(url::Url::parse(&env::var("POSTGRES_URL")?)?, db_name)
 }
