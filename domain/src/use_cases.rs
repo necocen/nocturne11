@@ -7,7 +7,8 @@ use anyhow::{Context, Result};
 use chrono::{Datelike, Duration, Local, TimeZone};
 
 pub fn get_posts(repository: &impl PostsRepository) -> Result<Vec<Post>> {
-    Ok(repository.get_all()?[..10].to_vec())
+    let posts = repository.get_all(0, 10)?;
+    Ok(posts)
 }
 
 pub fn get_post_with_id<'a>(

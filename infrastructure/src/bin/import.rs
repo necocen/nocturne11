@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 use anyhow::Result;
 use domain::repositories::posts::PostsRepository;
 use dotenv::dotenv;
@@ -20,10 +23,37 @@ fn transport(
     old_repository: &impl PostsRepository,
     new_repository: &impl PostsRepository,
 ) -> Result<()> {
-    let mut old_posts = old_repository.get_all()?;
-    old_posts.sort_by_key(|p| p.id);
-    for post in old_posts.into_iter() {
-        new_repository.insert(&post)?;
+    let mut offset = 0_usize;
+    let page_size = 100_usize;
+    loop {
+        let old_posts = old_repository.get_all(offset, page_size)?;
+        for old_post in old_posts.iter() {
+            new_repository.insert(old_post)?;
+        }
+        if !old_posts.is_empty() {
+            let first_date = old_posts
+                .first()
+                .unwrap()
+                .created_at
+                .with_timezone(&chrono::Local)
+                .to_rfc3339();
+            let last_date = old_posts
+                .last()
+                .unwrap()
+                .created_at
+                .with_timezone(&chrono::Local)
+                .to_rfc3339();
+            info!(
+                "Imported {} posts ({} -- {})",
+                old_posts.len(),
+                first_date,
+                last_date,
+            );
+        }
+        if old_posts.len() < page_size {
+            break;
+        }
+        offset += old_posts.len();
     }
     Ok(())
 }

@@ -12,6 +12,7 @@ pub trait PostsRepository {
         offset: usize,
         limit: usize,
     ) -> Result<Vec<Post>>;
+
     /// `until`以前（`until`を**含まない**）のPostを`created_at`降順で最大`limit`件返します
     fn get_until_date<Tz: TimeZone>(
         &self,
@@ -20,7 +21,8 @@ pub trait PostsRepository {
         limit: usize,
     ) -> Result<Vec<Post>>;
 
-    fn get_all(&self) -> Result<Vec<Post>>;
+    /// すべてのPostを`created_at`降順で最大`limit`件返します
+    fn get_all(&self, offset: usize, limit: usize) -> Result<Vec<Post>>;
 
     fn get_year_months(&self) -> Result<Vec<YearMonth>>;
 

@@ -78,10 +78,12 @@ impl PostsRepository for PostsRepositoryImpl {
         Ok(results.into_vec())
     }
 
-    fn get_all(&self) -> Result<Vec<Post>> {
+    fn get_all(&self, offset: usize, limit: usize) -> Result<Vec<Post>> {
         use crate::schema::posts::dsl::{created_at, posts};
         let results = posts
             .order_by(created_at.desc())
+            .offset(offset as i64)
+            .limit(limit as i64)
             .get_results::<PostModel>(&self.conn_pool.get()?)?;
         Ok(results.into_vec())
     }

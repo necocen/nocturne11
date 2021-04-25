@@ -91,8 +91,16 @@ impl PostsRepository for PostRepositoryMock {
             .collect())
     }
 
-    fn get_all(&self) -> Result<Vec<Post>> {
-        Ok(self.posts.clone())
+    fn get_all(&self, offset: usize, limit: usize) -> Result<Vec<Post>> {
+        let mut posts = self.posts.iter().collect::<Vec<_>>();
+        posts.sort_by_key(|p| p.created_at);
+        Ok(posts
+            .into_iter()
+            .rev()
+            .skip(offset)
+            .take(limit)
+            .cloned()
+            .collect())
     }
 
     fn get_year_months(&self) -> Result<Vec<YearMonth>> {

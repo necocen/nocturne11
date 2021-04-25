@@ -37,10 +37,12 @@ impl PostsRepository for OldPostsRepositoryImpl {
         })
     }
 
-    fn get_all(&self) -> Result<Vec<Post>> {
+    fn get_all(&self, offset: usize, limit: usize) -> Result<Vec<Post>> {
         use crate::legacy::schema::articles::dsl::{articles, created_at};
         articles
             .order_by(created_at.desc())
+            .offset(offset as i64)
+            .limit(limit as i64)
             .get_results::<OldArticle>(&self.connection)?
             .into_iter()
             .map(|article| {

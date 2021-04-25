@@ -69,7 +69,7 @@ fn find_all() -> Result<()> {
     for post in mock_data().iter() {
         repo.insert(post)?;
     }
-    let posts = repo.get_all()?;
+    let posts = repo.get_all(0, 1000)?;
     let ids = posts.into_iter().map(|p| p.id).collect::<Vec<_>>();
     // get_all()は日付降順なので逆向き
     let expected_ids = (1..=6)
