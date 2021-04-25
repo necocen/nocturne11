@@ -28,6 +28,16 @@ fn insert_and_find() -> Result<()> {
 }
 
 #[test]
+fn id_not_found() -> Result<()> {
+    use diesel::result::*;
+    let DatabaseMock { ref pg_url, .. } = mock_db()?;
+    let repo = PostsRepositoryImpl::new(pg_url)?;
+    let post = repo.get(1);
+    assert_matches!(post.unwrap_err().downcast()?, Error::NotFound);
+    Ok(())
+}
+
+#[test]
 fn insert_duplicated_id() -> Result<()> {
     use diesel::result::*;
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
