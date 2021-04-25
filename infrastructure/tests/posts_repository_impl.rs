@@ -33,7 +33,7 @@ fn id_not_found() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
     let post = repo.get(1);
-    assert_matches!(post.unwrap_err().downcast()?, Error::NotFound);
+    assert_eq!(post.unwrap_err().downcast::<Error>()?, Error::NotFound);
     Ok(())
 }
 
