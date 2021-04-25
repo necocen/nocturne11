@@ -1,13 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% for post in posts %}
+    {% for post in page.posts %}
         {% include "_post.html" %}
     {% endfor %}
 {% endblock %}
 
-{% block prev_page -%}
-{%- endblock %}
+{%- block prev_page -%}
+    {%- match page.prev_page -%}
+        {%- when AdjacentPage::Condition with (_) -%}
+            <a href="/">newer</a>
+        {%- when AdjacentPage::Page with (number) -%}
+            <a href="/?page={{ number }}">newer</a>
+        {%- when AdjacentPage::None -%}
+    {%- endmatch -%}
+{%- endblock -%}
 
-{% block next_page -%}
-{%- endblock %}
+{%- block next_page -%}
+    {%- match page.next_page -%}
+        {%- when AdjacentPage::Condition with (_) -%}
+            {# Unexpected path #}
+            <a href="/">older</a>
+        {%- when AdjacentPage::Page with (number) -%}
+            <a href="/?page={{ number }}">older</a>
+        {%- when AdjacentPage::None -%}
+    {%- endmatch -%}
+{%- endblock -%}

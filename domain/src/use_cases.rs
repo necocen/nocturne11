@@ -1,14 +1,34 @@
 use crate::entities::{
     date::{DateCondition, Year, YearMonth},
-    AdjacentPage, Page, Post, PostId,
+    AdjacentPage, Page, PostId,
 };
 use crate::repositories::posts::PostsRepository;
 use anyhow::{Context, Result};
 use chrono::{Datelike, Duration, Local, TimeZone};
 
-pub fn get_posts(repository: &impl PostsRepository) -> Result<Vec<Post>> {
-    let posts = repository.get_all(0, 10)?;
-    Ok(posts)
+pub fn get_posts(
+    repository: &impl PostsRepository,
+    per_page: usize,
+    page: usize,
+) -> Result<Page<()>> {
+    let posts = repository.get_all(per_page * (page - 1), per_page + 1)?;
+    let next_page = if posts.len() > per_page {
+        AdjacentPage::Page(page + 1)
+    } else {
+        AdjacentPage::None
+    };
+    Ok(Page {
+        condition: &(),
+        posts: posts.into_iter().take(per_page).collect(),
+        per_page,
+        page,
+        next_page,
+        prev_page: if page > 2 {
+            AdjacentPage::Page(page - 1)
+        } else {
+            AdjacentPage::Condition(())
+        },
+    })
 }
 
 pub fn get_post_with_id<'a>(

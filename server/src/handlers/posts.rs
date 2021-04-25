@@ -36,9 +36,13 @@ pub(super) struct PageQuery {
     page: Option<usize>,
 }
 
-pub(super) async fn all_posts(server: web::Data<Server>) -> Result<HttpResponse, Error> {
+pub(super) async fn all_posts(
+    server: web::Data<Server>,
+    query: web::Query<PageQuery>,
+) -> Result<HttpResponse, Error> {
+    let page = get_posts(&server.posts_repository, 10, query.page.unwrap_or(1))?;
     AllPostsTemplate {
-        posts: get_posts(&server.posts_repository)?,
+        page,
         title: "タイトル",
     }
     .to_response()
@@ -87,7 +91,7 @@ mod templates {
     #[template(path = "all_posts.html")]
     pub(super) struct AllPostsTemplate<'a> {
         pub(super) title: &'a str,
-        pub(super) posts: Vec<Post>,
+        pub(super) page: Page<'a, ()>,
     }
 
     #[derive(Template)]
