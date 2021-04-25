@@ -3,6 +3,7 @@ use domain::entities::{date::*, *};
 use domain::use_cases::*;
 mod posts_repository_mock;
 use posts_repository_mock::*;
+use pretty_assertions::assert_eq;
 
 #[test]
 fn test_get_days() -> Result<()> {

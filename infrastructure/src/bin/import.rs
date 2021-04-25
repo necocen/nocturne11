@@ -10,11 +10,8 @@ use std::env;
 fn main() -> Result<()> {
     env_logger::init();
     dotenv().ok();
-    let old_repo =
-        OldPostsRepositoryImpl::new(&url::Url::parse(&env::var("OLD_DATABASE_URL")?)?)?;
-    let new_repo = PostsRepositoryImpl::new(
-        &url::Url::parse(&env::var("DATABASE_URL")?)?,
-    )?;
+    let old_repo = OldPostsRepositoryImpl::new(&url::Url::parse(&env::var("OLD_DATABASE_URL")?)?)?;
+    let new_repo = PostsRepositoryImpl::new(&url::Url::parse(&env::var("DATABASE_URL")?)?)?;
     transport(&old_repo, &new_repo)?;
     Ok(())
 }

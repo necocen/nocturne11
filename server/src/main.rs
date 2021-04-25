@@ -4,8 +4,8 @@ use anyhow::Result;
 mod server;
 use server::Server;
 mod handlers;
-use handlers::routing;
 use dotenv::dotenv;
+use handlers::routing;
 use std::env;
 
 #[actix_web::main]

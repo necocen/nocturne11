@@ -192,6 +192,7 @@ mod templates {
     mod tests {
         use super::*;
         use domain::entities::date::*;
+        use pretty_assertions::assert_eq;
 
         #[test]
         fn has_no_links_in_a_line() {

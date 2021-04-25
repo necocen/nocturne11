@@ -2,15 +2,14 @@ use anyhow::Result;
 use chrono::Utc;
 use domain::entities::*;
 use domain::repositories::posts::*;
-use function_name::*;
 use infrastructure::posts_repository_impl::*;
+use pretty_assertions::assert_eq;
 mod test_database;
 use test_database::*;
 
-#[named]
 #[test]
 fn test_insert_and_find() -> Result<()> {
-    let TestDatabase { ref pg_url, .. } = test_db(function_name!())?;
+    let TestDatabase { ref pg_url, .. } = test_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
     repo.insert(&Post {
         id: 1,

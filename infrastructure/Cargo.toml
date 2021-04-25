@@ -23,4 +23,5 @@ diesel_migrations = "^1"
 dotenv = "^0.15.0"
 
 [dev-dependencies]
-function_name = "^0.2.0"
+uuid = { version = "^0.8", features = ["v4"] }
+pretty_assertions = "^0.7.2"
