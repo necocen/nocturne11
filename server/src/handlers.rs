@@ -4,6 +4,7 @@ use actix_web::web;
 use errors::Error;
 use std::path::PathBuf;
 use templates::TemplateToResponse;
+mod admin;
 mod api;
 mod errors;
 mod filters;
@@ -18,6 +19,11 @@ pub(crate) fn routing(
     Box::new(move |cfg: &mut web::ServiceConfig| {
         cfg.data(server.clone())
             .service(web::resource("/").route(web::get().to(posts::all_posts)))
+            .service(
+                web::scope("/admin")
+                    .service(web::resource("/new").route(web::get().to(admin::new_post_form)))
+                    .service(web::resource("/create").route(web::post().to(admin::create))),
+            )
             .service(web::resource(r"/{id:\d+}").route(web::get().to(posts::post_with_id)))
             .service(
                 web::resource(r"/{year:\d{4}}-{month:\d{2}}")

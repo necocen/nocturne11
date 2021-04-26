@@ -1,0 +1,11 @@
+{% extends "../base.html" %}
+
+{% block content %}
+    <form method="POST" action="/admin/create">
+        <p>
+            <label for="post-form-title">Title</label>
+            <input type="text" name="title" id="post-form-title" />
+            <button type="submit">Submit</button>
+        </p>
+    </form>
+{% endblock %}

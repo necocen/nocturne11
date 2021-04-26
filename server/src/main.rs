@@ -21,7 +21,9 @@ async fn main() -> Result<()> {
     let pg_url = url::Url::parse(&env::var("DATABASE_URL")?)?;
     let server = Server::new(&es_url, &pg_url)?;
     actix_web::HttpServer::new(move || {
-        let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
+        let cors = Cors::default()
+            .allowed_origin("http://localhost:8080")
+            .allowed_origin("http://localhost:4000"); // for development
         let session = CookieSession::signed(secret_key.as_bytes())
             .name("nocturne-session")
             .same_site(SameSite::Lax)
