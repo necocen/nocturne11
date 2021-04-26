@@ -1,3 +1,4 @@
+use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_session::CookieSession;
 use actix_web::{cookie::SameSite, App};
 use anyhow::Result;
@@ -20,13 +21,19 @@ async fn main() -> Result<()> {
     let pg_url = url::Url::parse(&env::var("DATABASE_URL")?)?;
     let server = Server::new(&es_url, &pg_url)?;
     actix_web::HttpServer::new(move || {
+        let identity = IdentityService::new(
+            CookieIdentityPolicy::new(secret_key.as_bytes())
+                .name("nocturne-identity")
+                .same_site(SameSite::Lax)
+                .secure(false), // for development
+        );
         let session = CookieSession::signed(secret_key.as_bytes())
             .name("nocturne-session")
             .same_site(SameSite::Lax)
             .secure(false); // for development
-                            // FIXME: 本番運用ではprivateにしたほうがいいのかも？
         App::new()
             .wrap(session)
+            .wrap(identity)
             .configure(routing(server.clone(), "./frontend/build/src"))
     })
     .bind("0.0.0.0:4000")?

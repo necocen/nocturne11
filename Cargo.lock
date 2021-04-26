@@ -99,6 +99,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix-identity"
+version = "0.4.0-beta.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2fa74b5377d53b133c2a9ee8733f1381a145058775f910bfec1fc922df55471"
+dependencies = [
+ "actix-service",
+ "actix-web",
+ "futures-util",
+ "serde",
+ "serde_json",
+ "time 0.2.26",
+]
+
+[[package]]
 name = "actix-macros"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1900,6 +1914,7 @@ version = "11.0.0"
 dependencies = [
  "actix-cors",
  "actix-files",
+ "actix-identity",
  "actix-session",
  "actix-web",
  "anyhow",
