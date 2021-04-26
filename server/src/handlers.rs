@@ -2,16 +2,16 @@ use crate::server::Server;
 use actix_cors::Cors;
 use actix_files as fs;
 use actix_web::web::{get, post, resource, scope, ServiceConfig};
+use askama_helpers::TemplateToResponse;
 use errors::Error;
 use std::path::PathBuf;
-use templates::TemplateToResponse;
 mod admin;
 mod api;
+mod askama_helpers;
 mod auth;
 mod errors;
 mod filters;
 mod posts;
-mod templates;
 
 pub(crate) fn routing(
     server: Server,
