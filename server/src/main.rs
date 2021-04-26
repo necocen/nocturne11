@@ -1,4 +1,3 @@
-use actix_cors::Cors;
 use actix_session::CookieSession;
 use actix_web::{cookie::SameSite, App};
 use anyhow::Result;
@@ -21,9 +20,6 @@ async fn main() -> Result<()> {
     let pg_url = url::Url::parse(&env::var("DATABASE_URL")?)?;
     let server = Server::new(&es_url, &pg_url)?;
     actix_web::HttpServer::new(move || {
-        let cors = Cors::default()
-            .allowed_origin("http://localhost:8080")
-            .allowed_origin("http://localhost:4000"); // for development
         let session = CookieSession::signed(secret_key.as_bytes())
             .name("nocturne-session")
             .same_site(SameSite::Lax)
@@ -31,7 +27,6 @@ async fn main() -> Result<()> {
                             // FIXME: 本番運用ではprivateにしたほうがいいのかも？
         App::new()
             .wrap(session)
-            .wrap(cors)
             .configure(routing(server.clone(), "./frontend/build/src"))
     })
     .bind("0.0.0.0:4000")?
