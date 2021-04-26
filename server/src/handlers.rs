@@ -1,10 +1,9 @@
 use crate::server::Server;
 use actix_cors::Cors;
 use actix_files as fs;
-use actix_identity::Identity;
+use actix_identity::RequestIdentity;
 use actix_web::{
-    dev::{Service, ServiceRequest},
-    FromRequest,
+    dev::Service,
     web::{get, post, resource, scope, ServiceConfig},
 };
 use askama_helpers::TemplateToResponse;
@@ -39,20 +38,11 @@ pub(crate) fn routing(
             .service(resource("/logout").route(get().to(auth::logout)))
             .service(
                 scope("/admin")
-                    .wrap_fn(|req, srv| {
-                        println!("Hey");
-                        let (a, mut b) = req.into_parts();
-                        let id = Identity::from_request(&a, &mut b).into_inner();
-                        // let fut = Identity::from_request(&a, &mut b);
-                        // let _ = async {
-                        //     let id = fut.await;
-                        //     let id = id.unwrap().identity();
-                        // };
-                        let req = ServiceRequest::from_parts(a, b);
-                        let fut = srv.call(req);
-                        async {
-                            Ok(fut.await?)
-                        }
+                    .wrap_fn(|req, srv| match req.get_identity() {
+                        Some(id) if id == "neko" => srv.call(req),
+                        _ => Box::pin(async {
+                            Err(actix_web::error::ErrorUnauthorized("Unauthorized"))
+                        }),
                     })
                     .service(resource("/new").route(get().to(admin::new_post_form)))
                     .service(resource("/create").route(post().to(admin::create))),
