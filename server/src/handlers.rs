@@ -7,6 +7,7 @@ use std::path::PathBuf;
 use templates::TemplateToResponse;
 mod admin;
 mod api;
+mod auth;
 mod errors;
 mod filters;
 mod posts;
@@ -21,11 +22,6 @@ pub(crate) fn routing(
         let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
         cfg.data(server.clone())
             .service(resource("/").route(get().to(posts::all_posts)))
-            .service(
-                scope("/admin")
-                    .service(resource("/new").route(get().to(admin::new_post_form)))
-                    .service(resource("/create").route(post().to(admin::create))),
-            )
             .service(resource(r"/{id:\d+}").route(get().to(posts::post_with_id)))
             .service(
                 resource(r"/{year:\d{4}}-{month:\d{2}}").route(get().to(posts::posts_with_date)),
@@ -33,6 +29,13 @@ pub(crate) fn routing(
             .service(
                 resource(r"/{year:\d{4}}-{month:\d{2}}-{day:\d{2}}")
                     .route(get().to(posts::posts_with_date)),
+            )
+            .service(resource("/login").route(get().to(auth::login)))
+            .service(resource("/logout").route(get().to(auth::logout)))
+            .service(
+                scope("/admin")
+                    .service(resource("/new").route(get().to(admin::new_post_form)))
+                    .service(resource("/create").route(post().to(admin::create))),
             )
             .service(
                 scope("/api")
