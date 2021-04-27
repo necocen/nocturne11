@@ -2,10 +2,11 @@ use anyhow::{Context, Result};
 use chrono::{Local, TimeZone, Utc};
 use domain::entities::{date::*, *};
 use domain::repositories::posts::PostsRepository;
+use std::cell::RefCell;
 
 #[derive(Debug, Clone)]
 pub struct PostRepositoryMock {
-    posts: Vec<Post>,
+    posts: RefCell<Vec<Post>>,
 }
 
 impl PostRepositoryMock {
@@ -36,7 +37,9 @@ impl PostRepositoryMock {
             })
             .collect();
 
-        PostRepositoryMock { posts }
+        PostRepositoryMock {
+            posts: RefCell::new(posts),
+        }
     }
 }
 
@@ -44,6 +47,7 @@ impl PostsRepository for PostRepositoryMock {
     fn get(&self, id: PostId) -> Result<Post> {
         Ok(self
             .posts
+            .borrow()
             .iter()
             .find(|p| p.id == id)
             .context("Not Found")?
@@ -58,16 +62,13 @@ impl PostsRepository for PostRepositoryMock {
     ) -> Result<Vec<Post>> {
         let mut posts = self
             .posts
-            .iter()
+            .borrow()
+            .clone()
+            .into_iter()
             .filter(|p| p.created_at >= from)
             .collect::<Vec<_>>();
         posts.sort_by_key(|p| p.created_at);
-        Ok(posts
-            .into_iter()
-            .skip(offset)
-            .take(limit)
-            .cloned()
-            .collect())
+        Ok(posts.into_iter().skip(offset).take(limit).collect())
     }
 
     fn get_until_date<Tz: TimeZone>(
@@ -78,29 +79,19 @@ impl PostsRepository for PostRepositoryMock {
     ) -> Result<Vec<Post>> {
         let mut posts = self
             .posts
-            .iter()
+            .borrow()
+            .clone()
+            .into_iter()
             .filter(|p| p.created_at < until)
             .collect::<Vec<_>>();
         posts.sort_by_key(|p| p.created_at);
-        Ok(posts
-            .into_iter()
-            .rev()
-            .skip(offset)
-            .take(limit)
-            .cloned()
-            .collect())
+        Ok(posts.into_iter().rev().skip(offset).take(limit).collect())
     }
 
     fn get_all(&self, offset: usize, limit: usize) -> Result<Vec<Post>> {
-        let mut posts = self.posts.iter().collect::<Vec<_>>();
+        let mut posts = self.posts.borrow().clone().into_iter().collect::<Vec<_>>();
         posts.sort_by_key(|p| p.created_at);
-        Ok(posts
-            .into_iter()
-            .rev()
-            .skip(offset)
-            .take(limit)
-            .cloned()
-            .collect())
+        Ok(posts.into_iter().rev().skip(offset).take(limit).collect())
     }
 
     fn get_year_months(&self) -> Result<Vec<YearMonth>> {
