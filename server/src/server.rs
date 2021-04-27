@@ -9,7 +9,7 @@ pub(crate) struct Server {
     pub search_repository: SearchRepositoryImpl,
     pub posts_repository: PostsRepositoryImpl,
     pub static_path: PathBuf,
-    pub admin_user: String,
+    pub admin_user_id: String,
 }
 
 impl Server {
@@ -25,7 +25,7 @@ impl Server {
             search_repository,
             posts_repository,
             static_path: static_path.into(),
-            admin_user: admin_user.into(),
+            admin_user_id: admin_user.into(),
         })
     }
 }

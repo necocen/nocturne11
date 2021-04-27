@@ -10,19 +10,18 @@ use std::{
 };
 
 #[derive(Clone, Debug)]
-pub struct AuthService {
-    admin_user: String,
+pub struct AuthService<F: Fn(&str) -> bool + Clone + 'static> {
+    pub is_authorized: F,
 }
 
-impl AuthService {
-    pub fn new(admin_user: impl Into<String>) -> AuthService {
-        AuthService {
-            admin_user: admin_user.into(),
-        }
+impl<F: Fn(&str) -> bool + Clone + 'static> AuthService<F> {
+    pub fn new(is_authorized: F) -> AuthService<F> {
+        AuthService { is_authorized }
     }
 }
 
-impl<S, B: 'static> Transform<S, ServiceRequest> for AuthService
+impl<S, F: Fn(&str) -> bool + Clone + 'static, B: 'static> Transform<S, ServiceRequest>
+    for AuthService<F>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -30,7 +29,7 @@ where
     type Response = ServiceResponse<B>;
     type Error = Error;
     type InitError = ();
-    type Transform = AuthServiceMiddleware<S>;
+    type Transform = AuthServiceMiddleware<S, F>;
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
@@ -41,11 +40,13 @@ where
     }
 }
 
-pub struct AuthServiceMiddleware<S> {
+pub struct AuthServiceMiddleware<S, F: Fn(&str) -> bool + Clone + 'static> {
     service: S,
-    auth: AuthService,
+    auth: AuthService<F>,
 }
-impl<S, B: 'static> Service<ServiceRequest> for AuthServiceMiddleware<S>
+
+impl<S, F: Fn(&str) -> bool + Clone + 'static, B: 'static> Service<ServiceRequest>
+    for AuthServiceMiddleware<S, F>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -60,7 +61,7 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         match req.get_identity() {
-            Some(id) if id == self.auth.admin_user => Box::pin(self.service.call(req)),
+            Some(ref id) if (self.auth.is_authorized)(id) => Box::pin(self.service.call(req)),
             _ => Box::pin(ready(Err(actix_web::error::ErrorUnauthorized(
                 "Unauthorized",
             )))),
