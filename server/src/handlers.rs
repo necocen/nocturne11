@@ -4,7 +4,6 @@ use actix_files as fs;
 use actix_web::web::{get, post, resource, scope, ServiceConfig};
 use askama_helpers::TemplateToResponse;
 use errors::Error;
-use std::path::PathBuf;
 mod admin;
 mod api;
 mod askama_helpers;
@@ -13,11 +12,7 @@ mod errors;
 mod filters;
 mod posts;
 
-pub(crate) fn routing(
-    server: Server,
-    static_path: impl Into<PathBuf>,
-) -> Box<dyn FnOnce(&mut ServiceConfig)> {
-    let static_path: PathBuf = static_path.into();
+pub(crate) fn routing(server: Server) -> Box<dyn FnOnce(&mut ServiceConfig)> {
     Box::new(move |cfg: &mut ServiceConfig| {
         let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
         cfg.data(server.clone())
@@ -34,7 +29,7 @@ pub(crate) fn routing(
             .service(resource("/logout").route(get().to(auth::logout)))
             .service(
                 scope("/admin")
-                    .wrap(AuthService::new("neko"))
+                    .wrap(AuthService::new(server.admin_user))
                     .service(resource("/new").route(get().to(admin::new_post_form)))
                     .service(resource("/create").route(post().to(admin::create))),
             )
@@ -47,6 +42,6 @@ pub(crate) fn routing(
                     )
                     .service(resource("/months").route(get().to(api::months))),
             )
-            .service(fs::Files::new("/static", static_path));
+            .service(fs::Files::new("/static", server.static_path));
     })
 }

@@ -20,7 +20,12 @@ async fn main() -> Result<()> {
     }
     let es_url = url::Url::parse(&env::var("ES_URL")?)?;
     let pg_url = url::Url::parse(&env::var("DATABASE_URL")?)?;
-    let server = Server::new(&es_url, &pg_url)?;
+    let server = Server::new(
+        &es_url,
+        &pg_url,
+        "./frontend/build/src",
+        &env::var("ADMIN_USER_ID")?,
+    )?;
     actix_web::HttpServer::new(move || {
         let identity = IdentityService::new(
             CookieIdentityPolicy::new(secret_key.as_bytes())
@@ -35,7 +40,7 @@ async fn main() -> Result<()> {
         App::new()
             .wrap(session)
             .wrap(identity)
-            .configure(routing(server.clone(), "./frontend/build/src"))
+            .configure(routing(server.clone()))
     })
     .bind("0.0.0.0:4000")?
     .run()

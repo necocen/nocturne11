@@ -11,12 +11,14 @@ use std::{
 
 #[derive(Clone, Debug)]
 pub struct AuthService {
-    user: String,
+    admin_user: String,
 }
 
 impl AuthService {
-    pub fn new(user: impl Into<String>) -> AuthService {
-        AuthService { user: user.into() }
+    pub fn new(admin_user: impl Into<String>) -> AuthService {
+        AuthService {
+            admin_user: admin_user.into(),
+        }
     }
 }
 
@@ -58,7 +60,7 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         match req.get_identity() {
-            Some(id) if id == self.auth.user => Box::pin(self.service.call(req)),
+            Some(id) if id == self.auth.admin_user => Box::pin(self.service.call(req)),
             _ => Box::pin(ready(Err(actix_web::error::ErrorUnauthorized(
                 "Unauthorized",
             )))),
