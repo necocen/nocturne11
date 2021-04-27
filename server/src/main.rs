@@ -4,6 +4,7 @@ use actix_web::{cookie::SameSite, App};
 use anyhow::Result;
 mod server;
 use server::Server;
+mod auth_service;
 mod handlers;
 use dotenv::dotenv;
 use handlers::routing;
