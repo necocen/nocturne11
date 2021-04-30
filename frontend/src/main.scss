@@ -13,6 +13,8 @@ $text-color-dim: #999;
 $link-color-hover: #448;
 $menu-color: #999;
 $menu-color-dim: #ddd;
+$input-color: #eee;
+$focused-input-color: #e3e3e3;
 
 @mixin link-hover {
     a {
@@ -272,22 +274,24 @@ body {
     }
 }
 
-article {
-    position: relative;
-    margin-right: 1em;
-
-    h3 {
+main {
+    header > h3 {
         position: relative;
         height: auto;
         z-index: 1;
-        margin: 0;
+        margin: 0 0.714em 0 0;
         line-height: 19px;
         vertical-align: middle;
         border-bottom: 1px solid $border-color1;
-        font-size: 18px;
+        font-size: 140%;
         font-weight: normal;
         @include post-text-style;
     }
+}
+
+article {
+    position: relative;
+    margin-right: 1em;
 
     hr {
         display: block;
@@ -326,5 +330,60 @@ article {
 
     time.updated-at::before {
         content: "updated at:\2005";
+    }
+}
+
+form {
+
+    h4 {
+        margin: 1ex 0;
+    }
+
+    fieldset {
+        border: none;
+        margin: 1ex 0 2ex;
+        padding: 0;
+    }
+
+    p {
+        margin: 1ex 0;
+    }
+
+    input[type=text], input[type=password], textarea {
+        display: block;
+        margin: 0;
+        padding: 0.5ex 0.5em;
+        box-sizing: border-box;;
+        width: calc(100% - 1em);
+        border: 1px solid $border-color1;
+        line-height: 20px;
+        font-family: monospace;
+        background-color: $input-color;
+
+        &:focus {
+            background-color: $focused-input-color;
+        }
+    }
+
+    input[type=submit] {
+        box-sizing: border-box;
+        height: 2em;
+    }
+
+    textarea {
+        height:
+        calc(
+            100vh
+            - #{$header-height}
+            - #{$footer-height}
+            - 4ex /* main margin */
+            - 1.4em /* h3 height */
+            - 3ex /* fieldset margin */
+            - 2ex - 0.9em /* h4 */
+            - 2ex - 20px /* p(input) margin + input */
+            - 2ex - 0.9em /* h4 */
+            - 2ex /* p(textarea) margin */
+            - 2ex - 2em /* p(input) margin + input */
+            );
     }
 }
