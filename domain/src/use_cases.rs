@@ -184,5 +184,5 @@ pub fn get_days(repository: &impl PostsRepository, ym: YearMonth) -> Result<Vec<
 }
 
 pub fn create_post(repository: &impl PostsRepository, new_post: NewPost) -> Result<Post> {
-    repository.insert_new(new_post)
+    repository.create(new_post)
 }

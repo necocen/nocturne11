@@ -126,13 +126,13 @@ impl PostsRepository for PostsRepositoryImpl {
         Ok(results.into_iter().map(|d| d as u8).collect())
     }
 
-    fn insert_new(&self, _new_post: NewPost) -> Result<Post> {
+    fn create(&self, _new_post: NewPost) -> Result<Post> {
         todo!()
     }
 }
 
 impl ImportPostsRepository for PostsRepositoryImpl {
-    fn insert(&self, post: &Post) -> Result<Post> {
+    fn import(&self, post: &Post) -> Result<Post> {
         use crate::schema::posts;
         let post = diesel::insert_into(posts::table)
             .values(&PostModel {

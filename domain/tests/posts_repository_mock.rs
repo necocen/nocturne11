@@ -105,7 +105,7 @@ impl PostsRepository for PostsRepositoryMock {
         Ok((1..=14).map(|d| d * 2 - ym.1 % 2).collect())
     }
 
-    fn insert_new(&self, new_post: NewPost) -> Result<Post> {
+    fn create(&self, new_post: NewPost) -> Result<Post> {
         let NewPost {
             title,
             body,
@@ -124,7 +124,7 @@ impl PostsRepository for PostsRepositoryMock {
 }
 
 impl ImportPostsRepository for PostsRepositoryMock {
-    fn insert(&self, post: &Post) -> Result<Post> {
+    fn import(&self, post: &Post) -> Result<Post> {
         self.posts.borrow_mut().push(post.clone());
         Ok(post.clone())
     }

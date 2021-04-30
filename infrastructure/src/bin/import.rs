@@ -30,7 +30,7 @@ fn transport(
     loop {
         let old_posts = old_repository.get_all(offset, page_size)?;
         for old_post in old_posts.iter() {
-            new_repository.insert(old_post)?;
+            new_repository.import(old_post)?;
         }
         if !old_posts.is_empty() {
             let first_date = old_posts
