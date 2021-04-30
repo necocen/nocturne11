@@ -1,8 +1,10 @@
 use anyhow::Result;
 use assert_matches::assert_matches;
 use chrono::{Local, TimeZone, Utc};
-use domain::entities::*;
-use domain::repositories::posts::*;
+use domain::{
+    entities::*,
+    repositories::{import_posts::*, posts::*},
+};
 use infrastructure::posts_repository_impl::*;
 use pretty_assertions::assert_eq;
 mod database_mock;

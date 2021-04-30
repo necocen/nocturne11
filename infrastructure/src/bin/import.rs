@@ -2,7 +2,9 @@
 extern crate log;
 
 use anyhow::Result;
-use domain::repositories::posts::PostsRepository;
+use domain::repositories::{
+    export_posts::ExportPostsRepository, import_posts::ImportPostsRepository,
+};
 use dotenv::dotenv;
 use infrastructure::{
     legacy::posts_repository_impl::OldPostsRepositoryImpl,
@@ -20,8 +22,8 @@ fn main() -> Result<()> {
 }
 
 fn transport(
-    old_repository: &impl PostsRepository,
-    new_repository: &impl PostsRepository,
+    old_repository: &impl ExportPostsRepository,
+    new_repository: &impl ImportPostsRepository,
 ) -> Result<()> {
     let mut offset = 0_usize;
     let page_size = 100_usize;

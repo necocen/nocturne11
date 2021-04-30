@@ -5,8 +5,10 @@ use chrono::offset::Local;
 use chrono::{DateTime, TimeZone};
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
-use domain::entities::{date::YearMonth, NewPost, Post, PostId};
-use domain::repositories::posts::PostsRepository;
+use domain::{
+    entities::{date::YearMonth, NewPost, Post, PostId},
+    repositories::{import_posts::ImportPostsRepository, posts::PostsRepository},
+};
 use r2d2::Pool;
 
 #[derive(Clone)]
@@ -124,6 +126,12 @@ impl PostsRepository for PostsRepositoryImpl {
         Ok(results.into_iter().map(|d| d as u8).collect())
     }
 
+    fn insert_new(&self, _new_post: NewPost) -> Result<Post> {
+        todo!()
+    }
+}
+
+impl ImportPostsRepository for PostsRepositoryImpl {
     fn insert(&self, post: &Post) -> Result<Post> {
         use crate::schema::posts;
         let post = diesel::insert_into(posts::table)
@@ -136,9 +144,5 @@ impl PostsRepository for PostsRepositoryImpl {
             })
             .get_result::<PostModel>(&self.conn_pool.get()?)?;
         Ok(post.into())
-    }
-
-    fn insert_new(&self, _new_post: NewPost) -> Result<Post> {
-        todo!()
     }
 }

@@ -1,7 +1,10 @@
 use anyhow::{Context, Result};
 use chrono::{Local, TimeZone, Utc};
-use domain::entities::{date::*, *};
 use domain::repositories::posts::PostsRepository;
+use domain::{
+    entities::{date::*, *},
+    repositories::import_posts::ImportPostsRepository,
+};
 use std::cell::RefCell;
 
 #[derive(Debug, Clone, Default)]
@@ -102,10 +105,6 @@ impl PostsRepository for PostRepositoryMock {
         Ok((1..=14).map(|d| d * 2 - ym.1 % 2).collect())
     }
 
-    fn insert(&self, _post: &Post) -> Result<Post> {
-        unimplemented!("This is mock")
-    }
-
     fn insert_new(&self, new_post: NewPost) -> Result<Post> {
         let NewPost {
             title,
@@ -121,5 +120,12 @@ impl PostsRepository for PostRepositoryMock {
         };
         self.posts.borrow_mut().push(post.clone());
         Ok(post)
+    }
+}
+
+impl ImportPostsRepository for PostRepositoryMock {
+    fn insert(&self, post: &Post) -> Result<Post> {
+        self.posts.borrow_mut().push(post.clone());
+        Ok(post.clone())
     }
 }
