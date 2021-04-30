@@ -29,33 +29,30 @@ fn transport(
     let page_size = 100_usize;
     loop {
         let old_posts = old_repository.get_all(offset, page_size)?;
-        for old_post in old_posts.iter() {
-            new_repository.import(old_post)?;
-        }
-        if !old_posts.is_empty() {
-            let first_date = old_posts
-                .first()
-                .unwrap()
-                .created_at
-                .with_timezone(&chrono::Local)
-                .to_rfc3339();
-            let last_date = old_posts
-                .last()
-                .unwrap()
-                .created_at
-                .with_timezone(&chrono::Local)
-                .to_rfc3339();
-            info!(
-                "Imported {} posts ({} -- {})",
-                old_posts.len(),
-                first_date,
-                last_date,
-            );
-        }
-        if old_posts.len() < page_size {
+        let count = old_posts.len();
+        if count == 0 {
             break;
         }
-        offset += old_posts.len();
+        let first_date = old_posts
+            .first()
+            .unwrap()
+            .created_at
+            .with_timezone(&chrono::Local)
+            .to_rfc3339();
+        let last_date = old_posts
+            .last()
+            .unwrap()
+            .created_at
+            .with_timezone(&chrono::Local)
+            .to_rfc3339();
+        for old_post in old_posts.into_iter() {
+            new_repository.import(old_post)?;
+        }
+        info!("Imported {} posts ({} -- {})", count, first_date, last_date,);
+        if count < page_size {
+            break;
+        }
+        offset += count;
     }
     new_repository.reset_id_sequence()?;
     Ok(())

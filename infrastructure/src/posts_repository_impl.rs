@@ -126,22 +126,31 @@ impl PostsRepository for PostsRepositoryImpl {
         Ok(results.into_iter().map(|d| d as u8).collect())
     }
 
-    fn create(&self, _new_post: NewPost) -> Result<Post> {
-        todo!()
+    fn create(&self, new_post: NewPost) -> Result<Post> {
+        use crate::schema::posts::{self, body, created_at, title, updated_at};
+        let post = diesel::insert_into(posts::table)
+            .values((
+                title.eq(new_post.title),
+                body.eq(new_post.body),
+                created_at.eq(new_post.created_at),
+                updated_at.eq(new_post.created_at),
+            ))
+            .get_result::<PostModel>(&self.conn_pool.get()?)?;
+        Ok(post.into())
     }
 }
 
 impl ImportPostsRepository for PostsRepositoryImpl {
-    fn import(&self, post: &Post) -> Result<Post> {
-        use crate::schema::posts;
+    fn import(&self, post: Post) -> Result<Post> {
+        use crate::schema::posts::{self, body, created_at, id, title, updated_at};
         let post = diesel::insert_into(posts::table)
-            .values(&PostModel {
-                id: post.id,
-                title: post.title.clone(),
-                body: post.body.clone(),
-                created_at: post.created_at,
-                updated_at: post.updated_at,
-            })
+            .values((
+                id.eq(post.id),
+                title.eq(post.title),
+                body.eq(post.body),
+                created_at.eq(post.created_at),
+                updated_at.eq(post.updated_at),
+            ))
             .get_result::<PostModel>(&self.conn_pool.get()?)?;
         Ok(post.into())
     }

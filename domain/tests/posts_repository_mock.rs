@@ -128,9 +128,9 @@ impl PostsRepository for PostsRepositoryMock {
 }
 
 impl ImportPostsRepository for PostsRepositoryMock {
-    fn import(&self, post: &Post) -> Result<Post> {
+    fn import(&self, post: Post) -> Result<Post> {
         self.posts.borrow_mut().push(post.clone());
-        Ok(post.clone())
+        Ok(post)
     }
 
     fn reset_id_sequence(&self) -> Result<()> {
