@@ -3,7 +3,7 @@ use super::TemplateToResponse;
 use crate::server::Server;
 use actix_web::{http::header, web, HttpResponse};
 use chrono::Utc;
-use domain::{entities::NewPost, repositories::posts::PostsRepository};
+use domain::{entities::NewPost, use_cases::create_post};
 use serde::Deserialize;
 use templates::NewPostTemplate;
 
@@ -21,11 +21,17 @@ pub(super) async fn create(
     server: web::Data<Server>,
     form: web::Form<FormParams>,
 ) -> Result<HttpResponse, Error> {
-    server.posts_repository.create(&NewPost {
+    let new_post = NewPost {
         title: form.title.clone(),
         body: form.body.clone(),
         created_at: Utc::now(),
-    })?;
+    };
+    create_post(
+        &server.posts_repository,
+        &server.search_repository,
+        &new_post,
+    )
+    .await?;
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, "/"))
         .finish())

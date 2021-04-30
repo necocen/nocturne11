@@ -1,8 +1,11 @@
-use crate::entities::{
-    date::{DateCondition, Year, YearMonth},
-    AdjacentPage, NewPost, Page, Post, PostId,
-};
 use crate::repositories::posts::PostsRepository;
+use crate::{
+    entities::{
+        date::{DateCondition, Year, YearMonth},
+        AdjacentPage, NewPost, Page, Post, PostId,
+    },
+    repositories::search::SearchRepository,
+};
 use anyhow::{Context, Result};
 use chrono::{Datelike, Duration, Local, TimeZone};
 
@@ -183,6 +186,12 @@ pub fn get_days(repository: &impl PostsRepository, ym: YearMonth) -> Result<Vec<
     Ok(days)
 }
 
-pub fn create_post(repository: &impl PostsRepository, new_post: NewPost) -> Result<Post> {
-    repository.create(&new_post)
+pub async fn create_post(
+    posts_repository: &impl PostsRepository,
+    search_repository: &impl SearchRepository,
+    new_post: &NewPost,
+) -> Result<Post> {
+    let post = posts_repository.create(new_post)?;
+    search_repository.insert(&post).await?;
+    Ok(post)
 }
