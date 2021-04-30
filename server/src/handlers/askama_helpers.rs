@@ -11,10 +11,10 @@ impl<T: askama::Template> TemplateToResponse for T {
         let mut buffer = BytesMut::with_capacity(self.size_hint());
         self.render_into(&mut buffer)?;
 
-        let ctype =
+        let content_type =
             askama::mime::extension_to_mime_type(self.extension().unwrap_or("txt")).to_string();
         Ok(HttpResponse::Ok()
-            .content_type(ctype.as_str())
+            .content_type(content_type.as_str())
             .body(buffer.freeze()))
     }
 }
