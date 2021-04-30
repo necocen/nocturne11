@@ -4,7 +4,7 @@ use domain::entities::{date::*, *};
 use domain::repositories::posts::PostsRepository;
 use std::cell::RefCell;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct PostRepositoryMock {
     posts: RefCell<Vec<Post>>,
 }

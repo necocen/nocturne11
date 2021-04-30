@@ -45,6 +45,8 @@ pub struct AuthServiceMiddleware<S, F: Fn(&str) -> bool + Clone + 'static> {
     auth: AuthService<F>,
 }
 
+type ServiceResult<B> = Result<ServiceResponse<B>, Error>;
+
 impl<S, F: Fn(&str) -> bool + Clone + 'static, B: 'static> Service<ServiceRequest>
     for AuthServiceMiddleware<S, F>
 where
@@ -53,7 +55,7 @@ where
 {
     type Response = ServiceResponse<B>;
     type Error = Error;
-    type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>>>>;
+    type Future = Pin<Box<dyn Future<Output = ServiceResult<B>>>>;
 
     fn poll_ready(&self, cx: &mut Context) -> Poll<Result<(), Self::Error>> {
         self.service.poll_ready(cx)

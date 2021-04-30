@@ -18,7 +18,7 @@ impl DatabaseMock {
         let query = diesel::sql_query(format!(r#"CREATE DATABASE "{}""#, &db_name).as_str());
         query.execute(&conn)?;
 
-        let pg_url = pg_base_url.clone().join(&db_name)?;
+        let pg_url = pg_base_url.join(&db_name)?;
         migrate(&pg_url)?;
 
         Ok(Self {
@@ -50,7 +50,7 @@ impl Drop for DatabaseMock {
         let query = diesel::sql_query(format!(r#"DROP DATABASE "{}""#, self.db_name).as_str());
         query
             .execute(&conn)
-            .expect(&format!(r#"Couldn't drop database "{}""#, self.db_name));
+            .unwrap_or_else(|_| panic!(r#"Couldn't drop database "{}""#, self.db_name));
     }
 }
 
