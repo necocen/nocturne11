@@ -141,18 +141,24 @@ impl PostsRepository for PostsRepositoryImpl {
 }
 
 impl ImportPostsRepository for PostsRepositoryImpl {
-    fn import(&self, post: Post) -> Result<Post> {
+    fn import(&self, posts: Vec<Post>) -> Result<Vec<Post>> {
         use crate::schema::posts::{self, body, created_at, id, title, updated_at};
+        let records = posts
+            .into_iter()
+            .map(|post| {
+                (
+                    id.eq(post.id),
+                    title.eq(post.title),
+                    body.eq(post.body),
+                    created_at.eq(post.created_at),
+                    updated_at.eq(post.updated_at),
+                )
+            })
+            .collect::<Vec<_>>();
         let post = diesel::insert_into(posts::table)
-            .values((
-                id.eq(post.id),
-                title.eq(post.title),
-                body.eq(post.body),
-                created_at.eq(post.created_at),
-                updated_at.eq(post.updated_at),
-            ))
-            .get_result::<PostModel>(&self.conn_pool.get()?)?;
-        Ok(post.into())
+            .values(&records)
+            .get_results::<PostModel>(&self.conn_pool.get()?)?;
+        Ok(post.into_iter().map(Into::into).collect())
     }
 
     fn reset_id_sequence(&self) -> Result<()> {

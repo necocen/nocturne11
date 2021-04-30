@@ -11,7 +11,6 @@ use infrastructure::{
     legacy::posts_repository_impl::OldPostsRepositoryImpl,
     posts_repository_impl::PostsRepositoryImpl,
 };
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::env;
 
 fn main() -> Result<()> {
@@ -51,11 +50,7 @@ fn transport(
         old_posts.append(&mut chunk);
     }
 
-    // FIXME: 普通にバルクインサートを実装すべきという話はある
-    let imported = old_posts
-        .into_par_iter()
-        .map(|post| new_repository.import(post))
-        .collect::<Result<Vec<_>>>()?;
+    let imported = new_repository.import(old_posts)?;
     new_repository.reset_id_sequence()?;
     info!("Imported {} posts successfully.", imported.len());
 

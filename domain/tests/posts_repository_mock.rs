@@ -1,7 +1,10 @@
 use anyhow::{Context, Result};
 use chrono::{Local, TimeZone, Utc};
-use domain::entities::{date::*, *};
 use domain::repositories::posts::PostsRepository;
+use domain::{
+    entities::{date::*, *},
+    repositories::import_posts::ImportPostsRepository,
+};
 use std::cell::{Cell, RefCell};
 
 #[derive(Debug, Clone, Default)]
@@ -121,5 +124,24 @@ impl PostsRepository for PostsRepositoryMock {
         };
         self.posts.borrow_mut().push(post.clone());
         Ok(post)
+    }
+}
+
+impl ImportPostsRepository for PostsRepositoryMock {
+    fn import(&self, posts: Vec<Post>) -> Result<Vec<Post>> {
+        self.posts.borrow_mut().append(&mut posts.clone());
+        Ok(posts)
+    }
+
+    fn reset_id_sequence(&self) -> Result<()> {
+        let max_id = self
+            .posts
+            .borrow()
+            .iter()
+            .map(|post| post.id)
+            .max()
+            .unwrap_or(0);
+        self.sequence.set(max_id);
+        Ok(())
     }
 }

@@ -14,13 +14,13 @@ use database_mock::*;
 fn insert_and_find() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
-    repo.import(Post {
+    repo.import(vec![Post {
         id: 1,
         title: "1".to_string(),
         body: "1111".to_string(),
         created_at: Utc::now(),
         updated_at: Utc::now(),
-    })?;
+    }])?;
     let post = repo.get(1)?;
     assert_eq!(post.id, 1);
     assert_eq!(post.title, "1");
@@ -43,20 +43,20 @@ fn insert_duplicated_id() -> Result<()> {
     use diesel::result::*;
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
-    repo.import(Post {
+    repo.import(vec![Post {
         id: 1,
         title: "1".to_string(),
         body: "1111".to_string(),
         created_at: Utc::now(),
         updated_at: Utc::now(),
-    })?;
-    let result = repo.import(Post {
+    }])?;
+    let result = repo.import(vec![Post {
         id: 1,
         title: "1".to_string(),
         body: "1111".to_string(),
         created_at: Utc::now(),
         updated_at: Utc::now(),
-    });
+    }]);
     assert_matches!(
         result.unwrap_err().downcast()?,
         Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)
@@ -68,9 +68,7 @@ fn insert_duplicated_id() -> Result<()> {
 fn find_all() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
-    for post in mock_data().into_iter() {
-        repo.import(post)?;
-    }
+    repo.import(mock_data())?;
     let posts = repo.get_all(0, 1000)?;
     let ids = posts.into_iter().map(|p| p.id).collect::<Vec<_>>();
     // get_all()は日付降順なので逆向き
