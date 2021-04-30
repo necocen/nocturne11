@@ -57,5 +57,6 @@ fn transport(
         }
         offset += old_posts.len();
     }
+    new_repository.reset_id_sequence()?;
     Ok(())
 }

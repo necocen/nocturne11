@@ -145,4 +145,10 @@ impl ImportPostsRepository for PostsRepositoryImpl {
             .get_result::<PostModel>(&self.conn_pool.get()?)?;
         Ok(post.into())
     }
+
+    fn reset_id_sequence(&self) -> Result<()> {
+        let _ = diesel::sql_query("SELECT reset_posts_id_sequence();")
+            .execute(&self.conn_pool.get()?)?;
+        Ok(())
+    }
 }

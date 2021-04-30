@@ -6,4 +6,12 @@ CREATE TABLE posts (
     body TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
-)
+);
+
+CREATE OR REPLACE FUNCTION reset_posts_id_sequence() RETURNS VOID AS $$
+DECLARE max_id INT;
+BEGIN
+    SELECT COALESCE(MAX(id), 1) FROM posts INTO max_id;
+    EXECUTE FORMAT('ALTER SEQUENCE posts_id_seq RESTART WITH %s;', max_id);
+END;
+$$ LANGUAGE plpgsql;

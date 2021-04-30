@@ -5,16 +5,17 @@ use domain::{
     entities::{date::*, *},
     repositories::import_posts::ImportPostsRepository,
 };
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 
 #[derive(Debug, Clone, Default)]
 pub struct PostsRepositoryMock {
     posts: RefCell<Vec<Post>>,
+    sequence: Cell<i32>,
 }
 
 impl PostsRepositoryMock {
     pub fn new() -> PostsRepositoryMock {
-        let posts = (1..=6)
+        let mut posts = (1..=6)
             .flat_map(|m| {
                 (1..=14).flat_map(move |d| {
                     let date = Local.ymd(2020i32, (m * 2) as u32, (d * 2 - m % 2) as u32);
@@ -38,10 +39,12 @@ impl PostsRepositoryMock {
                     ]
                 })
             })
-            .collect();
-
+            .collect::<Vec<_>>();
+        posts.sort_by_key(|post| post.id);
+        let sequence = posts.last().unwrap().id;
         PostsRepositoryMock {
             posts: RefCell::new(posts),
+            sequence: Cell::new(sequence),
         }
     }
 }
@@ -111,8 +114,9 @@ impl PostsRepository for PostsRepositoryMock {
             body,
             created_at,
         } = new_post;
+        self.sequence.set(self.sequence.get() + 1);
         let post = Post {
-            id: 0,
+            id: self.sequence.get(),
             title,
             body,
             created_at,
@@ -127,5 +131,17 @@ impl ImportPostsRepository for PostsRepositoryMock {
     fn import(&self, post: &Post) -> Result<Post> {
         self.posts.borrow_mut().push(post.clone());
         Ok(post.clone())
+    }
+
+    fn reset_id_sequence(&self) -> Result<()> {
+        let max_id = self
+            .posts
+            .borrow()
+            .iter()
+            .map(|post| post.id)
+            .max()
+            .unwrap_or(0);
+        self.sequence.set(max_id);
+        Ok(())
     }
 }
