@@ -11,6 +11,8 @@ pub trait SearchRepository {
 
     async fn insert(&self, post: &Post) -> Result<()>;
 
+    async fn insert_bulk(&self, posts: &[Post]) -> Result<()>;
+
     async fn save_snapshot(&self) -> Result<()>;
 
     async fn reset(&self) -> Result<()>;

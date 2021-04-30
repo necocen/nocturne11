@@ -10,7 +10,7 @@ use elasticsearch::{
         SnapshotCreateParts, SnapshotCreateRepositoryParts, SnapshotGetParts,
         SnapshotGetRepositoryParts, SnapshotRestoreParts,
     },
-    CreateParts, Elasticsearch, SearchParts,
+    BulkOperation, BulkParts, CreateParts, Elasticsearch, SearchParts,
 };
 use serde_json::{json, Value};
 
@@ -294,6 +294,20 @@ impl SearchRepository for SearchRepositoryImpl {
         self.client
             .create(CreateParts::IndexId(Self::INDEX_NAME, &post.id.to_string()))
             .body(post)
+            .send()
+            .await?;
+        Ok(())
+    }
+
+    async fn insert_bulk(&self, posts: &[Post]) -> Result<()> {
+        self.create_index().await?;
+        let posts: Vec<BulkOperation<&Post>> = posts
+            .iter()
+            .map(|post| BulkOperation::create(post.id.to_string(), post).into())
+            .collect();
+        self.client
+            .bulk(BulkParts::Index(Self::INDEX_NAME))
+            .body(posts)
             .send()
             .await?;
         Ok(())
