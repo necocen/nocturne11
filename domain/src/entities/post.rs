@@ -12,6 +12,13 @@ pub struct Post {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NewPost {
+    pub title: String,
+    pub body: String,
+    pub created_at: DateTime<Utc>,
+}
+
 #[derive(Debug, Clone)]
 pub struct Page<'a, C> {
     pub condition: &'a C,

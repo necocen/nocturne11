@@ -2,7 +2,7 @@ use crate::legacy::models::Article as OldArticle;
 use anyhow::{Context, Result};
 use chrono::{DateTime, TimeZone, Utc};
 use diesel::prelude::*;
-use domain::entities::{date::YearMonth, Post, PostId};
+use domain::entities::{date::YearMonth, NewPost, Post, PostId};
 use domain::repositories::posts::PostsRepository;
 
 pub struct OldPostsRepositoryImpl {
@@ -90,6 +90,10 @@ impl PostsRepository for OldPostsRepositoryImpl {
     }
 
     fn insert(&self, _post: &Post) -> Result<Post> {
+        unimplemented!("This impl is Legacy");
+    }
+
+    fn insert_new(&self, _new_post: NewPost) -> Result<Post> {
         unimplemented!("This impl is Legacy");
     }
 }

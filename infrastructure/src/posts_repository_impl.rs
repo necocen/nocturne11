@@ -5,7 +5,7 @@ use chrono::offset::Local;
 use chrono::{DateTime, TimeZone};
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
-use domain::entities::{date::YearMonth, Post, PostId};
+use domain::entities::{date::YearMonth, NewPost, Post, PostId};
 use domain::repositories::posts::PostsRepository;
 use r2d2::Pool;
 
@@ -136,5 +136,9 @@ impl PostsRepository for PostsRepositoryImpl {
             })
             .get_result::<PostModel>(&self.conn_pool.get()?)?;
         Ok(post.into())
+    }
+
+    fn insert_new(&self, _new_post: NewPost) -> Result<Post> {
+        todo!()
     }
 }

@@ -1,6 +1,6 @@
 use crate::entities::{
     date::{DateCondition, Year, YearMonth},
-    AdjacentPage, Page, PostId,
+    AdjacentPage, NewPost, Page, Post, PostId,
 };
 use crate::repositories::posts::PostsRepository;
 use anyhow::{Context, Result};
@@ -181,4 +181,8 @@ pub fn get_days(repository: &impl PostsRepository, ym: YearMonth) -> Result<Vec<
     let mut days = repository.get_days(ym)?;
     days.sort_unstable();
     Ok(days)
+}
+
+pub fn create_post(repository: &impl PostsRepository, new_post: NewPost) -> Result<Post> {
+    repository.insert_new(new_post)
 }

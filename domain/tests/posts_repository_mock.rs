@@ -105,4 +105,21 @@ impl PostsRepository for PostRepositoryMock {
     fn insert(&self, _post: &Post) -> Result<Post> {
         unimplemented!("This is mock")
     }
+
+    fn insert_new(&self, new_post: NewPost) -> Result<Post> {
+        let NewPost {
+            title,
+            body,
+            created_at,
+        } = new_post;
+        let post = Post {
+            id: 0,
+            title,
+            body,
+            created_at,
+            updated_at: created_at,
+        };
+        self.posts.borrow_mut().push(post.clone());
+        Ok(post)
+    }
 }

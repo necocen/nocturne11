@@ -1,4 +1,4 @@
-use crate::entities::{date::YearMonth, Post, PostId};
+use crate::entities::{date::YearMonth, NewPost, Post, PostId};
 use anyhow::Result;
 use chrono::{DateTime, TimeZone};
 
@@ -29,4 +29,6 @@ pub trait PostsRepository {
     fn get_days(&self, ym: YearMonth) -> Result<Vec<u8>>;
 
     fn insert(&self, post: &Post) -> Result<Post>;
+
+    fn insert_new(&self, new_post: NewPost) -> Result<Post>;
 }
