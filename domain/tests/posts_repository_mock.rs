@@ -8,12 +8,12 @@ use domain::{
 use std::cell::RefCell;
 
 #[derive(Debug, Clone, Default)]
-pub struct PostRepositoryMock {
+pub struct PostsRepositoryMock {
     posts: RefCell<Vec<Post>>,
 }
 
-impl PostRepositoryMock {
-    pub fn new() -> PostRepositoryMock {
+impl PostsRepositoryMock {
+    pub fn new() -> PostsRepositoryMock {
         let posts = (1..=6)
             .flat_map(|m| {
                 (1..=14).flat_map(move |d| {
@@ -40,13 +40,13 @@ impl PostRepositoryMock {
             })
             .collect();
 
-        PostRepositoryMock {
+        PostsRepositoryMock {
             posts: RefCell::new(posts),
         }
     }
 }
 
-impl PostsRepository for PostRepositoryMock {
+impl PostsRepository for PostsRepositoryMock {
     fn get(&self, id: PostId) -> Result<Post> {
         Ok(self
             .posts
@@ -123,7 +123,7 @@ impl PostsRepository for PostRepositoryMock {
     }
 }
 
-impl ImportPostsRepository for PostRepositoryMock {
+impl ImportPostsRepository for PostsRepositoryMock {
     fn insert(&self, post: &Post) -> Result<Post> {
         self.posts.borrow_mut().push(post.clone());
         Ok(post.clone())

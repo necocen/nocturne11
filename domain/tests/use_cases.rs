@@ -7,7 +7,7 @@ use pretty_assertions::assert_eq;
 
 #[test]
 fn test_get_days() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let odd_days = get_days(&repo, YearMonth(2020, 1))?;
     assert_eq!(
         odd_days,
@@ -23,7 +23,7 @@ fn test_get_days() -> Result<()> {
 
 #[test]
 fn test_get_years() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let months = get_years(&repo)?
         .into_iter()
         .flat_map(|y| y.months)
@@ -34,14 +34,14 @@ fn test_get_years() -> Result<()> {
 
 #[test]
 fn test_get_post_with_id_not_found() {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let page = get_post_with_id(&repo, &9999);
     assert!(page.is_err());
 }
 
 #[test]
 fn test_get_post_with_id_which_has_prev_only() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let Page {
         posts,
         prev_page,
@@ -56,7 +56,7 @@ fn test_get_post_with_id_which_has_prev_only() -> Result<()> {
 
 #[test]
 fn test_get_post_with_id_which_has_next_only() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let Page {
         posts,
         prev_page,
@@ -71,7 +71,7 @@ fn test_get_post_with_id_which_has_next_only() -> Result<()> {
 
 #[test]
 fn test_get_post_with_id_which_has_prev_and_next() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let Page {
         posts,
         prev_page,
@@ -86,7 +86,7 @@ fn test_get_post_with_id_which_has_prev_and_next() -> Result<()> {
 
 #[test]
 fn test_get_post_with_id_which_has_prev() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let Page {
         posts,
         prev_page,
@@ -101,7 +101,7 @@ fn test_get_post_with_id_which_has_prev() -> Result<()> {
 
 #[test]
 fn test_get_post_by_month_not_found() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let cond = DateCondition {
         ym: YearMonth(2020, 3),
         day: None,
@@ -122,7 +122,7 @@ fn test_get_post_by_month_not_found() -> Result<()> {
 
 #[test]
 fn test_get_post_by_month_first_page() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let cond = DateCondition {
         ym: YearMonth(2020, 2),
         day: None,
@@ -144,7 +144,7 @@ fn test_get_post_by_month_first_page() -> Result<()> {
 
 #[test]
 fn test_get_post_by_month_second_page() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let cond = DateCondition {
         ym: YearMonth(2020, 2),
         day: None,
@@ -166,7 +166,7 @@ fn test_get_post_by_month_second_page() -> Result<()> {
 
 #[test]
 fn test_get_post_by_month_last_page() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let cond = DateCondition {
         ym: YearMonth(2020, 2),
         day: None,
@@ -190,7 +190,7 @@ fn test_get_post_by_month_last_page() -> Result<()> {
 
 #[test]
 fn test_get_post_by_day_not_found() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let cond = DateCondition {
         ym: YearMonth(2020, 3),
         day: Some(1),
@@ -211,7 +211,7 @@ fn test_get_post_by_day_not_found() -> Result<()> {
 
 #[test]
 fn test_get_post_by_day_first_page() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let cond = DateCondition {
         ym: YearMonth(2020, 2),
         day: Some(1),
@@ -230,7 +230,7 @@ fn test_get_post_by_day_first_page() -> Result<()> {
 
 #[test]
 fn test_get_post_by_day_last_page() -> Result<()> {
-    let repo = PostRepositoryMock::new();
+    let repo = PostsRepositoryMock::new();
     let cond = DateCondition {
         ym: YearMonth(2020, 2),
         day: Some(1),
