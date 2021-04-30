@@ -126,12 +126,12 @@ impl PostsRepository for PostsRepositoryImpl {
         Ok(results.into_iter().map(|d| d as u8).collect())
     }
 
-    fn create(&self, new_post: NewPost) -> Result<Post> {
+    fn create(&self, new_post: &NewPost) -> Result<Post> {
         use crate::schema::posts::{self, body, created_at, title, updated_at};
         let post = diesel::insert_into(posts::table)
             .values((
-                title.eq(new_post.title),
-                body.eq(new_post.body),
+                title.eq(new_post.title.clone()),
+                body.eq(new_post.body.clone()),
                 created_at.eq(new_post.created_at),
                 updated_at.eq(new_post.created_at),
             ))

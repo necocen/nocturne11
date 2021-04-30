@@ -21,7 +21,7 @@ pub(super) async fn create(
     server: web::Data<Server>,
     form: web::Form<FormParams>,
 ) -> Result<HttpResponse, Error> {
-    server.posts_repository.create(NewPost {
+    server.posts_repository.create(&NewPost {
         title: form.title.clone(),
         body: form.body.clone(),
         created_at: Utc::now(),

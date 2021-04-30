@@ -108,12 +108,12 @@ impl PostsRepository for PostsRepositoryMock {
         Ok((1..=14).map(|d| d * 2 - ym.1 % 2).collect())
     }
 
-    fn create(&self, new_post: NewPost) -> Result<Post> {
+    fn create(&self, new_post: &NewPost) -> Result<Post> {
         let NewPost {
             title,
             body,
             created_at,
-        } = new_post;
+        } = new_post.clone();
         self.sequence.set(self.sequence.get() + 1);
         let post = Post {
             id: self.sequence.get(),
@@ -129,7 +129,7 @@ impl PostsRepository for PostsRepositoryMock {
 
 impl ImportPostsRepository for PostsRepositoryMock {
     fn import(&self, posts: &[Post]) -> Result<Vec<Post>> {
-        let mut posts =  posts.to_vec();
+        let mut posts = posts.to_vec();
         self.posts.borrow_mut().append(&mut posts);
         Ok(posts)
     }
