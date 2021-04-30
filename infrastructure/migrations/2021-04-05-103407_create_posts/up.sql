@@ -11,7 +11,7 @@ CREATE TABLE posts (
 CREATE OR REPLACE FUNCTION reset_posts_id_sequence() RETURNS VOID AS $$
 DECLARE max_id INT;
 BEGIN
-    SELECT COALESCE(MAX(id), 1) FROM posts INTO max_id;
-    EXECUTE FORMAT('ALTER SEQUENCE posts_id_seq RESTART WITH %s;', max_id);
+    SELECT COALESCE(MAX(id), 0) FROM posts INTO max_id;
+    EXECUTE FORMAT('ALTER SEQUENCE posts_id_seq RESTART WITH %s;', max_id + 1);
 END;
 $$ LANGUAGE plpgsql;
