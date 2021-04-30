@@ -128,8 +128,9 @@ impl PostsRepository for PostsRepositoryMock {
 }
 
 impl ImportPostsRepository for PostsRepositoryMock {
-    fn import(&self, posts: Vec<Post>) -> Result<Vec<Post>> {
-        self.posts.borrow_mut().append(&mut posts.clone());
+    fn import(&self, posts: &[Post]) -> Result<Vec<Post>> {
+        let mut posts =  posts.to_vec();
+        self.posts.borrow_mut().append(&mut posts);
         Ok(posts)
     }
 

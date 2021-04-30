@@ -141,15 +141,15 @@ impl PostsRepository for PostsRepositoryImpl {
 }
 
 impl ImportPostsRepository for PostsRepositoryImpl {
-    fn import(&self, posts: Vec<Post>) -> Result<Vec<Post>> {
+    fn import(&self, posts: &[Post]) -> Result<Vec<Post>> {
         use crate::schema::posts::{self, body, created_at, id, title, updated_at};
         let records = posts
-            .into_iter()
+            .iter()
             .map(|post| {
                 (
                     id.eq(post.id),
-                    title.eq(post.title),
-                    body.eq(post.body),
+                    title.eq(post.title.clone()),
+                    body.eq(post.body.clone()),
                     created_at.eq(post.created_at),
                     updated_at.eq(post.updated_at),
                 )
