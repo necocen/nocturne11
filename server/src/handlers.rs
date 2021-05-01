@@ -16,8 +16,7 @@ mod posts;
 pub(crate) fn routing(server: Server) -> Box<dyn FnOnce(&mut ServiceConfig)> {
     Box::new(move |cfg: &mut ServiceConfig| {
         let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
-        let admin_user_id = server.admin_user_id.clone();
-        let admin = AuthService::new(move |id| id == admin_user_id);
+        let admin = AuthService::new(|server: &Server, id| id == server.admin_user_id);
         cfg.data(server.clone())
             .service(resource("/").route(get().to(posts::all_posts)))
             .service(resource(r"/{id:\d+}").route(get().to(posts::post_with_id)))
