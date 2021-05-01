@@ -32,11 +32,7 @@ pub(super) async fn create(
     server: web::Data<Server>,
     form: web::Form<CreateFormParams>,
 ) -> Result<HttpResponse, Error> {
-    let new_post = NewPost {
-        title: form.title.clone(),
-        body: form.body.clone(),
-        created_at: Utc::now(),
-    };
+    let new_post = NewPost::new(&form.title, &form.body, Utc::now());
     create_post(
         &server.posts_repository,
         &server.search_repository,
@@ -52,11 +48,7 @@ pub(super) async fn update(
     server: web::Data<Server>,
     form: web::Form<UpdateFormParams>,
 ) -> Result<HttpResponse, Error> {
-    let new_post = NewPost {
-        title: form.title.clone(),
-        body: form.body.clone(),
-        created_at: Utc::now(),
-    };
+    let new_post = NewPost::new(&form.title, &form.body, Utc::now());
     update_post(
         &server.posts_repository,
         &server.search_repository,

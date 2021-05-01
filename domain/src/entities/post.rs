@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub type PostId = i32;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Post {
     pub id: PostId,
     pub title: String,
@@ -12,11 +13,44 @@ pub struct Post {
     pub updated_at: DateTime<Utc>,
 }
 
+impl Post {
+    pub fn new(
+        id: PostId,
+        title: impl Into<String>,
+        body: impl Into<String>,
+        created_at: DateTime<Utc>,
+        updated_at: DateTime<Utc>,
+    ) -> Post {
+        Post {
+            id,
+            title: title.into(),
+            body: body.into().replace("\r\n", "\n").replace("\r", "\n"),
+            created_at,
+            updated_at,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct NewPost {
     pub title: String,
     pub body: String,
     pub created_at: DateTime<Utc>,
+}
+
+impl NewPost {
+    pub fn new(
+        title: impl Into<String>,
+        body: impl Into<String>,
+        created_at: DateTime<Utc>,
+    ) -> NewPost {
+        NewPost {
+            title: title.into(),
+            body: body.into().replace("\r\n", "\n").replace("\r", "\n"),
+            created_at,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]

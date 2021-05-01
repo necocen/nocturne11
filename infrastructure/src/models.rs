@@ -19,12 +19,12 @@ pub(crate) struct Post {
 
 impl From<Post> for PostEntity {
     fn from(post: Post) -> PostEntity {
-        PostEntity {
-            id: post.id,
-            title: post.title,
-            body: post.body.replace("\r\n", "\n").replace("\r", "\n"),
-            created_at: post.created_at,
-            updated_at: post.updated_at,
-        }
+        PostEntity::new(
+            post.id,
+            post.title,
+            post.body,
+            post.created_at,
+            post.updated_at,
+        )
     }
 }

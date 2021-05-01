@@ -25,19 +25,17 @@ impl ExportPostsRepository for OldPostsRepositoryImpl {
             .get_results::<OldArticle>(&self.connection)?
             .into_iter()
             .map(|article| {
-                Ok(Post {
-                    id: article.id,
-                    title: article.title,
-                    body: article.text.replace("\r\n", "\n").replace("\r", "\n"),
-                    created_at: Utc
-                        .from_local_datetime(&article.created_at)
+                Ok(Post::new(
+                    article.id,
+                    article.title,
+                    article.text,
+                    Utc.from_local_datetime(&article.created_at)
                         .single()
                         .context("Failed to fetch created_at")?,
-                    updated_at: Utc
-                        .from_local_datetime(&article.updated_at)
+                    Utc.from_local_datetime(&article.updated_at)
                         .single()
                         .context("Failed to fetch updated_at")?,
-                })
+                ))
             })
             .collect()
     }
