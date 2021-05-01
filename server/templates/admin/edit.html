@@ -1,0 +1,34 @@
+{% extends "../base.html" %}
+
+{% block content %}
+    <header>
+        <h3>記事の作成</h3>
+    </header>
+    <form id="form-update" method="POST" action="/admin/update">
+        <fieldset>
+            <h4>
+                <label for="post-form-title">タイトル</label>
+            </h4>
+            <p>
+                <input type="text" name="title" id="post-form-title" value="{{ post.title }}" />
+                <input type="text" id="dummy-to-prevent-submit" style="display: none;">
+            </p>
+            <h4>
+                <label for="post-form-body">本文</label>
+            </h4>
+            <p>
+                <textarea name="body" id="post-form-body">{{- post.body -}}</textarea>
+            </p>
+        </fieldset>
+        <p>
+            <input type="hidden" id="post-form-id" value="{{ post.id }}" />
+            <button type="button" onClick="submit();">送信</button>
+        </p>
+    </form>
+    <form id="form-delete" method="POST" action="/admin/delete">
+        <p>
+            <input type="hidden" id="post-form-id" value="{{ post.id }}" />
+            <button type="button" onClick="submit();">削除</button>
+        </p>
+    </form>
+{% endblock %}
