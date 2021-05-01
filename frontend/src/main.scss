@@ -15,6 +15,7 @@ $menu-color: #999;
 $menu-color-dim: #ddd;
 $input-color: #eee;
 $focused-input-color: #e3e3e3;
+$main-font-family: -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Yu Gothic Medium", Meiryo, sans-serif;
 
 @mixin link-hover {
     a {
@@ -24,12 +25,16 @@ $focused-input-color: #e3e3e3;
     }
 }
 
-@mixin post-text-style {
-    font-family: -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Yu Gothic Medium", Meiryo, sans-serif;
+@mixin post-body-style {
     font-feature-settings: "palt" 1;
     letter-spacing: 0.05em;
     text-align: justify;
     font-weight: 300;
+}
+
+@mixin post-head-style {
+    text-align: start;
+    font-weight: 400;
 }
 
 a, a:visited {
@@ -86,6 +91,7 @@ body {
         grid-column: 1;
         grid-row: 2;
         margin: $gradient-height 0;
+        font-family: $main-font-family;
     }
 
     > footer {
@@ -285,7 +291,7 @@ main {
         border-bottom: 1px solid $border-color1;
         font-size: 140%;
         font-weight: normal;
-        @include post-text-style;
+        @include post-head-style;
     }
 }
 
@@ -307,7 +313,7 @@ article {
         line-height: 170%;
         text-indent: 1em;
         overflow: hidden;
-        @include post-text-style;
+        @include post-body-style;
     }
 
     > aside {
@@ -336,7 +342,8 @@ article {
 form {
 
     h4 {
-        margin: 1ex 0;
+        margin: 1.5ex 0 1ex;
+        font-weight: 500;
     }
 
     fieldset {
@@ -350,24 +357,42 @@ form {
     }
 
     input[type=text], input[type=password], textarea {
+        box-sizing: border-box;
         display: block;
         margin: 0;
         padding: 0.5ex 0.5em;
-        box-sizing: border-box;;
         width: calc(100% - 1em);
         border: 1px solid $border-color1;
-        line-height: 20px;
-        font-family: monospace;
         background-color: $input-color;
+        font-family: monospace;
+        line-height: 2.5ex;
 
         &:focus {
             background-color: $focused-input-color;
         }
     }
 
-    input[type=submit] {
+    input[type=submit], input[type=button], button {
         box-sizing: border-box;
-        height: 2em;
+        margin: 0;
+        padding: 0;
+        width: 3.5em;
+        height: 4ex;
+        border: 1px solid $border-color1;
+        color: $text-color;
+        background-color: $input-color;
+        text-align: center;
+        font-size: 100%;
+        font-weight: 400;
+        line-height: 100%;
+
+        &:hover {
+            background-color: $focused-input-color;
+        }
+
+        &:active {
+            background-color: $border-color1;
+        }
     }
 
     textarea {
@@ -379,11 +404,19 @@ form {
             - 4ex /* main margin */
             - 1.4em /* h3 height */
             - 3ex /* fieldset margin */
-            - 2ex - 0.9em /* h4 */
-            - 2ex - 20px /* p(input) margin + input */
-            - 2ex - 0.9em /* h4 */
+            - 2.5ex - 0.9em /* h4 */
+            - 2ex - 2.5ex /* p(input) margin + input */
+            - 2.5ex - 0.9em /* h4 */
             - 2ex /* p(textarea) margin */
-            - 2ex - 2em /* p(input) margin + input */
+            - 2ex - 4ex /* p(input) margin + input */
+            - 2ex - 4ex /* form p(input) margin + button */
             );
+    }
+
+    &#form-delete {
+        margin: 0;
+        padding: 0;
+        margin-top: calc(-1ex - 4ex);
+        margin-left: calc(3.5em + 1em);
     }
 }
