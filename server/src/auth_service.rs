@@ -4,30 +4,22 @@ use actix_web::{
     web::Data,
     Error,
 };
-use std::{
-    future::{ready, Future, Ready},
-    marker::PhantomData,
-    pin::Pin,
-    task::{Context, Poll},
-};
+use std::{future::{ready, Future, Ready}, pin::Pin, rc::Rc, task::{Context, Poll}};
 
-#[derive(Clone, Debug)]
-pub struct AuthService<D: Clone + 'static, F: Fn(&D, &str) -> bool + Clone + 'static> {
-    is_authorized: F,
-    phantom: PhantomData<D>,
+#[derive(Clone)]
+pub struct AuthService<D: Clone + 'static> {
+    is_authorized: Rc<dyn Fn(&D, &str) -> bool + 'static>,
 }
 
-impl<D: Clone + 'static, F: Fn(&D, &str) -> bool + Clone + 'static> AuthService<D, F> {
-    pub fn new(is_authorized: F) -> AuthService<D, F> {
+impl<D: Clone + 'static> AuthService<D> {
+    pub fn new(is_authorized: impl Fn(&D, &str) -> bool + 'static) -> AuthService<D> {
         AuthService {
-            is_authorized,
-            phantom: PhantomData::default(),
+            is_authorized: Rc::new(is_authorized),
         }
     }
 }
 
-impl<D: Clone + 'static, S, F: Fn(&D, &str) -> bool + Clone + 'static, B: 'static>
-    Transform<S, ServiceRequest> for AuthService<D, F>
+impl<D: Clone + 'static, S, B: 'static> Transform<S, ServiceRequest> for AuthService<D>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -35,7 +27,7 @@ where
     type Response = ServiceResponse<B>;
     type Error = Error;
     type InitError = ();
-    type Transform = AuthServiceMiddleware<D, S, F>;
+    type Transform = AuthServiceMiddleware<D, S>;
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
@@ -46,15 +38,14 @@ where
     }
 }
 
-pub struct AuthServiceMiddleware<D: Clone + 'static, S, F: Fn(&D, &str) -> bool + Clone + 'static> {
+pub struct AuthServiceMiddleware<D: Clone + 'static, S> {
     service: S,
-    auth: AuthService<D, F>,
+    auth: AuthService<D>,
 }
 
 type ServiceResult<B> = Result<ServiceResponse<B>, Error>;
 
-impl<S, D: Clone + 'static, F: Fn(&D, &str) -> bool + Clone + 'static, B: 'static>
-    Service<ServiceRequest> for AuthServiceMiddleware<D, S, F>
+impl<S, D: Clone + 'static, B: 'static> Service<ServiceRequest> for AuthServiceMiddleware<D, S>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
