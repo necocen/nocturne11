@@ -36,19 +36,19 @@ impl Post {
 pub struct NewPost {
     pub title: String,
     pub body: String,
-    pub created_at: DateTime<Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 impl NewPost {
     pub fn new(
         title: impl Into<String>,
         body: impl Into<String>,
-        created_at: DateTime<Utc>,
+        timestamp: DateTime<Utc>,
     ) -> NewPost {
         NewPost {
             title: title.into(),
             body: body.into().replace("\r\n", "\n").replace("\r", "\n"),
-            created_at,
+            timestamp,
         }
     }
 }

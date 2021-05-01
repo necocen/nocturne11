@@ -132,8 +132,8 @@ impl PostsRepository for PostsRepositoryImpl {
             .values((
                 title.eq(new_post.title.clone()),
                 body.eq(new_post.body.clone()),
-                created_at.eq(new_post.created_at),
-                updated_at.eq(new_post.created_at),
+                created_at.eq(new_post.timestamp),
+                updated_at.eq(new_post.timestamp),
             ))
             .get_result::<PostModel>(&self.conn_pool.get()?)?;
         Ok(post.into())
@@ -145,7 +145,7 @@ impl PostsRepository for PostsRepositoryImpl {
             .set((
                 title.eq(new_post.title.clone()),
                 body.eq(new_post.body.clone()),
-                updated_at.eq(new_post.created_at),
+                updated_at.eq(new_post.timestamp),
             ))
             .get_result::<PostModel>(&self.conn_pool.get()?)?;
         Ok(post.into())

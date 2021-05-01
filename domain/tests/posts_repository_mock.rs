@@ -100,7 +100,7 @@ impl PostsRepository for PostsRepositoryMock {
         let NewPost {
             title,
             body,
-            created_at,
+            timestamp: created_at,
             ..
         } = new_post.clone();
         self.sequence.set(self.sequence.get() + 1);
@@ -113,7 +113,7 @@ impl PostsRepository for PostsRepositoryMock {
         let NewPost {
             title,
             body,
-            created_at: updated_at,
+            timestamp: updated_at,
             ..
         } = new_post.clone();
         let mut posts = self.posts.borrow_mut();
