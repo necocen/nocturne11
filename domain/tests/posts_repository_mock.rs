@@ -109,7 +109,7 @@ impl PostsRepository for PostsRepositoryMock {
         Ok(post)
     }
 
-    fn update(&self, id: i32, new_post: &NewPost) -> Result<Post> {
+    fn update(&self, id: PostId, new_post: &NewPost) -> Result<Post> {
         let NewPost {
             title,
             body,
@@ -127,7 +127,7 @@ impl PostsRepository for PostsRepositoryMock {
         Ok(post.clone())
     }
 
-    fn delete(&self, id: i32) -> Result<()> {
+    fn delete(&self, id: PostId) -> Result<()> {
         self.posts.borrow_mut().retain(|post| post.id != id);
         Ok(())
     }

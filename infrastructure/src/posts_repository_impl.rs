@@ -139,7 +139,7 @@ impl PostsRepository for PostsRepositoryImpl {
         Ok(post.into())
     }
 
-    fn update(&self, id: i32, new_post: &NewPost) -> Result<Post> {
+    fn update(&self, id: PostId, new_post: &NewPost) -> Result<Post> {
         use crate::schema::posts::dsl::{body, posts, title, updated_at};
         let post = diesel::update(posts.find(id))
             .set((
@@ -151,7 +151,7 @@ impl PostsRepository for PostsRepositoryImpl {
         Ok(post.into())
     }
 
-    fn delete(&self, id: i32) -> Result<()> {
+    fn delete(&self, id: PostId) -> Result<()> {
         use crate::schema::posts::dsl::posts;
         diesel::delete(posts.find(id)).execute(&self.conn_pool.get()?)?;
         Ok(())

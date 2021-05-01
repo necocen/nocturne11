@@ -199,7 +199,7 @@ pub async fn create_post(
 pub async fn update_post(
     posts_repository: &impl PostsRepository,
     search_repository: &impl SearchRepository,
-    id: i32,
+    id: PostId,
     new_post: &NewPost,
 ) -> Result<Post> {
     let post = posts_repository.update(id, new_post)?;
@@ -210,7 +210,7 @@ pub async fn update_post(
 pub async fn delete_post(
     posts_repository: &impl PostsRepository,
     search_repository: &impl SearchRepository,
-    id: i32,
+    id: PostId,
 ) -> Result<()> {
     posts_repository.delete(id)?;
     search_repository.delete(id).await?;

@@ -1,4 +1,4 @@
-use crate::entities::{Post, SearchResult};
+use crate::entities::{Post, PostId, SearchResult};
 use anyhow::Result;
 
 #[async_trait::async_trait]
@@ -15,7 +15,7 @@ pub trait SearchRepository {
 
     async fn update(&self, post: &Post) -> Result<()>;
 
-    async fn delete(&self, id: i32) -> Result<()>;
+    async fn delete(&self, id: PostId) -> Result<()>;
 
     async fn save_snapshot(&self) -> Result<()>;
 

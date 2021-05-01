@@ -1,12 +1,9 @@
-use domain::entities::{
-    date::{DateCondition, YearMonth},
-    PostId,
-};
+use domain::entities::date::{DateCondition, YearMonth};
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub(super) struct IdArguments {
-    pub id: PostId,
+    pub id: i32,
 }
 #[derive(Debug, Clone, Deserialize)]
 pub(super) struct DateArguments {

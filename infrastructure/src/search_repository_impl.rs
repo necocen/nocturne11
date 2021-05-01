@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use chrono::prelude::*;
-use domain::entities::{Post, SearchResult};
+use domain::entities::{Post, PostId, SearchResult};
 use domain::repositories::search::SearchRepository;
 use elasticsearch::{
     http::transport::{SingleNodeConnectionPool, TransportBuilder},
@@ -324,7 +324,7 @@ impl SearchRepository for SearchRepositoryImpl {
         Ok(())
     }
 
-    async fn delete(&self, id: i32) -> Result<()> {
+    async fn delete(&self, id: PostId) -> Result<()> {
         self.client
             .delete(DeleteParts::IndexId(Self::INDEX_NAME, &id.to_string()))
             .send()

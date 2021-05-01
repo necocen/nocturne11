@@ -30,7 +30,7 @@ pub trait PostsRepository {
 
     fn create(&self, new_post: &NewPost) -> Result<Post>;
 
-    fn update(&self, id: i32, new_post: &NewPost) -> Result<Post>;
+    fn update(&self, id: PostId, new_post: &NewPost) -> Result<Post>;
 
-    fn delete(&self, id: i32) -> Result<()>;
+    fn delete(&self, id: PostId) -> Result<()>;
 }
