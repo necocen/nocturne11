@@ -196,6 +196,17 @@ pub async fn create_post(
     Ok(post)
 }
 
+pub async fn update_post(
+    posts_repository: &impl PostsRepository,
+    search_repository: &impl SearchRepository,
+    id: i32,
+    new_post: &NewPost,
+) -> Result<Post> {
+    let post = posts_repository.update(id, new_post)?;
+    search_repository.update(&post).await?;
+    Ok(post)
+}
+
 pub async fn delete_post(
     posts_repository: &impl PostsRepository,
     search_repository: &impl SearchRepository,

@@ -1,5 +1,5 @@
 use super::{
-    args::{CreateFormParams, DeleteFormParams, IdArguments},
+    args::{CreateFormParams, DeleteFormParams, IdArguments, UpdateFormParams},
     Error, TemplateToResponse,
 };
 use crate::server::Server;
@@ -8,7 +8,7 @@ use chrono::Utc;
 use domain::{
     entities::NewPost,
     repositories::posts::PostsRepository,
-    use_cases::{create_post, delete_post},
+    use_cases::{create_post, delete_post, update_post},
 };
 use templates::{EditPostTemplate, NewPostTemplate};
 
@@ -45,6 +45,27 @@ pub(super) async fn create(
     .await?;
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, "/"))
+        .finish())
+}
+
+pub(super) async fn update(
+    server: web::Data<Server>,
+    form: web::Form<UpdateFormParams>,
+) -> Result<HttpResponse, Error> {
+    let new_post = NewPost {
+        title: form.title.clone(),
+        body: form.body.clone(),
+        created_at: Utc::now(),
+    };
+    update_post(
+        &server.posts_repository,
+        &server.search_repository,
+        form.id,
+        &new_post,
+    )
+    .await?;
+    Ok(HttpResponse::SeeOther()
+        .append_header((header::LOCATION, format!("/{}", form.id)))
         .finish())
 }
 

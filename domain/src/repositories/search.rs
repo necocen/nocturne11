@@ -13,6 +13,8 @@ pub trait SearchRepository {
 
     async fn insert_bulk(&self, posts: &[Post]) -> Result<()>;
 
+    async fn update(&self, post: &Post) -> Result<()>;
+
     async fn delete(&self, id: i32) -> Result<()>;
 
     async fn save_snapshot(&self) -> Result<()>;

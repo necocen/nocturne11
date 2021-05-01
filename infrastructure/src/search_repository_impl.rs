@@ -10,7 +10,7 @@ use elasticsearch::{
         SnapshotCreateParts, SnapshotCreateRepositoryParts, SnapshotGetParts,
         SnapshotGetRepositoryParts, SnapshotRestoreParts,
     },
-    BulkOperation, BulkParts, CreateParts, DeleteParts, Elasticsearch, SearchParts,
+    BulkOperation, BulkParts, CreateParts, DeleteParts, Elasticsearch, SearchParts, UpdateParts,
 };
 use serde_json::{json, Value};
 
@@ -308,6 +308,17 @@ impl SearchRepository for SearchRepositoryImpl {
         self.client
             .bulk(BulkParts::Index(Self::INDEX_NAME))
             .body(posts)
+            .send()
+            .await?;
+        Ok(())
+    }
+
+    async fn update(&self, post: &Post) -> Result<()> {
+        self.client
+            .update(UpdateParts::IndexId(Self::INDEX_NAME, &post.id.to_string()))
+            .body(json!({
+                "doc": post,
+            }))
             .send()
             .await?;
         Ok(())

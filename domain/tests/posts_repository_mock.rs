@@ -126,6 +126,23 @@ impl PostsRepository for PostsRepositoryMock {
         Ok(post)
     }
 
+    fn update(&self, id: i32, new_post: &NewPost) -> Result<Post> {
+        let NewPost {
+            title,
+            body,
+            created_at: updated_at,
+        } = new_post.clone();
+        let mut posts = self.posts.borrow_mut();
+        let post = posts
+            .iter_mut()
+            .find(|post| post.id == id)
+            .context("Post with specified ID does not exist.")?;
+        post.title = title;
+        post.body = body;
+        post.updated_at = updated_at;
+        Ok(post.clone())
+    }
+
     fn delete(&self, id: i32) -> Result<()> {
         self.posts.borrow_mut().retain(|post| post.id != id);
         Ok(())

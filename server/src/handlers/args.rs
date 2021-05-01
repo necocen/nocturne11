@@ -36,6 +36,13 @@ pub(super) struct CreateFormParams {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+pub(super) struct UpdateFormParams {
+    pub id: i32,
+    pub title: String,
+    pub body: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 pub(super) struct DeleteFormParams {
     pub id: i32,
 }

@@ -35,6 +35,7 @@ pub(crate) fn routing(server: Server) -> Box<dyn FnOnce(&mut ServiceConfig)> {
                     .service(resource("/new").route(get().to(admin::new_post_form)))
                     .service(resource("/edit").route(get().to(admin::edit_post_form)))
                     .service(resource("/create").route(post().to(admin::create)))
+                    .service(resource("/update").route(post().to(admin::update)))
                     .service(resource("/delete").route(post().to(admin::delete))),
             )
             .service(
