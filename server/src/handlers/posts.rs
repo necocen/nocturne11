@@ -1,40 +1,11 @@
-use super::Error;
-use super::TemplateToResponse;
+use super::{
+    args::{DateArguments, IdArguments, PageQuery},
+    Error, TemplateToResponse,
+};
 use crate::server::Server;
 use actix_web::{web, HttpResponse};
-use domain::entities::{
-    date::{DateCondition, YearMonth},
-    PostId,
-};
 use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_date_condition};
-use serde::Deserialize;
 use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate};
-
-#[derive(Debug, Clone, Deserialize)]
-pub(super) struct DateArguments {
-    year: u16,
-    month: u8,
-    day: Option<u8>,
-}
-
-impl From<DateArguments> for DateCondition {
-    fn from(args: DateArguments) -> DateCondition {
-        DateCondition {
-            ym: YearMonth(args.year, args.month),
-            day: args.day,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub(super) struct IdArguments {
-    id: PostId,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub(super) struct PageQuery {
-    page: Option<usize>,
-}
 
 pub(super) async fn all_posts(
     server: web::Data<Server>,

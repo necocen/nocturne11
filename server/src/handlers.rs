@@ -6,6 +6,7 @@ use askama_helpers::TemplateToResponse;
 use errors::Error;
 mod admin;
 mod api;
+mod args;
 mod askama_helpers;
 mod auth;
 mod errors;
