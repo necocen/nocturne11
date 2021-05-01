@@ -4,7 +4,12 @@ use actix_web::{
     web::Data,
     Error,
 };
-use std::{future::{ready, Future, Ready}, pin::Pin, rc::Rc, task::{Context, Poll}};
+use std::{
+    future::{ready, Future, Ready},
+    pin::Pin,
+    rc::Rc,
+    task::{Context, Poll},
+};
 
 #[derive(Clone)]
 pub struct AuthService<D: Clone + 'static> {
