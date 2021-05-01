@@ -29,4 +29,6 @@ pub trait PostsRepository {
     fn get_days(&self, ym: YearMonth) -> Result<Vec<u8>>;
 
     fn create(&self, new_post: &NewPost) -> Result<Post>;
+
+    fn delete(&self, id: i32) -> Result<()>;
 }

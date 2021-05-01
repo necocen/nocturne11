@@ -1,16 +1,16 @@
-use super::{args::IdArguments, Error, TemplateToResponse};
+use super::{
+    args::{CreateFormParams, DeleteFormParams, IdArguments},
+    Error, TemplateToResponse,
+};
 use crate::server::Server;
 use actix_web::{http::header, web, HttpResponse};
 use chrono::Utc;
-use domain::{entities::NewPost, repositories::posts::PostsRepository, use_cases::create_post};
-use serde::Deserialize;
+use domain::{
+    entities::NewPost,
+    repositories::posts::PostsRepository,
+    use_cases::{create_post, delete_post},
+};
 use templates::{EditPostTemplate, NewPostTemplate};
-
-#[derive(Debug, Clone, Deserialize)]
-pub(super) struct FormParams {
-    title: String,
-    body: String,
-}
 
 pub(super) async fn new_post_form(_server: web::Data<Server>) -> Result<HttpResponse, Error> {
     NewPostTemplate { title: "投稿" }.to_response()
@@ -30,7 +30,7 @@ pub(super) async fn edit_post_form(
 
 pub(super) async fn create(
     server: web::Data<Server>,
-    form: web::Form<FormParams>,
+    form: web::Form<CreateFormParams>,
 ) -> Result<HttpResponse, Error> {
     let new_post = NewPost {
         title: form.title.clone(),
@@ -43,6 +43,16 @@ pub(super) async fn create(
         &new_post,
     )
     .await?;
+    Ok(HttpResponse::SeeOther()
+        .append_header((header::LOCATION, "/"))
+        .finish())
+}
+
+pub(super) async fn delete(
+    server: web::Data<Server>,
+    form: web::Form<DeleteFormParams>,
+) -> Result<HttpResponse, Error> {
+    delete_post(&server.posts_repository, &server.search_repository, form.id).await?;
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, "/"))
         .finish())

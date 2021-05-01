@@ -125,6 +125,11 @@ impl PostsRepository for PostsRepositoryMock {
         self.posts.borrow_mut().push(post.clone());
         Ok(post)
     }
+
+    fn delete(&self, id: i32) -> Result<()> {
+        self.posts.borrow_mut().retain(|post| post.id != id);
+        Ok(())
+    }
 }
 
 impl ImportPostsRepository for PostsRepositoryMock {

@@ -21,13 +21,13 @@
             </p>
         </fieldset>
         <p>
-            <input type="hidden" id="post-form-id" value="{{ post.id }}" />
+            <input type="hidden" name="id" id="post-form-id" value="{{ post.id }}" />
             <button type="button" onClick="submit();">送信</button>
         </p>
     </form>
     <form id="form-delete" method="POST" action="/admin/delete">
         <p>
-            <input type="hidden" id="post-form-id" value="{{ post.id }}" />
+            <input type="hidden" name="id" id="post-form-id" value="{{ post.id }}" />
             <button type="button" onClick="submit();">削除</button>
         </p>
     </form>

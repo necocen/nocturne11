@@ -138,6 +138,12 @@ impl PostsRepository for PostsRepositoryImpl {
             .get_result::<PostModel>(&self.conn_pool.get()?)?;
         Ok(post.into())
     }
+
+    fn delete(&self, id: i32) -> Result<()> {
+        use crate::schema::posts::dsl::posts;
+        diesel::delete(posts.find(id)).execute(&self.conn_pool.get()?)?;
+        Ok(())
+    }
 }
 
 impl ImportPostsRepository for PostsRepositoryImpl {

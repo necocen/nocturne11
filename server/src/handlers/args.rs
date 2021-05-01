@@ -28,3 +28,14 @@ impl From<DateArguments> for DateCondition {
 pub(super) struct PageQuery {
     pub page: Option<usize>,
 }
+
+#[derive(Debug, Clone, Deserialize)]
+pub(super) struct CreateFormParams {
+    pub title: String,
+    pub body: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub(super) struct DeleteFormParams {
+    pub id: i32,
+}

@@ -195,3 +195,13 @@ pub async fn create_post(
     search_repository.insert(&post).await?;
     Ok(post)
 }
+
+pub async fn delete_post(
+    posts_repository: &impl PostsRepository,
+    search_repository: &impl SearchRepository,
+    id: i32,
+) -> Result<()> {
+    posts_repository.delete(id)?;
+    search_repository.delete(id).await?;
+    Ok(())
+}

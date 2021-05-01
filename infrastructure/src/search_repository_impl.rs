@@ -10,7 +10,7 @@ use elasticsearch::{
         SnapshotCreateParts, SnapshotCreateRepositoryParts, SnapshotGetParts,
         SnapshotGetRepositoryParts, SnapshotRestoreParts,
     },
-    BulkOperation, BulkParts, CreateParts, Elasticsearch, SearchParts,
+    BulkOperation, BulkParts, CreateParts, DeleteParts, Elasticsearch, SearchParts,
 };
 use serde_json::{json, Value};
 
@@ -308,6 +308,14 @@ impl SearchRepository for SearchRepositoryImpl {
         self.client
             .bulk(BulkParts::Index(Self::INDEX_NAME))
             .body(posts)
+            .send()
+            .await?;
+        Ok(())
+    }
+
+    async fn delete(&self, id: i32) -> Result<()> {
+        self.client
+            .delete(DeleteParts::IndexId(Self::INDEX_NAME, &id.to_string()))
             .send()
             .await?;
         Ok(())
