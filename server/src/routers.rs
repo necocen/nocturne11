@@ -38,6 +38,7 @@ pub fn admin(cfg: &mut ServiceConfig) {
         .service(
             scope("/admin")
                 .wrap(auth)
+                .service(resource("").route(get().to(admin::index)))
                 .service(resource("/new").route(get().to(admin::new_post_form)))
                 .service(resource("/edit").route(get().to(admin::edit_post_form)))
                 .service(resource("/create").route(post().to(admin::create)))

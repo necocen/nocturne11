@@ -10,7 +10,11 @@ use domain::{
     repositories::posts::PostsRepository,
     use_cases::{create_post, delete_post, update_post},
 };
-use templates::{EditPostTemplate, NewPostTemplate};
+use templates::{AdminIndexTemplate, EditPostTemplate, NewPostTemplate};
+
+pub async fn index() -> Result<HttpResponse, Error> {
+    AdminIndexTemplate { title: "admin" }.to_response()
+}
 
 pub async fn new_post_form(_server: web::Data<Server>) -> Result<HttpResponse, Error> {
     NewPostTemplate { title: "投稿" }.to_response()
@@ -72,15 +76,22 @@ pub async fn delete(
 }
 
 mod templates {
+    use askama::Template;
     use domain::entities::Post;
 
-    #[derive(askama::Template)]
+    #[derive(Template)]
+    #[template(path = "admin.html")]
+    pub struct AdminIndexTemplate<'a> {
+        pub title: &'a str,
+    }
+
+    #[derive(Template)]
     #[template(path = "admin/new.html")]
     pub struct NewPostTemplate<'a> {
         pub title: &'a str,
     }
 
-    #[derive(askama::Template)]
+    #[derive(Template)]
     #[template(path = "admin/edit.html")]
     pub struct EditPostTemplate<'a> {
         pub title: &'a str,
