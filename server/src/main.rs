@@ -3,11 +3,12 @@ use actix_session::CookieSession;
 use actix_web::{cookie::SameSite, App};
 use anyhow::Result;
 mod server;
+use actix_files::Files;
 use server::Server;
 mod auth_service;
 mod handlers;
 use dotenv::dotenv;
-use handlers::routing;
+use handlers::{route_admin, route_api, route_main};
 use std::env;
 
 #[actix_web::main]
@@ -20,12 +21,7 @@ async fn main() -> Result<()> {
     }
     let es_url = url::Url::parse(&env::var("ES_URL")?)?;
     let pg_url = url::Url::parse(&env::var("DATABASE_URL")?)?;
-    let server = Server::new(
-        &es_url,
-        &pg_url,
-        "./frontend/build/src",
-        &env::var("ADMIN_USER_ID")?,
-    )?;
+    let server = Server::new(&es_url, &pg_url, &env::var("ADMIN_USER_ID")?)?;
     actix_web::HttpServer::new(move || {
         let identity = IdentityService::new(
             CookieIdentityPolicy::new(secret_key.as_bytes())
@@ -40,7 +36,11 @@ async fn main() -> Result<()> {
         App::new()
             .wrap(session)
             .wrap(identity)
-            .configure(routing(server.clone()))
+            .data(server.clone())
+            .configure(route_main)
+            .configure(route_admin)
+            .configure(route_api)
+            .service(Files::new("/static", "./frontend/build/src"))
     })
     .bind("0.0.0.0:4000")?
     .run()
