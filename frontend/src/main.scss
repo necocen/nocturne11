@@ -302,6 +302,18 @@ main {
         font-weight: normal;
         @include post-head-style;
     }
+
+    h4 {
+        margin: 1.5ex 0 1ex;
+        @include post-head-style;
+        font-weight: bold;
+    }
+
+    p {
+        margin: 1ex 0;
+        @include post-body-style;
+    }
+
 }
 
 article {
@@ -348,20 +360,10 @@ article {
 }
 
 form {
-
-    h4 {
-        margin: 1.5ex 0 1ex;
-        font-weight: 500;
-    }
-
     fieldset {
         border: none;
         margin: 1ex 0 2ex;
         padding: 0;
-    }
-
-    p {
-        margin: 1ex 0;
     }
 
     input[type=text], input[type=password], textarea {
