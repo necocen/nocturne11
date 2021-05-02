@@ -1,10 +1,14 @@
 {% extends "base.html" %}
 
-{% block content %}
-    {% for post in page.posts %}
-        {% include "_post.html" %}
-    {% endfor %}
-{% endblock %}
+{%- block variables -%}
+    {%- let main_class = "posts" -%}
+{%- endblock -%}
+
+{%- block content -%}
+    {%- for post in page.posts %}
+        {%- include "_post.html" %}
+    {% endfor -%}
+{%- endblock -%}
 
 {%- block prev_page -%}
     {%- match page.prev_page -%}

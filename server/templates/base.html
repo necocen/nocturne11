@@ -1,3 +1,7 @@
+{%- let main_class -%}
+{%- block variables -%}
+    {%- let main_class = "" -%}
+{%- endblock -%}
 <!DOCTYPE html>
 <html lang="ja">
     <head>
@@ -17,7 +21,7 @@
                 </ul>
             </nav>
         </header>
-        <main>
+        <main class="{{ main_class }}">
             {% block content %}{% endblock %}
         </main>
         <nav id="pager-nav">
