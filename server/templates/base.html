@@ -15,9 +15,13 @@
             <nav id="global-nav">
                 <h2>Menu</h2>
                 <ul>
-                    <li><a href="/" title="トップページ" accesskey="1">diary</a></li>
-                    <li><a href="/about" title="このサイトについて" accesskey="2">about</a></li>
-                    <li><a href="/atom" title="Atomフィード" accesskey="3">Atom</a></li>
+                    {% block top_nav %}
+                        <li><a href="/" title="日記" accesskey="1">diary</a></li>
+                        <li><a href="/" title="検索" accesskey="2">search</a></li>
+                        <li><a href="/about" title="このサイトについて" accesskey="3">about</a></li>
+                        <li><a href="/atom" title="Atomフィード" accesskey="4">atom</a></li>
+                        <li><a href="/admin" title="管理ページ" accesskey="5">admin</a></li>
+                    {% endblock %}
                 </ul>
             </nav>
         </header>

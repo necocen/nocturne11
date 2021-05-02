@@ -3,3 +3,10 @@
 {%- block variables -%}
     {%- let mode_class = "admin" -%}
 {%- endblock -%}
+
+{%- block top_nav -%}
+    <li><a href="/" title="トップページ" accesskey="1">diary</a></li>
+    <li><a href="/admin/new" title="新規作成" accesskey="6">new</a></li>
+    <li><a href="/admin/config" title="設定" accesskey="7">config</a></li>
+    <li><a href="/logout" title="ログアウト" accesskey="9">logout</a></li>
+{%- endblock -%}
