@@ -2,11 +2,11 @@ use domain::entities::date::{DateCondition, YearMonth};
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
-pub(super) struct IdArguments {
+pub struct IdArguments {
     pub id: i32,
 }
 #[derive(Debug, Clone, Deserialize)]
-pub(super) struct DateArguments {
+pub struct DateArguments {
     year: u16,
     month: u8,
     day: Option<u8>,
@@ -22,24 +22,24 @@ impl From<DateArguments> for DateCondition {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub(super) struct PageQuery {
+pub struct PageQuery {
     pub page: Option<usize>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub(super) struct CreateFormParams {
+pub struct CreateFormParams {
     pub title: String,
     pub body: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub(super) struct UpdateFormParams {
+pub struct UpdateFormParams {
     pub id: i32,
     pub title: String,
     pub body: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub(super) struct DeleteFormParams {
+pub struct DeleteFormParams {
     pub id: i32,
 }

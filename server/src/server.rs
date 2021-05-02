@@ -4,7 +4,7 @@ use infrastructure::{
 };
 
 #[derive(Clone)]
-pub(crate) struct Server {
+pub struct Server {
     pub search_repository: SearchRepositoryImpl,
     pub posts_repository: PostsRepositoryImpl,
     pub admin_user_id: String,

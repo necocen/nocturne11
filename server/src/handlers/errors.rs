@@ -2,7 +2,7 @@ use actix_web::ResponseError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub(super) enum Error {
+pub enum Error {
     #[error(transparent)]
     General(#[from] anyhow::Error),
     #[error(transparent)]

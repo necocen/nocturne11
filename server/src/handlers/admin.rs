@@ -12,11 +12,11 @@ use domain::{
 };
 use templates::{EditPostTemplate, NewPostTemplate};
 
-pub(super) async fn new_post_form(_server: web::Data<Server>) -> Result<HttpResponse, Error> {
+pub async fn new_post_form(_server: web::Data<Server>) -> Result<HttpResponse, Error> {
     NewPostTemplate { title: "投稿" }.to_response()
 }
 
-pub(super) async fn edit_post_form(
+pub async fn edit_post_form(
     server: web::Data<Server>,
     args: web::Query<IdArguments>,
 ) -> Result<HttpResponse, Error> {
@@ -28,7 +28,7 @@ pub(super) async fn edit_post_form(
     .to_response()
 }
 
-pub(super) async fn create(
+pub async fn create(
     server: web::Data<Server>,
     form: web::Form<CreateFormParams>,
 ) -> Result<HttpResponse, Error> {
@@ -44,7 +44,7 @@ pub(super) async fn create(
         .finish())
 }
 
-pub(super) async fn update(
+pub async fn update(
     server: web::Data<Server>,
     form: web::Form<UpdateFormParams>,
 ) -> Result<HttpResponse, Error> {
@@ -61,7 +61,7 @@ pub(super) async fn update(
         .finish())
 }
 
-pub(super) async fn delete(
+pub async fn delete(
     server: web::Data<Server>,
     form: web::Form<DeleteFormParams>,
 ) -> Result<HttpResponse, Error> {
@@ -76,14 +76,14 @@ mod templates {
 
     #[derive(askama::Template)]
     #[template(path = "admin/new.html")]
-    pub(super) struct NewPostTemplate<'a> {
-        pub(super) title: &'a str,
+    pub struct NewPostTemplate<'a> {
+        pub title: &'a str,
     }
 
     #[derive(askama::Template)]
     #[template(path = "admin/edit.html")]
-    pub(super) struct EditPostTemplate<'a> {
-        pub(super) title: &'a str,
-        pub(super) post: &'a Post,
+    pub struct EditPostTemplate<'a> {
+        pub title: &'a str,
+        pub post: &'a Post,
     }
 }

@@ -3,12 +3,11 @@ use actix_session::CookieSession;
 use actix_web::{cookie::SameSite, App};
 use anyhow::{ensure, Result};
 mod server;
-use actix_files::Files;
 use server::Server;
 mod auth_service;
 mod handlers;
+mod routers;
 use dotenv::dotenv;
-use handlers::{route_admin, route_api, route_main};
 use std::env;
 
 #[actix_web::main]
@@ -36,10 +35,10 @@ async fn main() -> Result<()> {
             .wrap(session)
             .wrap(identity)
             .data(server.clone())
-            .configure(route_main)
-            .configure(route_admin)
-            .configure(route_api)
-            .service(Files::new("/static", "./frontend/build/src"))
+            .configure(routers::posts)
+            .configure(routers::admin)
+            .configure(routers::api)
+            .configure(routers::files("./frontend/build/src"))
     })
     .bind("0.0.0.0:4000")?
     .run()

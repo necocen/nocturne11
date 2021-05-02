@@ -7,7 +7,7 @@ use actix_web::{web, HttpResponse};
 use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_date_condition};
 use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate};
 
-pub(super) async fn all_posts(
+pub async fn all_posts(
     server: web::Data<Server>,
     query: web::Query<PageQuery>,
 ) -> Result<HttpResponse, Error> {
@@ -19,7 +19,7 @@ pub(super) async fn all_posts(
     .to_response()
 }
 
-pub(super) async fn post_with_id(
+pub async fn post_with_id(
     server: web::Data<Server>,
     args: web::Path<IdArguments>,
 ) -> Result<HttpResponse, Error> {
@@ -30,7 +30,7 @@ pub(super) async fn post_with_id(
     }
     .to_response()
 }
-pub(super) async fn posts_with_date(
+pub async fn posts_with_date(
     server: web::Data<Server>,
     args: web::Path<DateArguments>,
     query: web::Query<PageQuery>,
@@ -51,7 +51,7 @@ pub(super) async fn posts_with_date(
 }
 
 mod templates {
-    pub(super) use super::super::filters;
+    use super::super::filters;
     use askama::Template;
     use askama_escape::{escape, Html};
     use chrono::NaiveDate;
@@ -60,23 +60,23 @@ mod templates {
 
     #[derive(Template)]
     #[template(path = "all_posts.html")]
-    pub(super) struct AllPostsTemplate<'a> {
-        pub(super) title: &'a str,
-        pub(super) page: Page<'a, ()>,
+    pub struct AllPostsTemplate<'a> {
+        pub title: &'a str,
+        pub page: Page<'a, ()>,
     }
 
     #[derive(Template)]
     #[template(path = "posts.html")]
-    pub(super) struct PostsWithDateTemplate<'a> {
-        pub(super) title: &'a str,
-        pub(super) page: Page<'a, DateCondition>,
+    pub struct PostsWithDateTemplate<'a> {
+        pub title: &'a str,
+        pub page: Page<'a, DateCondition>,
     }
 
     #[derive(Template)]
     #[template(path = "posts.html")]
-    pub(super) struct PostTemplate<'a> {
-        pub(super) title: &'a str,
-        pub(super) page: Page<'a, PostId>,
+    pub struct PostTemplate<'a> {
+        pub title: &'a str,
+        pub page: Page<'a, PostId>,
     }
 
     trait PostExt {
