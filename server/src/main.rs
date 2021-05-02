@@ -1,7 +1,7 @@
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_session::CookieSession;
 use actix_web::{cookie::SameSite, App};
-use anyhow::Result;
+use anyhow::{ensure, Result};
 mod server;
 use actix_files::Files;
 use server::Server;
@@ -16,9 +16,8 @@ async fn main() -> Result<()> {
     env_logger::init();
     dotenv().ok();
     let secret_key = env::var("SECRET_KEY")?;
-    if secret_key.len() < 32 {
-        panic!("SECRET_KEY is not long enough.");
-    }
+    ensure!(secret_key.len() >= 32, "SECRET_KEY is not long enough.");
+
     let es_url = url::Url::parse(&env::var("ES_URL")?)?;
     let pg_url = url::Url::parse(&env::var("DATABASE_URL")?)?;
     let server = Server::new(&es_url, &pg_url, &env::var("ADMIN_USER_ID")?)?;
