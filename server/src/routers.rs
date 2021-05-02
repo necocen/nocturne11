@@ -46,9 +46,7 @@ pub fn admin(cfg: &mut ServiceConfig) {
         );
 }
 
-pub(crate) fn files(
-    path: impl Into<PathBuf> + 'static,
-) -> Box<dyn FnOnce(&mut ServiceConfig)> {
+pub(crate) fn files<'a>(path: impl Into<PathBuf> + 'a) -> Box<dyn FnOnce(&mut ServiceConfig) + 'a> {
     Box::new(move |cfg: &mut ServiceConfig| {
         cfg.service(Files::new("/static", path));
     })
