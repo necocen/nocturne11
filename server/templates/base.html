@@ -1,6 +1,6 @@
-{%- let main_class -%}
+{%- let mode_class -%}
 {%- block variables -%}
-    {%- let main_class = "" -%}
+    {%- let mode_class = "" -%}
 {%- endblock -%}
 <!DOCTYPE html>
 <html lang="ja">
@@ -21,7 +21,7 @@
                 </ul>
             </nav>
         </header>
-        <main class="{{ main_class }}">
+        <main class="{{ mode_class }}">
             {% block content %}{% endblock %}
         </main>
         <nav id="pager-nav">
@@ -30,7 +30,7 @@
                 <li>{% block next_page %}{% endblock %}</li>
             </ul>
         </nav>
-        <nav id="side-nav"></nav>
+        <nav id="side-nav" class="{{ mode_class }}"></nav>
         <footer>
             <address>Presented by κねこせん under <a rel="external" href="http://www.kmonos.net/nysl/nysdl.ja.html">NYSDL</a>.</address>
         </footer>

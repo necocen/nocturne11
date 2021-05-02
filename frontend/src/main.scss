@@ -93,6 +93,10 @@ body {
         grid-row: 2;
         margin: $gradient-height 0;
         font-family: $main-font-family;
+
+        &.admin {
+            grid-column: 1 / -1;
+        }
     }
 
     > footer {
@@ -278,6 +282,10 @@ body {
                 }
             }
         }
+    }
+
+    &.admin {
+        display: none;
     }
 }
 
