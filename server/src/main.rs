@@ -4,10 +4,13 @@ use actix_web::{cookie::SameSite, App};
 use anyhow::{ensure, Result};
 mod server;
 use server::Server;
+mod askama_helpers;
 mod auth_service;
+mod errors;
 mod handlers;
 mod routers;
 use dotenv::dotenv;
+use errors::Error;
 use std::env;
 
 #[actix_web::main]

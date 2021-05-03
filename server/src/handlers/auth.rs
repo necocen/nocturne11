@@ -1,4 +1,4 @@
-use super::Error;
+use crate::Error;
 use actix_identity::Identity;
 use actix_web::{http::header, web, HttpResponse};
 use serde::Deserialize;

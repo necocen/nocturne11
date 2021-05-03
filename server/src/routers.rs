@@ -1,7 +1,7 @@
 use crate::{
     auth_service::AuthService,
     handlers::{admin, api, auth, posts},
-    server::Server,
+    Server,
 };
 use actix_cors::Cors;
 use actix_files::Files;

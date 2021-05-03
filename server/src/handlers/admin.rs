@@ -1,8 +1,6 @@
-use super::{
-    args::{CreateFormParams, DeleteFormParams, IdArguments, UpdateFormParams},
-    Error, TemplateToResponse,
-};
-use crate::server::Server;
+use super::args::{CreateFormParams, DeleteFormParams, IdArguments, UpdateFormParams};
+use crate::askama_helpers::TemplateToResponse;
+use crate::{Error, Server};
 use actix_web::{http::header, web, HttpResponse};
 use chrono::Utc;
 use domain::{

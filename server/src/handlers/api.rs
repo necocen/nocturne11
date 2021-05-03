@@ -1,5 +1,4 @@
-use super::Error;
-use crate::server::Server;
+use crate::{Error, Server};
 use actix_web::{web, HttpResponse};
 use domain::entities::date::{Year, YearMonth};
 use domain::use_cases::{get_days, get_years};
