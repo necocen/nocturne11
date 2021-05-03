@@ -13,7 +13,7 @@ pub fn get_posts(
     repository: &impl PostsRepository,
     per_page: usize,
     page: usize,
-) -> Result<Page<()>> {
+) -> Result<Page<'static, ()>> {
     let posts = repository.get_all(per_page * (page - 1), per_page + 1)?;
     let next_page = if posts.len() > per_page {
         AdjacentPage::Page(page + 1)
