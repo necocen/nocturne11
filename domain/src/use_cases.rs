@@ -1,4 +1,7 @@
-use crate::repositories::posts::PostsRepository;
+use crate::{
+    entities::config::Config,
+    repositories::{config::ConfigRepository, posts::PostsRepository},
+};
 use crate::{
     entities::{
         date::{DateCondition, Year, YearMonth},
@@ -215,4 +218,12 @@ pub async fn delete_post(
     posts_repository.delete(id)?;
     search_repository.delete(id).await?;
     Ok(())
+}
+
+pub fn get_config(config_repository: &impl ConfigRepository) -> Result<Config> {
+    config_repository.get()
+}
+
+pub fn set_config(config_repository: &impl ConfigRepository, config: &Config) -> Result<()> {
+    config_repository.set(config)
 }

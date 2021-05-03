@@ -796,6 +796,7 @@ dependencies = [
  "chrono",
  "pretty_assertions",
  "serde",
+ "url 2.2.1",
 ]
 
 [[package]]
