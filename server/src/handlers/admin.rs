@@ -14,7 +14,7 @@ pub async fn index() -> Result<HttpResponse, Error> {
     AdminIndexTemplate { title: "admin" }.to_response()
 }
 
-pub async fn new_post_form(_server: web::Data<Server>) -> Result<HttpResponse, Error> {
+pub async fn new_post_form() -> Result<HttpResponse, Error> {
     NewPostTemplate { title: "投稿" }.to_response()
 }
 
