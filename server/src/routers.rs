@@ -1,6 +1,6 @@
 use crate::{
     auth_service::AuthService,
-    handlers::{admin, api, auth, posts},
+    handlers::{about, admin, api, auth, posts},
     Server,
 };
 use actix_cors::Cors;
@@ -45,6 +45,10 @@ pub fn admin(cfg: &mut ServiceConfig) {
                 .service(resource("/update").route(post().to(admin::update)))
                 .service(resource("/delete").route(post().to(admin::delete))),
         );
+}
+
+pub fn about(cfg: &mut ServiceConfig) {
+    cfg.service(resource("/about").route(get().to(about::about)));
 }
 
 pub fn files<'a>(path: impl Into<PathBuf> + 'a) -> Box<dyn FnOnce(&mut ServiceConfig) + 'a> {

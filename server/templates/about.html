@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{%- block variables -%}
+    {%- let mode_class = "about" -%}
+{%- endblock -%}
+
+{%- block content -%}
+<article>
+    <header>
+        <h3>このサイトのこと、書いている人のこと</h3>
+    </header>
+    {{ content.converted() | safe }}
+</article>
+{%- endblock -%}

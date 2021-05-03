@@ -1,5 +1,6 @@
 use anyhow::Result;
 use infrastructure::{
+    config_repository_mock_impl::ConfigRepositoryMockImpl,
     posts_repository_impl::PostsRepositoryImpl, search_repository_impl::SearchRepositoryImpl,
 };
 
@@ -7,6 +8,7 @@ use infrastructure::{
 pub struct Server {
     pub search_repository: SearchRepositoryImpl,
     pub posts_repository: PostsRepositoryImpl,
+    pub config_repository: ConfigRepositoryMockImpl,
     pub admin_user_id: String,
 }
 
@@ -18,9 +20,11 @@ impl Server {
     ) -> Result<Self> {
         let search_repository = SearchRepositoryImpl::new(es_url)?;
         let posts_repository = PostsRepositoryImpl::new(pg_url)?;
+        let config_repository = ConfigRepositoryMockImpl::new();
         Ok(Server {
             search_repository,
             posts_repository,
+            config_repository,
             admin_user_id: admin_user.into(),
         })
     }

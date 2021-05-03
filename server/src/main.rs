@@ -41,6 +41,7 @@ async fn main() -> Result<()> {
             .configure(routers::posts)
             .configure(routers::admin)
             .configure(routers::api)
+            .configure(routers::about)
             .configure(routers::files("./frontend/build/src"))
     })
     .bind("0.0.0.0:4000")?
