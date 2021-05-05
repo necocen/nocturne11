@@ -8,7 +8,6 @@ use errors::Error;
 use server::Server;
 use std::env;
 mod askama_helpers;
-mod auth_service;
 mod context_service;
 mod errors;
 mod handlers;

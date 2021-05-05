@@ -1,10 +1,14 @@
 use crate::{
-    auth_service::AuthService,
+    context_service::RequestHeadContext,
     handlers::{about, admin, api, auth, posts},
 };
 use actix_cors::Cors;
 use actix_files::Files;
-use actix_web::web::{get, post, resource, scope, ServiceConfig};
+use actix_web::{
+    guard,
+    web::{get, post, resource, route, scope, ServiceConfig},
+    HttpResponse,
+};
 use std::path::PathBuf;
 
 pub fn posts(cfg: &mut ServiceConfig) {
@@ -35,13 +39,17 @@ pub fn admin(cfg: &mut ServiceConfig) {
         .service(resource("/logout").route(get().to(auth::logout)))
         .service(
             scope("/admin")
-                .wrap(AuthService)
+                .guard(guard::fn_guard(RequestHeadContext::is_authorized))
                 .service(resource("").route(get().to(admin::index)))
                 .service(resource("/new").route(get().to(admin::new_post_form)))
                 .service(resource("/edit").route(get().to(admin::edit_post_form)))
                 .service(resource("/create").route(post().to(admin::create)))
                 .service(resource("/update").route(post().to(admin::update)))
                 .service(resource("/delete").route(post().to(admin::delete))),
+        )
+        .service(
+            scope("/admin")
+                .default_service(route().to(|| HttpResponse::Unauthorized().body("Unauthorized"))),
         );
 }
 

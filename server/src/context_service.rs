@@ -1,6 +1,6 @@
 use actix_identity::RequestIdentity;
 use actix_web::{
-    dev::{Extensions, Payload, Service, ServiceRequest, ServiceResponse, Transform},
+    dev::{Extensions, Payload, RequestHead, Service, ServiceRequest, ServiceResponse, Transform},
     web::Data,
     Error, FromRequest, HttpMessage, HttpRequest,
 };
@@ -30,6 +30,14 @@ impl<T> RequestContext for T
 where
     T: HttpMessage,
 {
+    fn is_authorized(&self) -> bool {
+        Context::get_is_authorized(&self.extensions())
+    }
+}
+pub trait RequestHeadContext {
+    fn is_authorized(&self) -> bool;
+}
+impl RequestHeadContext for RequestHead {
     fn is_authorized(&self) -> bool {
         Context::get_is_authorized(&self.extensions())
     }
