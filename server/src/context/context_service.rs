@@ -1,8 +1,8 @@
 use actix_identity::RequestIdentity;
 use actix_web::{
-    dev::{Extensions, Payload, RequestHead, Service, ServiceRequest, ServiceResponse, Transform},
+    dev::{Service, ServiceRequest, ServiceResponse, Transform},
     web::Data,
-    Error, FromRequest, HttpMessage, HttpRequest,
+    Error, HttpMessage,
 };
 use futures_util::future::LocalBoxFuture;
 use std::{
@@ -14,60 +14,6 @@ use std::{
 #[derive(Clone)]
 pub struct ContextService<D: 'static> {
     is_authorized: Rc<dyn Fn(&D, &str) -> bool + 'static>,
-}
-
-#[derive(Clone, Debug)]
-struct ContextItem {
-    pub field: u8,
-    pub is_authorized: bool,
-}
-
-pub trait RequestContext {
-    fn is_authorized(&self) -> bool;
-}
-
-impl<T> RequestContext for T
-where
-    T: HttpMessage,
-{
-    fn is_authorized(&self) -> bool {
-        Context::get_is_authorized(&self.extensions())
-    }
-}
-pub trait RequestHeadContext {
-    fn is_authorized(&self) -> bool;
-}
-impl RequestHeadContext for RequestHead {
-    fn is_authorized(&self) -> bool {
-        Context::get_is_authorized(&self.extensions())
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct Context(HttpRequest);
-
-impl Context {
-    pub fn is_authorized(&self) -> bool {
-        Context::get_is_authorized(&self.0.extensions())
-    }
-
-    fn get_is_authorized(extensions: &Extensions) -> bool {
-        if let Some(item) = extensions.get::<ContextItem>() {
-            item.is_authorized
-        } else {
-            false
-        }
-    }
-}
-impl FromRequest for Context {
-    type Config = ();
-    type Error = Error;
-    type Future = Ready<Result<Context, Error>>;
-
-    #[inline]
-    fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
-        ready(Ok(Context(req.clone())))
-    }
 }
 
 impl<D: 'static> ContextService<D> {
@@ -132,4 +78,10 @@ where
         };
         Box::pin(self.service.call(req))
     }
+}
+
+#[derive(Clone, Debug)]
+pub(super) struct ContextItem {
+    pub field: u8,
+    pub is_authorized: bool,
 }

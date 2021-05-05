@@ -1,5 +1,5 @@
 use crate::{
-    context_service::RequestHeadContext,
+    context::RequestHeadContext,
     handlers::{about, admin, api, auth, posts},
 };
 use actix_cors::Cors;
