@@ -2,16 +2,18 @@ use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_session::CookieSession;
 use actix_web::{cookie::SameSite, App};
 use anyhow::{ensure, Result};
-mod server;
+use context_service::ContextService;
+use dotenv::dotenv;
+use errors::Error;
 use server::Server;
+use std::env;
 mod askama_helpers;
 mod auth_service;
+mod context_service;
 mod errors;
 mod handlers;
 mod routers;
-use dotenv::dotenv;
-use errors::Error;
-use std::env;
+mod server;
 
 #[actix_web::main]
 async fn main() -> Result<()> {
@@ -34,7 +36,9 @@ async fn main() -> Result<()> {
             .name("nocturne-session")
             .same_site(SameSite::Lax)
             .secure(false); // for development
+        let context = ContextService::new(|server: &Server, id| id == server.admin_user_id);
         App::new()
+            .wrap(context)
             .wrap(session)
             .wrap(identity)
             .data(server.clone())

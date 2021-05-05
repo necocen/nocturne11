@@ -1,30 +1,19 @@
-use actix_identity::RequestIdentity;
 use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
-    web::Data,
     Error,
 };
+use futures_util::future::LocalBoxFuture;
 use std::{
-    future::{ready, Future, Ready},
-    pin::Pin,
-    rc::Rc,
+    future::{ready, Ready},
     task::{Context, Poll},
 };
 
+use crate::context_service::RequestContext;
+
 #[derive(Clone)]
-pub struct AuthService<D: 'static> {
-    is_authorized: Rc<dyn Fn(&D, &str) -> bool + 'static>,
-}
+pub struct AuthService;
 
-impl<D: 'static> AuthService<D> {
-    pub fn new(is_authorized: impl Fn(&D, &str) -> bool + 'static) -> AuthService<D> {
-        AuthService {
-            is_authorized: Rc::new(is_authorized),
-        }
-    }
-}
-
-impl<D: 'static, S, B: 'static> Transform<S, ServiceRequest> for AuthService<D>
+impl<S, B: 'static> Transform<S, ServiceRequest> for AuthService
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -32,45 +21,38 @@ where
     type Response = ServiceResponse<B>;
     type Error = Error;
     type InitError = ();
-    type Transform = AuthServiceMiddleware<D, S>;
+    type Transform = AuthServiceMiddleware<S>;
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
-        ready(Ok(AuthServiceMiddleware {
-            service,
-            is_authorized: self.is_authorized.clone(),
-        }))
+        ready(Ok(AuthServiceMiddleware { service }))
     }
 }
 
-pub struct AuthServiceMiddleware<D: 'static, S> {
+pub struct AuthServiceMiddleware<S> {
     service: S,
-    is_authorized: Rc<dyn Fn(&D, &str) -> bool + 'static>,
 }
 
-type ServiceResult<B> = Result<ServiceResponse<B>, Error>;
-
-impl<S, D: 'static, B: 'static> Service<ServiceRequest> for AuthServiceMiddleware<D, S>
+impl<S, B: 'static> Service<ServiceRequest> for AuthServiceMiddleware<S>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
 {
     type Response = ServiceResponse<B>;
     type Error = Error;
-    type Future = Pin<Box<dyn Future<Output = ServiceResult<B>>>>;
+    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
     fn poll_ready(&self, cx: &mut Context) -> Poll<Result<(), Self::Error>> {
         self.service.poll_ready(cx)
     }
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        match (req.get_identity(), req.app_data::<Data<D>>()) {
-            (Some(ref id), Some(data)) if (self.is_authorized)(data, id) => {
-                Box::pin(self.service.call(req))
-            }
-            _ => Box::pin(ready(Err(actix_web::error::ErrorUnauthorized(
+        if req.is_authorized() {
+            Box::pin(self.service.call(req))
+        } else {
+            Box::pin(ready(Err(actix_web::error::ErrorUnauthorized(
                 "Unauthorized",
-            )))),
+            ))))
         }
     }
 }

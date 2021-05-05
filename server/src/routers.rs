@@ -1,7 +1,6 @@
 use crate::{
     auth_service::AuthService,
     handlers::{about, admin, api, auth, posts},
-    Server,
 };
 use actix_cors::Cors;
 use actix_files::Files;
@@ -32,12 +31,11 @@ pub fn api(cfg: &mut ServiceConfig) {
 }
 
 pub fn admin(cfg: &mut ServiceConfig) {
-    let auth = AuthService::new(|server: &Server, id| id == server.admin_user_id);
     cfg.service(resource("/login").route(get().to(auth::login)))
         .service(resource("/logout").route(get().to(auth::logout)))
         .service(
             scope("/admin")
-                .wrap(auth)
+                .wrap(AuthService)
                 .service(resource("").route(get().to(admin::index)))
                 .service(resource("/new").route(get().to(admin::new_post_form)))
                 .service(resource("/edit").route(get().to(admin::edit_post_form)))
