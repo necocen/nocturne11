@@ -12,11 +12,11 @@ use std::{
 };
 
 #[derive(Clone)]
-pub struct ContextService<D: 'static> {
+pub struct ContextService<D> {
     is_authorized: Rc<dyn Fn(&D, &str) -> bool + 'static>,
 }
 
-impl<D: 'static> ContextService<D> {
+impl<D> ContextService<D> {
     pub fn new(is_authorized: impl Fn(&D, &str) -> bool + 'static) -> ContextService<D> {
         ContextService {
             is_authorized: Rc::new(is_authorized),
