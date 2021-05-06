@@ -1,3 +1,4 @@
+use super::AppContext;
 use actix_identity::RequestIdentity;
 use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
@@ -12,19 +13,19 @@ use std::{
 };
 
 #[derive(Clone)]
-pub struct ContextService<D> {
+pub struct AppContextService<D> {
     is_authorized: Rc<dyn Fn(&D, &str) -> bool + 'static>,
 }
 
-impl<D> ContextService<D> {
-    pub fn new(is_authorized: impl Fn(&D, &str) -> bool + 'static) -> ContextService<D> {
-        ContextService {
+impl<D> AppContextService<D> {
+    pub fn new(is_authorized: impl Fn(&D, &str) -> bool + 'static) -> AppContextService<D> {
+        AppContextService {
             is_authorized: Rc::new(is_authorized),
         }
     }
 }
 
-impl<S, D: 'static, B: 'static> Transform<S, ServiceRequest> for ContextService<D>
+impl<S, D: 'static, B: 'static> Transform<S, ServiceRequest> for AppContextService<D>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -64,13 +65,13 @@ where
     fn call(&self, req: ServiceRequest) -> Self::Future {
         match (req.get_identity(), req.app_data::<Data<D>>()) {
             (Some(ref id), Some(data)) if (self.is_authorized)(data, id) => {
-                req.extensions_mut().insert(ContextItem {
+                req.extensions_mut().insert(AppContext {
                     field: 33,
                     is_authorized: true,
                 });
             }
             _ => {
-                req.extensions_mut().insert(ContextItem {
+                req.extensions_mut().insert(AppContext {
                     field: 33,
                     is_authorized: false,
                 });
@@ -78,10 +79,4 @@ where
         };
         Box::pin(self.service.call(req))
     }
-}
-
-#[derive(Clone, Debug)]
-pub(super) struct ContextItem {
-    pub field: u8,
-    pub is_authorized: bool,
 }

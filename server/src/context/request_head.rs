@@ -1,4 +1,4 @@
-use super::context_service::ContextItem;
+use super::AppContext;
 use actix_web::dev::RequestHead;
 
 pub trait RequestHeadContext {
@@ -7,7 +7,7 @@ pub trait RequestHeadContext {
 
 impl RequestHeadContext for RequestHead {
     fn is_authorized(&self) -> bool {
-        if let Some(item) = self.extensions().get::<ContextItem>() {
+        if let Some(item) = self.extensions().get::<AppContext>() {
             item.is_authorized
         } else {
             false

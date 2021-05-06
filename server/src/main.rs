@@ -2,7 +2,7 @@ use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_session::CookieSession;
 use actix_web::{cookie::SameSite, App};
 use anyhow::{ensure, Result};
-use context::ContextService;
+use context::AppContextService;
 use dotenv::dotenv;
 use errors::Error;
 use server::Server;
@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
             .name("nocturne-session")
             .same_site(SameSite::Lax)
             .secure(false); // for development
-        let context = ContextService::new(|server: &Server, id| id == server.admin_user_id);
+        let context = AppContextService::new(|server: &Server, id| id == server.admin_user_id);
         App::new()
             .wrap(context)
             .wrap(session)
