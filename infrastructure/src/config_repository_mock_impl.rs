@@ -1,21 +1,21 @@
 use anyhow::Result;
 use domain::{entities::config::Config, repositories::config::ConfigRepository};
-use std::cell::RefCell;
+use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Clone)]
 pub struct ConfigRepositoryMockImpl {
-    config: RefCell<Config>,
+    config: Arc<Mutex<Config>>,
 }
 
 impl ConfigRepositoryMockImpl {
     pub fn new() -> ConfigRepositoryMockImpl {
         ConfigRepositoryMockImpl {
-            config: RefCell::new(Config {
+            config: Arc::new(Mutex::new(Config {
                 title: "andante".to_string(),
                 about: "単なる日記です\n\n\n単なる日記なんやで".to_string(),
                 mathjax_options: "".to_string(),
                 links: vec![],
-            }),
+            })),
         }
     }
 }
@@ -28,11 +28,11 @@ impl Default for ConfigRepositoryMockImpl {
 
 impl ConfigRepository for ConfigRepositoryMockImpl {
     fn get(&self) -> Result<Config> {
-        Ok(self.config.borrow().clone())
+        Ok(self.config.lock().unwrap().clone())
     }
 
     fn set_about(&self, about: &str) -> Result<()> {
-        let mut config = self.config.borrow_mut();
+        let mut config = self.config.lock().unwrap();
         config.about = about.to_owned();
         Ok(())
     }
