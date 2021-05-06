@@ -12,7 +12,7 @@ pub async fn login(id: Identity, query: web::Query<UserQuery>) -> Result<HttpRes
     id.remember(query.user_id.clone());
     dbg!(&query.user_id);
     Ok(HttpResponse::SeeOther()
-        .append_header((header::LOCATION, "/"))
+        .append_header((header::LOCATION, "/admin/"))
         .finish())
 }
 

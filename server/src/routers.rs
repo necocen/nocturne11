@@ -1,5 +1,4 @@
 use crate::handlers::{about, admin, api, auth, posts};
-use actix_files::Files;
 use actix_web::web::{get, post, resource, ServiceConfig};
 use std::path::PathBuf;
 
@@ -26,14 +25,20 @@ pub fn auth(cfg: &mut ServiceConfig) {
 }
 
 pub fn admin(cfg: &mut ServiceConfig) {
-    cfg.service(resource("").route(get().to(admin::index)))
+    use actix_web::{http::header, HttpResponse};
+    cfg.service(resource("/").route(get().to(admin::index)))
         .service(resource("/new").route(get().to(admin::new_post_form)))
         .service(resource("/edit").route(get().to(admin::edit_post_form)))
         .service(resource("/create").route(post().to(admin::create)))
         .service(resource("/update").route(post().to(admin::update)))
         .service(resource("/delete").route(post().to(admin::delete)))
         .service(resource("/config").route(get().to(admin::show_config)))
-        .service(resource("/update-config").route(post().to(admin::update_config)));
+        .service(resource("/update-config").route(post().to(admin::update_config)))
+        .service(resource("").route(get().to(|| {
+            HttpResponse::Found()
+                .append_header((header::LOCATION, "/admin/"))
+                .finish()
+        })));
 }
 
 pub fn about(cfg: &mut ServiceConfig) {
@@ -41,6 +46,7 @@ pub fn about(cfg: &mut ServiceConfig) {
 }
 
 pub fn files<'a>(path: impl Into<PathBuf> + 'a) -> impl FnOnce(&mut ServiceConfig) + 'a {
+    use actix_files::Files;
     move |cfg: &mut ServiceConfig| {
         cfg.service(Files::new("/static", path));
     }
