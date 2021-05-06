@@ -25,6 +25,10 @@ impl ConfigRepository for ConfigRepositoryImpl {
             .map_or(String::new(), |c| c.value.to_owned());
         Ok(Config {
             title: "andante".to_owned(),
+            description: "個人的な日記".to_owned(),
+            author: "κねこせん".to_owned(),
+            email: "necocen@gmail.com".to_owned(),
+            generator: "Nocturne v11".to_owned(),
             about,
             mathjax_options,
             links: vec![],

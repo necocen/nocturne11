@@ -11,7 +11,11 @@ impl ConfigRepositoryMockImpl {
     pub fn new() -> ConfigRepositoryMockImpl {
         ConfigRepositoryMockImpl {
             config: Arc::new(Mutex::new(Config {
-                title: "andante".to_string(),
+                title: "andante".to_owned(),
+                description: "個人的な日記".to_owned(),
+                author: "κねこせん".to_owned(),
+                email: "necocen@gmail.com".to_owned(),
+                generator: "Nocturne v11".to_owned(),
                 about: "単なる日記です\n\n\n単なる日記なんやで".to_string(),
                 mathjax_options: "".to_string(),
                 links: vec![],

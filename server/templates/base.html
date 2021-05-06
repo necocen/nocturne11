@@ -6,8 +6,12 @@
 <html lang="ja">
     <head>
         <title>{{ context.config.title }}</title>
-        <link rel="stylesheet" href="/static/main.css">
         <meta charset="UTF-8" />
+        <meta name="author" content="{{ context.config.author }}" />
+        <meta name="description" content="{{ context.config.description }}" />
+        <meta name="robots" content="index,follow" />
+        <meta name="generator" content="{{ context.config.generator }}" />
+        <link rel="stylesheet" href="/static/main.css" />
     </head>
     <body>
         <header>
@@ -38,7 +42,7 @@
         </nav>
         <nav id="side-nav" class="{{ mode_class }}"></nav>
         <footer>
-            <address>Presented by κねこせん under <a rel="external" href="http://www.kmonos.net/nysl/nysdl.ja.html">NYSDL</a>.</address>
+            <address>Presented by {{ context.config.author }} under <a rel="external" href="http://www.kmonos.net/nysl/nysdl.ja.html">NYSDL</a>.</address>
         </footer>
         <script type="module" src="/static/index.js"></script>
     </body>
