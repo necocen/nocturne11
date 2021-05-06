@@ -58,7 +58,4 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
-    configs,
-    posts,
-);
+diesel::allow_tables_to_appear_in_same_query!(configs, posts,);
