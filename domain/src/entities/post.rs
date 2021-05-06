@@ -63,6 +63,12 @@ pub struct Page<'a, C> {
     pub next_page: AdjacentPage<C>,
 }
 
+impl<'a> Page<'a, PostId> {
+    pub fn post(&self) -> Option<&Post> {
+        self.posts.first()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AdjacentPage<C> {
     /// 次のページに該当するものはない
