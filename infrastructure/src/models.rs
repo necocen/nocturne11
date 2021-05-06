@@ -3,6 +3,7 @@
 #![allow(unused)]
 #![allow(clippy::all)]
 
+use super::schema::configs;
 use super::schema::posts;
 use chrono::{offset::Utc, TimeZone};
 use chrono::{DateTime, NaiveDateTime};
@@ -15,6 +16,12 @@ pub(crate) struct Post {
     pub body: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Queryable, Insertable, Debug, Clone)]
+pub(crate) struct Config {
+    pub key: String,
+    pub value: String,
 }
 
 impl From<Post> for PostEntity {
