@@ -1,14 +1,6 @@
-use crate::{
-    context::RequestHeadContext,
-    handlers::{about, admin, api, auth, posts},
-};
-use actix_cors::Cors;
+use crate::handlers::{about, admin, api, auth, posts};
 use actix_files::Files;
-use actix_web::{
-    guard,
-    web::{get, post, resource, route, scope, ServiceConfig},
-    HttpResponse,
-};
+use actix_web::web::{get, post, resource, ServiceConfig};
 use std::path::PathBuf;
 
 pub fn posts(cfg: &mut ServiceConfig) {
@@ -22,37 +14,26 @@ pub fn posts(cfg: &mut ServiceConfig) {
 }
 
 pub fn api(cfg: &mut ServiceConfig) {
-    let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
     cfg.service(
-        scope("/api")
-            .wrap(cors)
-            .service(
-                resource(r"/days/{year:\d{4}}-{month:\d{2}}")
-                    .route(get().to(api::days_in_year_month)),
-            )
-            .service(resource("/months").route(get().to(api::months))),
-    );
+        resource(r"/days/{year:\d{4}}-{month:\d{2}}").route(get().to(api::days_in_year_month)),
+    )
+    .service(resource("/months").route(get().to(api::months)));
+}
+
+pub fn auth(cfg: &mut ServiceConfig) {
+    cfg.service(resource("/login").route(get().to(auth::login)))
+        .service(resource("/logout").route(get().to(auth::logout)));
 }
 
 pub fn admin(cfg: &mut ServiceConfig) {
-    cfg.service(resource("/login").route(get().to(auth::login)))
-        .service(resource("/logout").route(get().to(auth::logout)))
-        .service(
-            scope("/admin")
-                .guard(guard::fn_guard(RequestHeadContext::is_authorized))
-                .service(resource("").route(get().to(admin::index)))
-                .service(resource("/new").route(get().to(admin::new_post_form)))
-                .service(resource("/edit").route(get().to(admin::edit_post_form)))
-                .service(resource("/create").route(post().to(admin::create)))
-                .service(resource("/update").route(post().to(admin::update)))
-                .service(resource("/delete").route(post().to(admin::delete)))
-                .service(resource("/config").route(get().to(admin::show_config)))
-                .service(resource("/update-config").route(post().to(admin::update_config))),
-        )
-        .service(
-            scope("/admin")
-                .default_service(route().to(|| HttpResponse::Unauthorized().body("Unauthorized"))),
-        );
+    cfg.service(resource("").route(get().to(admin::index)))
+        .service(resource("/new").route(get().to(admin::new_post_form)))
+        .service(resource("/edit").route(get().to(admin::edit_post_form)))
+        .service(resource("/create").route(post().to(admin::create)))
+        .service(resource("/update").route(post().to(admin::update)))
+        .service(resource("/delete").route(post().to(admin::delete)))
+        .service(resource("/config").route(get().to(admin::show_config)))
+        .service(resource("/update-config").route(post().to(admin::update_config)));
 }
 
 pub fn about(cfg: &mut ServiceConfig) {
