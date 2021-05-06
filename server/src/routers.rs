@@ -45,7 +45,9 @@ pub fn admin(cfg: &mut ServiceConfig) {
                 .service(resource("/edit").route(get().to(admin::edit_post_form)))
                 .service(resource("/create").route(post().to(admin::create)))
                 .service(resource("/update").route(post().to(admin::update)))
-                .service(resource("/delete").route(post().to(admin::delete))),
+                .service(resource("/delete").route(post().to(admin::delete)))
+                .service(resource("/config").route(get().to(admin::show_config)))
+                .service(resource("/update-config").route(post().to(admin::update_config))),
         )
         .service(
             scope("/admin")

@@ -43,3 +43,8 @@ pub struct UpdateFormParams {
 pub struct DeleteFormParams {
     pub id: i32,
 }
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ConfigFormParams {
+    pub about: String,
+}
