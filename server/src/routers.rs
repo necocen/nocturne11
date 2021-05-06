@@ -57,8 +57,8 @@ pub fn about(cfg: &mut ServiceConfig) {
     cfg.service(resource("/about").route(get().to(about::about)));
 }
 
-pub fn files<'a>(path: impl Into<PathBuf> + 'a) -> Box<dyn FnOnce(&mut ServiceConfig) + 'a> {
-    Box::new(move |cfg: &mut ServiceConfig| {
+pub fn files<'a>(path: impl Into<PathBuf> + 'a) -> impl FnOnce(&mut ServiceConfig) + 'a {
+    move |cfg: &mut ServiceConfig| {
         cfg.service(Files::new("/static", path));
-    })
+    }
 }
