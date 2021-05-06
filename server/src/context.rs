@@ -7,7 +7,7 @@ use std::future::{ready, Ready};
 
 #[derive(Clone, Debug)]
 pub struct AppContext {
-    pub field: u8,
+    pub title: String,
     pub is_authorized: bool,
 }
 
@@ -18,13 +18,7 @@ impl FromRequest for AppContext {
 
     #[inline]
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
-        let AppContext {
-            field,
-            is_authorized,
-        } = req.extensions().get::<AppContext>().unwrap().clone();
-        ready(Ok(AppContext {
-            field,
-            is_authorized,
-        }))
+        // TODO: unwrapはちゃんとハンドルする
+        ready(Ok(req.extensions().get::<AppContext>().unwrap().clone()))
     }
 }

@@ -1,5 +1,5 @@
 use super::args::{CreateFormParams, DeleteFormParams, IdArguments, UpdateFormParams};
-use crate::askama_helpers::TemplateToResponse;
+use crate::{askama_helpers::TemplateToResponse, context::AppContext};
 use crate::{Error, Server};
 use actix_web::{http::header, web, HttpResponse};
 use chrono::Utc;
@@ -10,24 +10,21 @@ use domain::{
 };
 use templates::{AdminIndexTemplate, EditPostTemplate, NewPostTemplate};
 
-pub async fn index() -> Result<HttpResponse, Error> {
-    AdminIndexTemplate { title: "admin" }.to_response()
+pub async fn index(context: AppContext) -> Result<HttpResponse, Error> {
+    AdminIndexTemplate { context }.to_response()
 }
 
-pub async fn new_post_form() -> Result<HttpResponse, Error> {
-    NewPostTemplate { title: "投稿" }.to_response()
+pub async fn new_post_form(context: AppContext) -> Result<HttpResponse, Error> {
+    NewPostTemplate { context }.to_response()
 }
 
 pub async fn edit_post_form(
+    context: AppContext,
     server: web::Data<Server>,
     args: web::Query<IdArguments>,
 ) -> Result<HttpResponse, Error> {
     let post = &server.posts_repository.get(args.id)?;
-    EditPostTemplate {
-        title: "編集",
-        post,
-    }
-    .to_response()
+    EditPostTemplate { context, post }.to_response()
 }
 
 pub async fn create(
@@ -74,25 +71,26 @@ pub async fn delete(
 }
 
 mod templates {
+    use crate::context::AppContext;
     use askama::Template;
     use domain::entities::Post;
 
     #[derive(Template)]
     #[template(path = "admin.html")]
-    pub struct AdminIndexTemplate<'a> {
-        pub title: &'a str,
+    pub struct AdminIndexTemplate {
+        pub context: AppContext,
     }
 
     #[derive(Template)]
     #[template(path = "admin/new.html")]
-    pub struct NewPostTemplate<'a> {
-        pub title: &'a str,
+    pub struct NewPostTemplate {
+        pub context: AppContext,
     }
 
     #[derive(Template)]
     #[template(path = "admin/edit.html")]
     pub struct EditPostTemplate<'a> {
-        pub title: &'a str,
+        pub context: AppContext,
         pub post: &'a Post,
     }
 }

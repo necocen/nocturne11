@@ -66,13 +66,13 @@ where
         match (req.get_identity(), req.app_data::<Data<D>>()) {
             (Some(ref id), Some(data)) if (self.is_authorized)(data, id) => {
                 req.extensions_mut().insert(AppContext {
-                    field: 33,
+                    title: "andante".to_owned(),
                     is_authorized: true,
                 });
             }
             _ => {
                 req.extensions_mut().insert(AppContext {
-                    field: 33,
+                    title: "andante".to_owned(),
                     is_authorized: false,
                 });
             }

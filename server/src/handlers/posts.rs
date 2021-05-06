@@ -1,34 +1,29 @@
 use super::args::{DateArguments, IdArguments, PageQuery};
-use crate::askama_helpers::TemplateToResponse;
+use crate::{askama_helpers::TemplateToResponse, context::AppContext};
 use crate::{Error, Server};
 use actix_web::{web, HttpResponse};
 use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_date_condition};
 use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate};
 
 pub async fn all_posts(
+    context: AppContext,
     server: web::Data<Server>,
     query: web::Query<PageQuery>,
 ) -> Result<HttpResponse, Error> {
     let page = get_posts(&server.posts_repository, 10, query.page.unwrap_or(1))?;
-    AllPostsTemplate {
-        page,
-        title: "タイトル",
-    }
-    .to_response()
+    AllPostsTemplate { context, page }.to_response()
 }
 
 pub async fn post_with_id(
+    context: AppContext,
     server: web::Data<Server>,
     args: web::Path<IdArguments>,
 ) -> Result<HttpResponse, Error> {
     let page = get_post_with_id(&server.posts_repository, &args.id)?;
-    PostTemplate {
-        page,
-        title: "タイトル",
-    }
-    .to_response()
+    PostTemplate { context, page }.to_response()
 }
 pub async fn posts_with_date(
+    context: AppContext,
     server: web::Data<Server>,
     args: web::Path<DateArguments>,
     query: web::Query<PageQuery>,
@@ -41,16 +36,12 @@ pub async fn posts_with_date(
         query.page.unwrap_or(1),
     )?;
 
-    PostsWithDateTemplate {
-        title: "タイトル",
-        page,
-    }
-    .to_response()
+    PostsWithDateTemplate { context, page }.to_response()
 }
 
 mod templates {
-    use crate::askama_helpers::convert_body;
     pub use crate::askama_helpers::filters;
+    use crate::{askama_helpers::convert_body, context::AppContext};
     use askama::Template;
     use chrono::NaiveDate;
     use domain::entities::{date::DateCondition, AdjacentPage, Page, Post, PostId};
@@ -58,21 +49,21 @@ mod templates {
     #[derive(Template)]
     #[template(path = "all_posts.html")]
     pub struct AllPostsTemplate<'a> {
-        pub title: &'a str,
+        pub context: AppContext,
         pub page: Page<'a, ()>,
     }
 
     #[derive(Template)]
     #[template(path = "posts.html")]
     pub struct PostsWithDateTemplate<'a> {
-        pub title: &'a str,
+        pub context: AppContext,
         pub page: Page<'a, DateCondition>,
     }
 
     #[derive(Template)]
     #[template(path = "posts.html")]
     pub struct PostTemplate<'a> {
-        pub title: &'a str,
+        pub context: AppContext,
         pub page: Page<'a, PostId>,
     }
 

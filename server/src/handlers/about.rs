@@ -1,20 +1,20 @@
-use crate::askama_helpers::TemplateToResponse;
+use crate::{askama_helpers::TemplateToResponse, context::AppContext};
 use crate::{Error, Server};
 use actix_web::{web, HttpResponse};
 use domain::use_cases::get_config;
 use templates::{AboutContent, AboutTemplate};
 
-pub async fn about(server: web::Data<Server>) -> Result<HttpResponse, Error> {
+pub async fn about(context: AppContext, server: web::Data<Server>) -> Result<HttpResponse, Error> {
     let config = get_config(&server.config_repository)?;
     AboutTemplate {
-        title: "About",
+        context,
         content: AboutContent(config.about),
     }
     .to_response()
 }
 
 mod templates {
-    use crate::askama_helpers::convert_body;
+    use crate::{askama_helpers::convert_body, context::AppContext};
     use askama::Template;
 
     pub struct AboutContent(pub String);
@@ -27,8 +27,8 @@ mod templates {
 
     #[derive(Template)]
     #[template(path = "about.html")]
-    pub struct AboutTemplate<'a> {
-        pub title: &'a str,
+    pub struct AboutTemplate {
+        pub context: AppContext,
         pub content: AboutContent,
     }
 }
