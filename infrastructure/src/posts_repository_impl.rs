@@ -10,21 +10,24 @@ use domain::{
     repositories::{import_posts::ImportPostsRepository, posts::PostsRepository},
 };
 use r2d2::Pool;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct PostsRepositoryImpl {
-    conn_pool: Pool<ConnectionManager<PgConnection>>,
+    pub(crate) conn_pool: Arc<Pool<ConnectionManager<PgConnection>>>,
 }
 
 impl PostsRepositoryImpl {
-    pub fn new(pg_url: &url::Url) -> Result<PostsRepositoryImpl> {
+    pub fn new_with_url(pg_url: &url::Url) -> Result<PostsRepositoryImpl> {
         let conn_manager = ConnectionManager::<PgConnection>::new(pg_url.as_str());
         let customizer = TimezoneCustomizer {
             offset: *Local::now().offset(),
         };
-        let conn_pool = Pool::builder()
-            .connection_customizer(Box::new(customizer))
-            .build(conn_manager)?;
+        let conn_pool = Arc::new(
+            Pool::builder()
+                .connection_customizer(Box::new(customizer))
+                .build(conn_manager)?,
+        );
         Ok(PostsRepositoryImpl { conn_pool })
     }
 }

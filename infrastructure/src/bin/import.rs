@@ -21,7 +21,8 @@ async fn main() -> Result<()> {
     env_logger::init();
     dotenv().ok();
     let old_repo = OldPostsRepositoryImpl::new(&url::Url::parse(&env::var("OLD_DATABASE_URL")?)?)?;
-    let new_repo = PostsRepositoryImpl::new(&url::Url::parse(&env::var("DATABASE_URL")?)?)?;
+    let new_repo =
+        PostsRepositoryImpl::new_with_url(&url::Url::parse(&env::var("DATABASE_URL")?)?)?;
     let search_repo = SearchRepositoryImpl::new(&url::Url::parse(&env::var("ES_URL")?)?)?;
     transport(&old_repo, &new_repo, &search_repo).await?;
     Ok(())

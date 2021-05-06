@@ -19,7 +19,7 @@ impl Server {
         admin_user: impl Into<String>,
     ) -> Result<Self> {
         let search_repository = SearchRepositoryImpl::new(es_url)?;
-        let posts_repository = PostsRepositoryImpl::new(pg_url)?;
+        let posts_repository = PostsRepositoryImpl::new_with_url(pg_url)?;
         let config_repository = ConfigRepositoryMockImpl::new();
         Ok(Server {
             search_repository,

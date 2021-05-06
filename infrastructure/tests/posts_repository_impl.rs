@@ -13,7 +13,7 @@ use database_mock::*;
 #[test]
 fn import_and_find() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
-    let repo = PostsRepositoryImpl::new(pg_url)?;
+    let repo = PostsRepositoryImpl::new_with_url(pg_url)?;
     repo.import(&[Post::new(1, "1", "1111", Utc::now(), Utc::now())])?;
     let post = repo.get(1)?;
     assert_eq!(post.id, 1);
@@ -26,7 +26,7 @@ fn import_and_find() -> Result<()> {
 fn id_not_found() -> Result<()> {
     use diesel::result::*;
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
-    let repo = PostsRepositoryImpl::new(pg_url)?;
+    let repo = PostsRepositoryImpl::new_with_url(pg_url)?;
     let post = repo.get(1);
     assert_eq!(post.unwrap_err().downcast::<Error>()?, Error::NotFound);
     Ok(())
@@ -36,7 +36,7 @@ fn id_not_found() -> Result<()> {
 fn import_duplicated_id() -> Result<()> {
     use diesel::result::*;
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
-    let repo = PostsRepositoryImpl::new(pg_url)?;
+    let repo = PostsRepositoryImpl::new_with_url(pg_url)?;
     repo.import(&[Post::new(1, "1", "1111", Utc::now(), Utc::now())])?;
     let result = repo.import(&[Post::new(1, "1", "1111", Utc::now(), Utc::now())]);
     assert_matches!(
@@ -49,7 +49,7 @@ fn import_duplicated_id() -> Result<()> {
 #[test]
 fn import_update_sequence() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
-    let repo = PostsRepositoryImpl::new(pg_url)?;
+    let repo = PostsRepositoryImpl::new_with_url(pg_url)?;
     repo.import(&mock_data())?;
     repo.reset_id_sequence()?;
     let post = repo.create(&NewPost::new("1230", "1230", Utc::now()))?;
@@ -60,7 +60,7 @@ fn import_update_sequence() -> Result<()> {
 #[test]
 fn create_and_find() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
-    let repo = PostsRepositoryImpl::new(pg_url)?;
+    let repo = PostsRepositoryImpl::new_with_url(pg_url)?;
     repo.create(&NewPost::new("1", "1111", Utc::now()))?;
     let post = repo.get(1)?;
     assert_eq!(post.id, 1);
@@ -72,7 +72,7 @@ fn create_and_find() -> Result<()> {
 #[test]
 fn create_and_increment_id() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
-    let repo = PostsRepositoryImpl::new(pg_url)?;
+    let repo = PostsRepositoryImpl::new_with_url(pg_url)?;
     repo.create(&NewPost::new("1", "1111", Utc::now()))?;
     repo.create(&NewPost::new("2", "2222", Utc::now()))?;
     let post = repo.get(2)?;
@@ -85,7 +85,7 @@ fn create_and_increment_id() -> Result<()> {
 #[test]
 fn create_and_update() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
-    let repo = PostsRepositoryImpl::new(pg_url)?;
+    let repo = PostsRepositoryImpl::new_with_url(pg_url)?;
     let created_at = Local.ymd(2021, 5, 2).and_hms(2, 10, 28).with_timezone(&Utc);
     let post = repo.create(&NewPost::new("1", "1111", created_at))?;
     let updated_at = Local.ymd(2021, 5, 2).and_hms(2, 11, 24).with_timezone(&Utc);
@@ -102,7 +102,7 @@ fn create_and_update() -> Result<()> {
 fn create_and_delete() -> Result<()> {
     use diesel::result::*;
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
-    let repo = PostsRepositoryImpl::new(pg_url)?;
+    let repo = PostsRepositoryImpl::new_with_url(pg_url)?;
     let created_at = Local.ymd(2021, 5, 2).and_hms(2, 10, 28).with_timezone(&Utc);
     let post = repo.create(&NewPost::new("1", "1111", created_at))?;
     let post = repo.get(post.id)?;
@@ -116,7 +116,7 @@ fn create_and_delete() -> Result<()> {
 #[test]
 fn find_all() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
-    let repo = PostsRepositoryImpl::new(pg_url)?;
+    let repo = PostsRepositoryImpl::new_with_url(pg_url)?;
     repo.import(&mock_data())?;
     let posts = repo.get_all(0, 1000)?;
     let ids = posts.into_iter().map(|p| p.id).collect::<Vec<_>>();
