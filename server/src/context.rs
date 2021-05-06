@@ -1,9 +1,9 @@
 mod context_service;
 use context_service::ContextItem;
 pub use context_service::ContextService;
-mod request_context;
+mod request_head;
 use actix_web::{dev::Payload, Error, FromRequest, HttpRequest};
-pub use request_context::RequestHeadContext;
+pub use request_head::RequestHeadContext;
 use std::future::{ready, Ready};
 
 #[derive(Clone, Debug)]

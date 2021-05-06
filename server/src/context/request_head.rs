@@ -1,10 +1,6 @@
 use super::context_service::ContextItem;
 use actix_web::dev::RequestHead;
 
-pub trait RequestContext {
-    fn is_authorized(&self) -> bool;
-}
-
 pub trait RequestHeadContext {
     fn is_authorized(&self) -> bool;
 }
