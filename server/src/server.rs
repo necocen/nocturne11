@@ -4,7 +4,7 @@ use infrastructure::{
     posts_repository_impl::PostsRepositoryImpl, search_repository_impl::SearchRepositoryImpl,
 };
 
-#[derive(Clone)]
+#[derive(Clone)] // FIXME: dieselのConnectionManagerがDebugを実装したらDebugにできる
 pub struct Server {
     pub search_repository: SearchRepositoryImpl,
     pub posts_repository: PostsRepositoryImpl,
@@ -27,5 +27,9 @@ impl Server {
             config_repository,
             admin_user_id: admin_user.into(),
         })
+    }
+
+    pub fn authorize(&self, id: &str) -> bool {
+        id == self.admin_user_id
     }
 }

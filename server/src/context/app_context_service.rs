@@ -1,31 +1,24 @@
 use super::AppContext;
+use crate::Error as AppError;
+use crate::Server;
 use actix_identity::RequestIdentity;
 use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
+    error::ErrorUnauthorized,
     web::Data,
     Error, HttpMessage,
 };
+use domain::repositories::config::ConfigRepository;
 use futures_util::future::LocalBoxFuture;
 use std::{
     future::{ready, Ready},
-    rc::Rc,
     task::{Context as TaskContext, Poll},
 };
 
 #[derive(Clone)]
-pub struct AppContextService<D> {
-    is_authorized: Rc<dyn Fn(&D, &str) -> bool + 'static>,
-}
+pub struct AppContextService;
 
-impl<D> AppContextService<D> {
-    pub fn new(is_authorized: impl Fn(&D, &str) -> bool + 'static) -> AppContextService<D> {
-        AppContextService {
-            is_authorized: Rc::new(is_authorized),
-        }
-    }
-}
-
-impl<S, D: 'static, B: 'static> Transform<S, ServiceRequest> for AppContextService<D>
+impl<S, B: 'static> Transform<S, ServiceRequest> for AppContextService
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -33,23 +26,19 @@ where
     type Response = ServiceResponse<B>;
     type Error = Error;
     type InitError = ();
-    type Transform = ContextServiceMiddleware<S, D>;
+    type Transform = ContextServiceMiddleware<S>;
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
-        ready(Ok(ContextServiceMiddleware {
-            service: Rc::new(service),
-            is_authorized: self.is_authorized.clone(),
-        }))
+        ready(Ok(ContextServiceMiddleware { service }))
     }
 }
 
-pub struct ContextServiceMiddleware<S, D: 'static> {
-    service: Rc<S>,
-    is_authorized: Rc<dyn Fn(&D, &str) -> bool + 'static>,
+pub struct ContextServiceMiddleware<S> {
+    service: S,
 }
 
-impl<S, D: 'static, B: 'static> Service<ServiceRequest> for ContextServiceMiddleware<S, D>
+impl<S, B: 'static> Service<ServiceRequest> for ContextServiceMiddleware<S>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -63,20 +52,20 @@ where
     }
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        match (req.get_identity(), req.app_data::<Data<D>>()) {
-            (Some(ref id), Some(data)) if (self.is_authorized)(data, id) => {
-                req.extensions_mut().insert(AppContext {
-                    title: "andante".to_owned(),
-                    is_authorized: true,
-                });
+        if let Some(app) = req.app_data::<Data<Server>>() {
+            let is_authorized = matches!(req.get_identity(), Some(ref id) if app.authorize(id));
+            match app.config_repository.get() {
+                Ok(config) => {
+                    req.extensions_mut().insert(AppContext {
+                        config,
+                        is_authorized,
+                    });
+                    Box::pin(self.service.call(req))
+                }
+                Err(e) => Box::pin(ready(Err(AppError::General(e).into()))),
             }
-            _ => {
-                req.extensions_mut().insert(AppContext {
-                    title: "andante".to_owned(),
-                    is_authorized: false,
-                });
-            }
-        };
-        Box::pin(self.service.call(req))
+        } else {
+            Box::pin(ready(Err(ErrorUnauthorized("Unauthorized"))))
+        }
     }
 }

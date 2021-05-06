@@ -1,6 +1,6 @@
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_session::CookieSession;
-use actix_web::{cookie::SameSite, App};
+use actix_web::{cookie::SameSite, web, App};
 use anyhow::{ensure, Result};
 use context::AppContextService;
 use dotenv::dotenv;
@@ -35,17 +35,19 @@ async fn main() -> Result<()> {
             .name("nocturne-session")
             .same_site(SameSite::Lax)
             .secure(false); // for development
-        let context = AppContextService::new(|server: &Server, id| id == server.admin_user_id);
         App::new()
-            .wrap(context)
-            .wrap(session)
-            .wrap(identity)
             .data(server.clone())
-            .configure(routers::posts)
-            .configure(routers::admin)
             .configure(routers::api)
-            .configure(routers::about)
             .configure(routers::files("./frontend/build/src"))
+            .service(
+                web::scope("")
+                    .wrap(AppContextService)
+                    .wrap(session)
+                    .wrap(identity)
+                    .configure(routers::posts)
+                    .configure(routers::admin)
+                    .configure(routers::about),
+            )
     })
     .bind("0.0.0.0:4000")?
     .run()

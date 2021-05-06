@@ -1,14 +1,15 @@
 mod app_context_service;
 mod request_head;
-use actix_web::{dev::Payload, Error, FromRequest, HttpRequest};
+use actix_web::{dev::Payload, error::ErrorInternalServerError, Error, FromRequest, HttpRequest};
 pub use app_context_service::AppContextService;
+use domain::entities::config::Config;
 pub use request_head::RequestHeadContext;
 use std::future::{ready, Ready};
 
 #[derive(Clone, Debug)]
 pub struct AppContext {
-    pub title: String,
     pub is_authorized: bool,
+    pub config: Config,
 }
 
 impl FromRequest for AppContext {
@@ -18,7 +19,13 @@ impl FromRequest for AppContext {
 
     #[inline]
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
-        // TODO: unwrapはちゃんとハンドルする
-        ready(Ok(req.extensions().get::<AppContext>().unwrap().clone()))
+        ready(
+            req.extensions()
+                .get::<AppContext>()
+                .cloned()
+                .ok_or_else(|| {
+                    ErrorInternalServerError("Couldn't extract AppContext from Request.")
+                }),
+        )
     }
 }

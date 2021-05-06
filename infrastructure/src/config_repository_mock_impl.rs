@@ -11,6 +11,7 @@ impl ConfigRepositoryMockImpl {
     pub fn new() -> ConfigRepositoryMockImpl {
         ConfigRepositoryMockImpl {
             config: RefCell::new(Config {
+                title: "andante".to_string(),
                 about: "単なる日記です\n\n\n単なる日記なんやで".to_string(),
                 mathjax_options: "".to_string(),
                 links: vec![],
