@@ -1,14 +1,5 @@
-use actix_cors::Cors;
-use actix_identity::{CookieIdentityPolicy, IdentityService};
-use actix_session::CookieSession;
-use actix_web::{
-    cookie::SameSite,
-    guard,
-    web::{route, scope},
-    App, HttpResponse,
-};
+use actix_web::App;
 use anyhow::{ensure, Result};
-use context::{AppContextService, RequestHeadContext};
 use dotenv::dotenv;
 use errors::Error;
 use server::Server;
@@ -31,41 +22,11 @@ async fn main() -> Result<()> {
     let pg_url = url::Url::parse(&env::var("DATABASE_URL")?)?;
     let server = Server::new(&es_url, &pg_url, &env::var("ADMIN_USER_ID")?)?;
     actix_web::HttpServer::new(move || {
-        let identity = IdentityService::new(
-            CookieIdentityPolicy::new(secret_key.as_bytes())
-                .name("nocturne-identity")
-                .same_site(SameSite::Lax)
-                .secure(false), // for development
-        );
-        let session = CookieSession::signed(secret_key.as_bytes())
-            .name("nocturne-session")
-            .same_site(SameSite::Lax)
-            .secure(false); // for development
-        let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
-        App::new()
-            .data(server.clone())
-            .service(scope("/api").wrap(cors).configure(routers::api))
-            .configure(routers::files("./frontend/build/src"))
-            .service(
-                scope("")
-                    .wrap(AppContextService)
-                    .wrap(session)
-                    .wrap(identity)
-                    .configure(routers::posts)
-                    .configure(routers::auth)
-                    .configure(routers::about)
-                    .service(
-                        scope("/admin")
-                            .service(
-                                scope("")
-                                    .guard(guard::fn_guard(RequestHeadContext::is_authorized))
-                                    .configure(routers::admin),
-                            )
-                            .default_service(
-                                route().to(|| HttpResponse::Unauthorized().body("Unauthorized")),
-                            ),
-                    ),
-            )
+        App::new().configure(routers::routing(
+            server.clone(),
+            secret_key.clone(),
+            "./frontend/build/src",
+        ))
     })
     .bind("0.0.0.0:4000")?
     .run()
