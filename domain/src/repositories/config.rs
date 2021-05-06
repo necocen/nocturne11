@@ -4,5 +4,5 @@ use anyhow::Result;
 pub trait ConfigRepository {
     fn get(&self) -> Result<Config>;
 
-    fn set(&self, config: &Config) -> Result<()>;
+    fn set_about(&self, about: &str) -> Result<()>;
 }

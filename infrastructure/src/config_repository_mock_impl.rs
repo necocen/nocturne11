@@ -31,8 +31,9 @@ impl ConfigRepository for ConfigRepositoryMockImpl {
         Ok(self.config.borrow().clone())
     }
 
-    fn set(&self, config: &Config) -> Result<()> {
-        self.config.replace(config.clone());
+    fn set_about(&self, about: &str) -> Result<()> {
+        let mut config = self.config.borrow_mut();
+        config.about = about.to_owned();
         Ok(())
     }
 }
