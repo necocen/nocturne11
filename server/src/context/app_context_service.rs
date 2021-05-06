@@ -4,7 +4,7 @@ use crate::Server;
 use actix_identity::RequestIdentity;
 use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
-    error::ErrorUnauthorized,
+    error::ErrorInternalServerError,
     web::Data,
     Error, HttpMessage,
 };
@@ -65,7 +65,9 @@ where
                 Err(e) => Box::pin(ready(Err(AppError::General(e).into()))),
             }
         } else {
-            Box::pin(ready(Err(ErrorUnauthorized("Unauthorized"))))
+            Box::pin(ready(Err(ErrorInternalServerError(
+                "Couldn't extract Server from Request.",
+            ))))
         }
     }
 }
