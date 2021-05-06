@@ -20,7 +20,9 @@
                         <li><a href="/" title="検索" accesskey="2">search</a></li>
                         <li><a href="/about" title="このサイトについて" accesskey="3">about</a></li>
                         <li><a href="/atom" title="Atomフィード" accesskey="4">atom</a></li>
-                        <li><a href="/admin" title="管理ページ" accesskey="5">admin</a></li>
+                        {% if context.is_authorized -%}
+                            <li><a href="/admin" title="管理ページ" accesskey="5">admin</a></li>
+                        {%- endif %}
                     {% endblock %}
                 </ul>
             </nav>
