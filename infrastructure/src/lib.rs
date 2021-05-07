@@ -6,13 +6,10 @@ extern crate log;
 extern crate diesel_migrations;
 embed_migrations!("migrations/");
 
-pub mod config_repository_mock_impl;
-pub mod config_repository_partial_impl;
 mod diesel_helpers;
 pub mod legacy;
 pub mod migration;
 mod models;
-pub mod pg_repository_impls;
 pub mod posts_repository_impl;
 mod schema;
 pub mod search_repository_impl;

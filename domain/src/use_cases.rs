@@ -223,7 +223,3 @@ pub async fn delete_post(
 pub fn get_config(config_repository: &impl ConfigRepository) -> Result<Config> {
     config_repository.get()
 }
-
-pub fn set_about(config_repository: &impl ConfigRepository, about: &str) -> Result<()> {
-    config_repository.set_about(&about.replace("\r\n", "\n").replace("\r", "\n"))
-}

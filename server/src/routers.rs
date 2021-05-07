@@ -89,8 +89,6 @@ fn admin(cfg: &mut ServiceConfig) {
         .service(resource("/create").route(post().to(admin::create)))
         .service(resource("/update").route(post().to(admin::update)))
         .service(resource("/delete").route(post().to(admin::delete)))
-        .service(resource("/config").route(get().to(admin::show_config)))
-        .service(resource("/update-config").route(post().to(admin::update_config)))
         .service(resource("").route(get().to(|| {
             HttpResponse::Found()
                 .append_header((header::LOCATION, "/admin/"))

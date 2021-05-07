@@ -1,10 +1,7 @@
 use anyhow::Result;
 use domain::{entities::config::Config, repositories::config::ConfigRepository};
 use infrastructure::{
-    config_repository_partial_impl::{ConfigRepositoryPartialImpl, PartialConfig},
-    pg_repository_impls::pg_repositories,
-    posts_repository_impl::PostsRepositoryImpl,
-    search_repository_impl::SearchRepositoryImpl,
+    posts_repository_impl::PostsRepositoryImpl, search_repository_impl::SearchRepositoryImpl,
 };
 
 #[derive(Clone)] // FIXME: dieselのConnectionManagerがDebugを実装したらDebugにできる
@@ -22,13 +19,11 @@ impl Server {
         admin_user: impl Into<String>,
     ) -> Result<Self> {
         let search_repository = SearchRepositoryImpl::new(es_url)?;
-        let (posts_repository, config_repository_partial) = pg_repositories(pg_url)?;
+        let posts_repository = PostsRepositoryImpl::new(pg_url)?;
         Ok(Server {
             search_repository,
             posts_repository,
-            config_repository: ConfigRepositoryImpl {
-                partial: config_repository_partial,
-            },
+            config_repository: ConfigRepositoryImpl {},
             admin_user_id: admin_user.into(),
         })
     }
@@ -39,31 +34,19 @@ impl Server {
 }
 
 #[derive(Clone)]
-pub struct ConfigRepositoryImpl {
-    partial: ConfigRepositoryPartialImpl,
-}
+pub struct ConfigRepositoryImpl {}
 
 impl ConfigRepository for ConfigRepositoryImpl {
     fn get(&self) -> Result<Config> {
-        let PartialConfig {
-            about,
-            mathjax_options,
-            links,
-        } = self.partial.get_partial()?;
-
         Ok(Config {
             title: "andante".to_owned(),
             description: "個人的な日記".to_owned(),
             author: "κねこせん".to_owned(),
             email: "necocen@gmail.com".to_owned(),
-            generator: format!("Nocturne v{} {}", env!("VERGEN_BUILD_SEMVER"), env!("VERGEN_BUILD_TIMESTAMP")),
-            about,
-            mathjax_options,
-            links,
+            generator: "Nocturne v11".to_owned(),
+            about: "単なる日記です\n\n\n単なる日記なんやで".to_string(),
+            mathjax_options: "".to_string(),
+            links: vec![],
         })
-    }
-
-    fn set_about(&self, about: &str) -> Result<()> {
-        self.partial.set_about(about)
     }
 }
