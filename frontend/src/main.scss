@@ -27,8 +27,8 @@ $main-font-family: -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Y
 }
 
 @mixin post-body-style {
-    font-feature-settings: "palt" 1;
-    letter-spacing: 0.05em;
+    font-feature-settings: "pkna" 1;
+    letter-spacing: 0.02rem;
     text-align: justify;
     font-weight: 300;
 }
@@ -333,7 +333,6 @@ article {
         line-height: 170%;
         text-indent: 1em;
         overflow: hidden;
-        @include post-body-style;
     }
 
     > aside {
