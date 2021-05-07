@@ -290,7 +290,7 @@ body {
 }
 
 main {
-    header > h3 {
+    h3 {
         position: relative;
         height: auto;
         z-index: 1;
@@ -314,6 +314,20 @@ main {
         @include post-body-style;
     }
 
+    dl {
+        margin-block-start: 2ex;
+
+        dt {
+            font-weight: 500;
+            & + dd {
+                margin: 0.5ex 1.5em 1.5ex;
+            }
+
+            &.inactive, &.inactive + dd {
+                color: $text-color-dim;
+            }
+        }
+    }
 }
 
 article {
