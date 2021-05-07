@@ -1,6 +1,6 @@
 use super::args::{CreateFormParams, DeleteFormParams, IdArguments, UpdateFormParams};
 use crate::{askama_helpers::TemplateToResponse, context::AppContext};
-use crate::{Error, Server};
+use crate::{Error, Service};
 use actix_web::{http::header, web, HttpResponse};
 use anyhow::anyhow;
 use chrono::Utc;
@@ -20,10 +20,10 @@ pub async fn new_post_form(context: AppContext) -> Result<HttpResponse, Error> {
 
 pub async fn edit_post_form(
     context: AppContext,
-    server: web::Data<Server>,
+    service: web::Data<Service>,
     args: web::Query<IdArguments>,
 ) -> Result<HttpResponse, Error> {
-    let page = get_post_with_id(&server.posts_repository, &args.id)?;
+    let page = get_post_with_id(&service.posts_repository, &args.id)?;
     let post = page
         .post()
         .ok_or_else(|| Error::General(anyhow!("Post not found")))?;
@@ -31,13 +31,13 @@ pub async fn edit_post_form(
 }
 
 pub async fn create(
-    server: web::Data<Server>,
+    service: web::Data<Service>,
     form: web::Form<CreateFormParams>,
 ) -> Result<HttpResponse, Error> {
     let new_post = NewPost::new(&form.title, &form.body, Utc::now());
     create_post(
-        &server.posts_repository,
-        &server.search_repository,
+        &service.posts_repository,
+        &service.search_repository,
         &new_post,
     )
     .await?;
@@ -47,13 +47,13 @@ pub async fn create(
 }
 
 pub async fn update(
-    server: web::Data<Server>,
+    service: web::Data<Service>,
     form: web::Form<UpdateFormParams>,
 ) -> Result<HttpResponse, Error> {
     let new_post = NewPost::new(&form.title, &form.body, Utc::now());
     update_post(
-        &server.posts_repository,
-        &server.search_repository,
+        &service.posts_repository,
+        &service.search_repository,
         form.id,
         &new_post,
     )
@@ -64,10 +64,15 @@ pub async fn update(
 }
 
 pub async fn delete(
-    server: web::Data<Server>,
+    service: web::Data<Service>,
     form: web::Form<DeleteFormParams>,
 ) -> Result<HttpResponse, Error> {
-    delete_post(&server.posts_repository, &server.search_repository, form.id).await?;
+    delete_post(
+        &service.posts_repository,
+        &service.search_repository,
+        form.id,
+    )
+    .await?;
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, "/"))
         .finish())

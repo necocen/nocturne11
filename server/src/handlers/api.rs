@@ -1,4 +1,4 @@
-use crate::{Error, Server};
+use crate::{Error, Service};
 use actix_web::{web, HttpResponse};
 use domain::entities::date::{Year, YearMonth};
 use domain::use_cases::{get_days, get_years};
@@ -21,16 +21,16 @@ struct MonthsResponse {
 }
 
 pub async fn days_in_year_month(
-    server: web::Data<Server>,
+    service: web::Data<Service>,
     args: web::Path<YearMonthArguments>,
 ) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().json(DaysResponse {
-        days: get_days(&server.posts_repository, YearMonth(args.year, args.month))?,
+        days: get_days(&service.posts_repository, YearMonth(args.year, args.month))?,
     }))
 }
 
-pub async fn months(server: web::Data<Server>) -> Result<HttpResponse, Error> {
+pub async fn months(service: web::Data<Service>) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().json(MonthsResponse {
-        years: get_years(&server.posts_repository)?,
+        years: get_years(&service.posts_repository)?,
     }))
 }

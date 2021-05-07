@@ -7,7 +7,7 @@ use infrastructure::{
 use std::{env, path::PathBuf};
 
 #[derive(Clone)] // FIXME: dieselのConnectionManagerがDebugを実装したらDebugにできる
-pub struct Server {
+pub struct Service {
     pub search_repository: SearchRepositoryImpl,
     pub posts_repository: PostsRepositoryImpl,
     pub config_repository: ConfigRepositoryImpl,
@@ -16,7 +16,7 @@ pub struct Server {
     pub static_path: PathBuf,
 }
 
-impl Server {
+impl Service {
     pub fn new() -> Result<Self> {
         let es_url = url::Url::parse(&env::var("ES_URL")?)?;
         let pg_url = url::Url::parse(&env::var("DATABASE_URL")?)?;
@@ -35,7 +35,7 @@ impl Server {
         let posts_repository = PostsRepositoryImpl::new(&pg_url)?;
         let config_repository = ConfigRepositoryImpl::new(config_toml, &version)?;
 
-        Ok(Server {
+        Ok(Service {
             search_repository,
             posts_repository,
             config_repository,

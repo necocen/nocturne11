@@ -1,9 +1,9 @@
 use super::AppContext;
 use crate::Error as AppError;
-use crate::Server;
+use crate::Service;
 use actix_identity::RequestIdentity;
 use actix_web::{
-    dev::{Service, ServiceRequest, ServiceResponse, Transform},
+    dev::{Service as ActixService, ServiceRequest, ServiceResponse, Transform},
     error::ErrorInternalServerError,
     web::Data,
     Error, HttpMessage,
@@ -20,7 +20,7 @@ pub struct AppContextService;
 
 impl<S, B: 'static> Transform<S, ServiceRequest> for AppContextService
 where
-    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
+    S: ActixService<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
 {
     type Response = ServiceResponse<B>;
@@ -38,9 +38,9 @@ pub struct ContextServiceMiddleware<S> {
     service: S,
 }
 
-impl<S, B: 'static> Service<ServiceRequest> for ContextServiceMiddleware<S>
+impl<S, B: 'static> ActixService<ServiceRequest> for ContextServiceMiddleware<S>
 where
-    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
+    S: ActixService<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
 {
     type Response = ServiceResponse<B>;
@@ -52,7 +52,7 @@ where
     }
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        if let Some(app) = req.app_data::<Data<Server>>() {
+        if let Some(app) = req.app_data::<Data<Service>>() {
             let is_authorized = matches!(req.get_identity(), Some(ref id) if app.authorize(id));
             match get_config(&app.config_repository) {
                 Ok(config) => {
@@ -66,7 +66,7 @@ where
             }
         } else {
             Box::pin(ready(Err(ErrorInternalServerError(
-                "Couldn't extract Server from Request.",
+                "Couldn't extract Service from Request.",
             ))))
         }
     }

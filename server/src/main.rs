@@ -1,19 +1,19 @@
 use errors::Error;
-use server::Server;
+use service::Service;
 mod askama_helpers;
 mod context;
 mod errors;
 mod handlers;
 mod routers;
-mod server;
+mod service;
 
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
     use actix_web::{App, HttpServer};
     env_logger::init();
     dotenv::dotenv().ok();
-    let server = Server::new()?;
-    HttpServer::new(move || App::new().configure(routers::routing(server.clone())))
+    let service = Service::new()?;
+    HttpServer::new(move || App::new().configure(routers::routing(service.clone())))
         .bind("0.0.0.0:4000")?
         .run()
         .await?;

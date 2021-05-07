@@ -1,7 +1,7 @@
 use crate::{
     context::{AppContextService, RequestHeadContext},
     handlers::{about, admin, api, auth, posts},
-    Server,
+    Service,
 };
 use actix_cors::Cors;
 use actix_files::Files;
@@ -14,22 +14,22 @@ use actix_web::{
     HttpResponse,
 };
 
-pub fn routing(server: Server) -> impl FnOnce(&mut ServiceConfig) {
+pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
     move |cfg: &mut ServiceConfig| {
         let identity = IdentityService::new(
-            CookieIdentityPolicy::new(server.secret_key.as_bytes())
+            CookieIdentityPolicy::new(service.secret_key.as_bytes())
                 .name("nocturne-identity")
                 .same_site(SameSite::Lax)
                 .secure(false), // for development
         );
-        let session = CookieSession::signed(server.secret_key.as_bytes())
+        let session = CookieSession::signed(service.secret_key.as_bytes())
             .name("nocturne-session")
             .same_site(SameSite::Lax)
             .secure(false); // for development
         let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
-        let static_path = server.static_path.clone();
+        let static_path = service.static_path.clone();
 
-        cfg.data(server)
+        cfg.data(service)
             .service(Files::new("/static", static_path))
             .service(scope("/api").wrap(cors).configure(api))
             .service(
