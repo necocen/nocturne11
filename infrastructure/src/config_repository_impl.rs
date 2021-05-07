@@ -8,8 +8,7 @@ pub struct ConfigRepositoryImpl {
 }
 
 impl ConfigRepositoryImpl {
-    pub fn new(version: Version<'_>) -> Result<ConfigRepositoryImpl> {
-        let config_toml = include_str!("../../config.toml");
+    pub fn new(config_toml: &str, version: &Version<'_>) -> Result<ConfigRepositoryImpl> {
         let mut config = config::Config::default();
         config.merge(File::from_str(config_toml, FileFormat::Toml))?;
         config.set(

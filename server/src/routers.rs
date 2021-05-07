@@ -13,25 +13,21 @@ use actix_web::{
     web::{get, post, resource, route, scope, ServiceConfig},
     HttpResponse,
 };
-use std::path::PathBuf;
 
-pub fn routing<'a>(
-    server: Server,
-    secret_key: String,
-    static_path: impl Into<PathBuf> + 'a,
-) -> impl FnOnce(&mut ServiceConfig) + 'a {
+pub fn routing(server: Server) -> impl FnOnce(&mut ServiceConfig) {
     move |cfg: &mut ServiceConfig| {
         let identity = IdentityService::new(
-            CookieIdentityPolicy::new(secret_key.as_bytes())
+            CookieIdentityPolicy::new(server.secret_key.as_bytes())
                 .name("nocturne-identity")
                 .same_site(SameSite::Lax)
                 .secure(false), // for development
         );
-        let session = CookieSession::signed(secret_key.as_bytes())
+        let session = CookieSession::signed(server.secret_key.as_bytes())
             .name("nocturne-session")
             .same_site(SameSite::Lax)
             .secure(false); // for development
         let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
+        let static_path = server.static_path.clone();
 
         cfg.data(server)
             .service(Files::new("/static", static_path))
