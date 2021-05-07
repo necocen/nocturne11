@@ -8,7 +8,7 @@ use actix_web::{
     web::Data,
     Error, HttpMessage,
 };
-use domain::repositories::config::ConfigRepository;
+use domain::use_cases::get_config;
 use futures_util::future::LocalBoxFuture;
 use std::{
     future::{ready, Ready},
@@ -54,7 +54,7 @@ where
     fn call(&self, req: ServiceRequest) -> Self::Future {
         if let Some(app) = req.app_data::<Data<Server>>() {
             let is_authorized = matches!(req.get_identity(), Some(ref id) if app.authorize(id));
-            match app.config_repository.get() {
+            match get_config(&app.config_repository) {
                 Ok(config) => {
                     req.extensions_mut().insert(AppContext {
                         config,
