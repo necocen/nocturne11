@@ -1,6 +1,7 @@
 use anyhow::Result;
 use infrastructure::{
-    config_repository_impl::ConfigRepositoryImpl, posts_repository_impl::PostsRepositoryImpl,
+    config_repository_impl::{ConfigRepositoryImpl, Version},
+    posts_repository_impl::PostsRepositoryImpl,
     search_repository_impl::SearchRepositoryImpl,
 };
 
@@ -18,9 +19,13 @@ impl Server {
         pg_url: &url::Url,
         admin_user: impl Into<String>,
     ) -> Result<Self> {
+        let version = Version {
+            version: env!("VERGEN_BUILD_SEMVER"),
+            timestamp: env!("VERGEN_BUILD_TIMESTAMP"),
+        };
         let search_repository = SearchRepositoryImpl::new(es_url)?;
         let posts_repository = PostsRepositoryImpl::new(pg_url)?;
-        let config_repository = ConfigRepositoryImpl::new();
+        let config_repository = ConfigRepositoryImpl::new(version)?;
         Ok(Server {
             search_repository,
             posts_repository,

@@ -1,41 +1,34 @@
 use anyhow::Result;
-use domain::{
-    entities::config::{Author, Config, MathJax, Site},
-    repositories::config::ConfigRepository,
-};
+use config::{File, FileFormat};
+use domain::{entities::config::Config, repositories::config::ConfigRepository};
 
 #[derive(Debug, Clone)]
-pub struct ConfigRepositoryImpl {}
-
-impl ConfigRepositoryImpl {
-    pub fn new() -> ConfigRepositoryImpl {
-        ConfigRepositoryImpl {}
-    }
+pub struct ConfigRepositoryImpl {
+    config: Config,
 }
 
-impl Default for ConfigRepositoryImpl {
-    fn default() -> Self {
-        Self::new()
+impl ConfigRepositoryImpl {
+    pub fn new(version: Version<'_>) -> Result<ConfigRepositoryImpl> {
+        let config_toml = include_str!("../../config.toml");
+        let mut config = config::Config::default();
+        config.merge(File::from_str(config_toml, FileFormat::Toml))?;
+        config.set(
+            "site.generator",
+            format!("Nocturne v{} {}", version.version, version.timestamp),
+        )?;
+        let config = config.try_into::<Config>()?;
+        Ok(ConfigRepositoryImpl { config })
     }
 }
 
 impl ConfigRepository for ConfigRepositoryImpl {
     fn get(&self) -> Result<Config> {
-        Ok(Config {
-            site: Site {
-                title: "andante".to_owned(),
-                description: "個人的な日記".to_owned(),
-                about: "単なる日記です\n\n\n単なる日記なんやで".to_string(),
-                links: vec![],
-                generator: "Nocturne v11".to_owned(),
-            },
-            author: Author {
-                name: "κねこせん".to_owned(),
-                email: "necocen@gmail.com".to_owned(),
-            },
-            mathjax: MathJax {
-                options: "".to_string(),
-            },
-        })
+        Ok(self.config.clone())
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct Version<'a> {
+    pub version: &'a str,
+    pub timestamp: &'a str,
 }

@@ -403,7 +403,7 @@ checksum = "2582b77e0f3c506ec4838a25fa8a5f97b9bed72bb6d3d272ea1c031d8bd373bc"
 dependencies = [
  "askama_escape",
  "humansize",
- "nom",
+ "nom 6.1.2",
  "num-traits",
  "percent-encoding 2.1.0",
  "proc-macro2",
@@ -588,6 +588,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "12f8e7987cbd042a63249497f41aed09f8e65add917ea6566effbc56578d6801"
 dependencies = [
  "generic-array",
+]
+
+[[package]]
+name = "config"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b1b9d958c2b1368a663f05538fc1b5975adce1e19f435acceae987aceeeb369"
+dependencies = [
+ "lazy_static",
+ "nom 5.1.2",
+ "serde",
+ "toml",
 ]
 
 [[package]]
@@ -1282,6 +1294,7 @@ dependencies = [
  "assert_matches",
  "async-trait",
  "chrono",
+ "config",
  "diesel",
  "diesel_migrations",
  "domain",
@@ -1544,6 +1557,17 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "tempfile",
+]
+
+[[package]]
+name = "nom"
+version = "5.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffb4262d26ed83a1c0a33a38fe2bb15797329c85770da05e6b828ddb782627af"
+dependencies = [
+ "lexical-core",
+ "memchr",
+ "version_check",
 ]
 
 [[package]]
