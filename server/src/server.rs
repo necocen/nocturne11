@@ -1,14 +1,15 @@
 use anyhow::Result;
 use infrastructure::{
-    config_repository_impl::ConfigRepositoryImpl, pg_repository_impls::pg_repositories,
-    posts_repository_impl::PostsRepositoryImpl, search_repository_impl::SearchRepositoryImpl,
+    config_repository_partial_impl::ConfigRepositoryPartialImpl,
+    pg_repository_impls::pg_repositories, posts_repository_impl::PostsRepositoryImpl,
+    search_repository_impl::SearchRepositoryImpl,
 };
 
 #[derive(Clone)] // FIXME: dieselのConnectionManagerがDebugを実装したらDebugにできる
 pub struct Server {
     pub search_repository: SearchRepositoryImpl,
     pub posts_repository: PostsRepositoryImpl,
-    pub config_repository: ConfigRepositoryImpl,
+    pub config_repository: ConfigRepositoryPartialImpl,
     pub admin_user_id: String,
 }
 

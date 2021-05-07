@@ -1,4 +1,4 @@
-use crate::config_repository_impl::ConfigRepositoryImpl;
+use crate::config_repository_partial_impl::ConfigRepositoryPartialImpl;
 use crate::diesel_helpers::TimezoneCustomizer;
 use crate::posts_repository_impl::PostsRepositoryImpl;
 use anyhow::Result;
@@ -7,7 +7,9 @@ use diesel::{r2d2::ConnectionManager, PgConnection};
 use r2d2::Pool;
 use std::sync::Arc;
 
-pub fn pg_repositories(pg_url: &url::Url) -> Result<(PostsRepositoryImpl, ConfigRepositoryImpl)> {
+pub fn pg_repositories(
+    pg_url: &url::Url,
+) -> Result<(PostsRepositoryImpl, ConfigRepositoryPartialImpl)> {
     let conn_manager = ConnectionManager::<PgConnection>::new(pg_url.as_str());
     let customizer = TimezoneCustomizer {
         offset: *Local::now().offset(),
@@ -21,6 +23,6 @@ pub fn pg_repositories(pg_url: &url::Url) -> Result<(PostsRepositoryImpl, Config
         PostsRepositoryImpl {
             conn_pool: conn_pool.clone(),
         },
-        ConfigRepositoryImpl { conn_pool },
+        ConfigRepositoryPartialImpl { conn_pool },
     ))
 }

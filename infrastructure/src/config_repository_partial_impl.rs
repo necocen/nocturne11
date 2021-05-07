@@ -7,11 +7,11 @@ use r2d2::Pool;
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct ConfigRepositoryImpl {
+pub struct ConfigRepositoryPartialImpl {
     pub(crate) conn_pool: Arc<Pool<ConnectionManager<PgConnection>>>,
 }
 
-impl ConfigRepository for ConfigRepositoryImpl {
+impl ConfigRepository for ConfigRepositoryPartialImpl {
     fn get(&self) -> Result<Config> {
         use crate::schema::configs::dsl::configs;
         let records = configs.get_results::<ConfigModel>(&self.conn_pool.get()?)?;
