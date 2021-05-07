@@ -9,6 +9,6 @@
     <header>
         <h3>このサイトのこと、書いている人のこと</h3>
     </header>
-    {{ content.converted() | safe }}
+    {{ Self::convert_body(context.config.site.about) | safe }}
 </article>
 {%- endblock -%}

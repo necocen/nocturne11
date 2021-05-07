@@ -6,6 +6,7 @@ extern crate log;
 extern crate diesel_migrations;
 embed_migrations!("migrations/");
 
+pub mod config_repository_impl;
 mod diesel_helpers;
 pub mod legacy;
 pub mod migration;
