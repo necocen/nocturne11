@@ -57,26 +57,118 @@ pub fn convert_body(body: &str) -> String {
         .join("\n<hr />\n")
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum TextFragment<'a> {
+    /// 約物を含まない文字のひとかたまり
+    Text(&'a str),
+    /// <a>タグで囲まれるべきURL
+    Link(&'a str),
+    /// 開き括弧としてタグづけされる文字
+    OpenBracket(&'a str),
+    /// 閉じ括弧としてタグづけされる文字
+    CloseBracket(&'a str),
+    /// 句読点としてタグづけされる文字
+    Punctuation(&'a str),
+    /// 中黒としてタグづけされる文字
+    Interpunct(&'a str),
+    /// その他の約物としてタグづけされる文字
+    Other(&'a str),
+}
+
+impl<'a> TextFragment<'a> {
+    fn into_split(self) -> Vec<TextFragment<'a>> {
+        use TextFragment::*;
+        match self {
+            Text(text) => {
+                let mut pos = 0;
+                let mut fragments: Vec<TextFragment> = vec![];
+                for (c_start, c) in text.char_indices().into_iter() {
+                    let fragment: TextFragment;
+                    let c_end = c_start + c.len_utf8();
+                    if "「『（〈【｛［《〔“".contains(c) {
+                        fragment = OpenBracket(&text[c_start..c_end]);
+                    } else if "」』）〉】｝］》〕”".contains(c) {
+                        fragment = CloseBracket(&text[c_start..c_end]);
+                    } else if "、。，．".contains(c) {
+                        fragment = Punctuation(&text[c_start..c_end]);
+                    } else if "・".contains(c) {
+                        fragment = Interpunct(&text[c_start..c_end]);
+                    } else if "／＼！？".contains(c) {
+                        fragment = Other(&text[c_start..c_end]);
+                    } else {
+                        // 通常文字列の場合は一旦スルーする
+                        continue;
+                    }
+                    // 通常文字列以外なので積んである通常文字列を先に積む
+                    if pos < c_start {
+                        fragments.push(Text(&text[pos..c_start]));
+                    }
+                    fragments.push(fragment);
+                    pos = c_end;
+                }
+                if pos < text.len() {
+                    // 通常文字列で終わる場合は積み残しがある
+                    fragments.push(Text(&text[pos..]));
+                }
+                fragments
+            }
+            _ => vec![self],
+        }
+    }
+
+    fn into_html(self) -> String {
+        match self {
+            TextFragment::Text(text) => {
+                format!(
+                    r#"<span class="non-yakumono">{}</span>"#,
+                    escape(text, Html)
+                )
+            }
+            TextFragment::Link(link) => {
+                format!(
+                    r#"<a href="{}" rel="external">{}</a>"#,
+                    link,
+                    escape(link, Html)
+                )
+            }
+            TextFragment::OpenBracket(c) => {
+                format!(r#"<span class="yakumono-open-bracket">{}</span>"#, c)
+            }
+            TextFragment::CloseBracket(c) => {
+                format!(r#"<span class="yakumono-close-bracket">{}</span>"#, c)
+            }
+            TextFragment::Punctuation(c) => {
+                format!(r#"<span class="yakumono-punctuation">{}</span>"#, c)
+            }
+            TextFragment::Interpunct(c) => {
+                format!(r#"<span class="yakumono-interpunct">{}</span>"#, c)
+            }
+            TextFragment::Other(c) => {
+                format!(r#"<span class="yakumono-other">{}</span>"#, c)
+            }
+        }
+    }
+}
+
 fn convert_line(line: &str) -> String {
     if line.is_empty() {
         return "".to_string();
     }
     let url_pattern = Regex::new(r"https?://[-_.!~*'()a-zA-Z0-9;/?:@&=+$,%#]+").unwrap();
     let mut pos: usize = 0;
-    let mut fragments: Vec<String> = vec![];
+    let mut fragments: Vec<TextFragment> = vec![];
     for m in url_pattern.find_iter(line) {
-        fragments.push(escape(&line[pos..m.start()], Html).to_string());
-        fragments.push(
-            "<a href=\"".to_owned()
-                + m.as_str()
-                + "\" rel=\"external\">"
-                + &escape(m.as_str(), Html).to_string()
-                + "</a>",
-        );
+        fragments.push(TextFragment::Text(&line[pos..m.start()]));
+        fragments.push(TextFragment::Link(m.as_str()));
         pos = m.end();
     }
-    fragments.push(escape(&line[pos..], Html).to_string());
-    fragments.join("")
+    fragments.push(TextFragment::Text(&line[pos..]));
+    fragments
+        .into_iter()
+        .flat_map(|f| f.into_split())
+        .map(|f| f.into_html())
+        .collect::<Vec<_>>()
+        .join("")
 }
 
 #[cfg(test)]
