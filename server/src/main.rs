@@ -4,6 +4,7 @@ mod askama_helpers;
 mod context;
 mod errors;
 mod handlers;
+mod post;
 mod routers;
 mod service;
 
