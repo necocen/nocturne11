@@ -1,4 +1,11 @@
 @charset "utf-8";
+@font-face {
+    // 三点リーダ対策
+    font-family: "ellipsis";
+    src: local("Hiragino Sans"), local("HiraginoSans-W3");
+    unicode-range: U+2026;
+}
+
 $max-width: 832px;
 $sidebar-width: 144px;
 $sidebar-margin: 16px;
@@ -16,7 +23,7 @@ $menu-color: #999;
 $menu-color-dim: #ddd;
 $input-color: #eee;
 $focused-input-color: #e3e3e3;
-$main-font-family: -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Yu Gothic Medium", Meiryo, sans-serif;
+$main-font-family: "ellipsis", -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Yu Gothic Medium", Meiryo, sans-serif;
 
 @mixin link-hover {
     a {
@@ -26,16 +33,11 @@ $main-font-family: -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Y
     }
 }
 
-@mixin post-body-style {
-    font-feature-settings: "pkna" 1;
-    letter-spacing: 0.02rem;
-    text-align: justify;
-    font-weight: 300;
-}
-
 @mixin post-head-style {
-    text-align: start;
+    font-feature-settings: "pkna" 1;
     font-weight: 400;
+    letter-spacing: 0.05rem;
+    text-align: start;
 }
 
 a, a:visited {
@@ -311,7 +313,6 @@ main {
 
     p {
         margin: 1ex 0;
-        @include post-body-style;
     }
 
     dl {
@@ -441,5 +442,31 @@ form {
         padding: 0;
         margin-top: calc(-1ex - 4ex);
         margin-left: calc(3.5em + 1em);
+    }
+}
+
+article {
+    p {
+        font-feature-settings: "palt" 1;
+        letter-spacing: 0.03rem;
+        text-align: justify;
+        font-weight: 400;
+    }
+    span.yakumono-punctuation + span.non-yakumono,
+    span.yakumono-punctuation + span.yakumono-open-bracket,
+    span.non-yakumono + span.yakumono-open-bracket,
+    span.yakumono-close-bracket + span.non-yakumono,
+    span.yakumono-close-bracket + span.yakumono-open-bracket  {
+        &::before {
+            content: "\2002";
+        }
+    }
+    span.yakumono-interpunct {
+        &::before {
+            content: "\2005"
+        }
+        &::after {
+            content: "\2005"
+        }
     }
 }
