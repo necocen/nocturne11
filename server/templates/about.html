@@ -11,4 +11,11 @@
     </header>
     {{ Self::convert_body(context.config.site.about) | safe }}
 </article>
+<h3>関連サイト</h3>
+<dl>
+    {% for link in context.config.site.links -%}
+        <dt {% if !link.active -%}class="inactive"{%- endif -%}>{{ link.name }}{% if !link.active %} (inactive){%- endif -%}</dt>
+        <dd><a rel="external" href="{{ link.url }}">{{ link.url }}</a></dd>
+    {% endfor -%}
+</dl>
 {%- endblock -%}
