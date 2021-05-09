@@ -12,7 +12,7 @@ $sidebar-margin: 16px;
 $header-height: 100px;
 $footer-height: 24px;
 $global-nav-height: 20px;
-$gradient-height: 2ex;
+$gradient-height: 1em;
 $background-color: #faf8f4;
 $border-color1: #ddd;
 $border-color2: #eee;
@@ -40,6 +40,10 @@ $main-font-family: "ellipsis", -apple-system, BlinkMacSystemFont, Arial, "Hiragi
     text-align: start;
 }
 
+:root {
+    font-size: 10.5pt;
+}
+
 a, a:visited {
     text-decoration: none;
     color: inherit;
@@ -55,7 +59,6 @@ body {
     min-height: 100vh;
     max-width: $max-width;
     font-family: $main-font-family;
-    font-size: 10.5pt;
     background-color: $background-color;
     color: $text-color;
     line-height: 100%;
@@ -276,7 +279,7 @@ body {
 
     table.year-month {
         @include side-nav-table;
-        margin-top: 0.75ex;
+        margin-top: 0.375em;
         text-align: left;
         border-spacing: 0;
 
@@ -288,7 +291,7 @@ body {
 
         tbody {
             display: block;
-            height: 4.5ex;
+            height: 2.25em;
             transition: all 200ms ease-out;
             overflow: hidden;
             text-align: center;
@@ -330,7 +333,7 @@ main {
     }
 
     h4 {
-        margin: 1.5ex 0 1ex;
+        margin: 0.75em 0 0.5em;
         @include post-head-style;
         font-weight: bold;
     }
@@ -340,12 +343,12 @@ main {
     }
 
     dl {
-        margin-block-start: 2ex;
+        margin-block-start: 1em;
 
         dt {
             font-weight: 500;
             & + dd {
-                margin: 0.5ex 1.5em 1.5ex;
+                margin: 0.25em 1.5em 0.75em;
             }
 
             &.inactive, &.inactive + dd {
@@ -361,13 +364,13 @@ article {
     hr {
         display: block;
         height: 0;
-        margin: 2ex 6em;
+        margin: 1em 6em;
         border-style: none;
         border-top: 1px solid $border-color2;
     }
 
     p {
-        margin: 2ex 0;
+        margin: 1em 0;
         overflow: hidden;
         text-indent: 1em;
         text-align: justify;
@@ -445,7 +448,7 @@ article {
     > aside {
         position: absolute;
         z-index: 2;
-        bottom: calc(100% - 5.6ex);
+        bottom: calc(100% - 2.8em);
         right: 0;
         text-align: right;
         font-size: 80%;
@@ -476,7 +479,7 @@ article {
 form {
     fieldset {
         border: none;
-        margin: 1ex 0 2ex;
+        margin: 0.5em 0 1em;
         padding: 0;
     }
 
@@ -484,12 +487,12 @@ form {
         box-sizing: border-box;
         display: block;
         margin: 0;
-        padding: 0.5ex 0.5em;
+        padding: 0.25em 0.5em;
         width: 100%;
         border: 1px solid $border-color1;
         background-color: $input-color;
         font-family: monospace;
-        line-height: 2.5ex;
+        line-height: 1.25em;
 
         &:focus {
             background-color: $focused-input-color;
@@ -501,7 +504,7 @@ form {
         margin: 0;
         padding: 0;
         width: 3.5em;
-        height: 4ex;
+        height: 2em;
         border: 1px solid $border-color1;
         color: $text-color;
         background-color: $input-color;
@@ -525,22 +528,22 @@ form {
             100vh
             - #{$header-height}
             - #{$footer-height}
-            - 4ex /* main margin */
+            - 2em /* main margin */
             - 1.4em /* h3 height */
-            - 3ex /* fieldset margin */
-            - 2.5ex - 0.9em /* h4 */
-            - 2ex - 2.5ex /* p(input) margin + input */
-            - 2.5ex - 0.9em /* h4 */
-            - 2ex /* p(textarea) margin */
-            - 2ex - 4ex /* p(input) margin + input */
-            - 2ex - 4ex /* form p(input) margin + button */
+            - 1.5em /* fieldset margin */
+            - 1.25em - 0.9em /* h4 */
+            - 1em - 1.25em /* p(input) margin + input */
+            - 1.25em - 0.9em /* h4 */
+            - 1em /* p(textarea) margin */
+            - 1em - 2em /* p(input) margin + input */
+            - 1em - 2em /* form p(input) margin + button */
             );
     }
 
     &#form-delete {
         margin: 0;
         padding: 0;
-        margin-top: calc(-1ex - 4ex);
+        margin-top: calc(-0.5em - 2em);
         margin-left: calc(3.5em + 1em);
     }
 }
