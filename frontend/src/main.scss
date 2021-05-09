@@ -55,7 +55,7 @@ body {
     min-height: 100vh;
     max-width: $max-width;
     font-family: $main-font-family;
-    font-size: small;
+    font-size: 10.5pt;
     background-color: $background-color;
     color: $text-color;
     line-height: 100%;
@@ -276,19 +276,19 @@ body {
 
     table.year-month {
         @include side-nav-table;
-        margin-top: 1ex;
+        margin-top: 0.75ex;
         text-align: left;
         border-spacing: 0;
 
         caption {
             display: inline;
             font-weight: 600;
-            font-size: 8pt;
+            font-size: 80%;
         }
 
         tbody {
             display: block;
-            height: 2.5em;
+            height: 4.5ex;
             transition: all 200ms ease-out;
             overflow: hidden;
             text-align: center;
@@ -445,7 +445,7 @@ article {
     > aside {
         position: absolute;
         z-index: 2;
-        bottom: calc(100% - 5.85ex);
+        bottom: calc(100% - 5.6ex);
         right: 0;
         text-align: right;
         font-size: 80%;
