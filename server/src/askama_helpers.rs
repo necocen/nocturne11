@@ -1,4 +1,4 @@
-use crate::{presentation::Body, Error};
+use crate::{presentation::body::Body, Error};
 use actix_web::HttpResponse;
 use bytes::BytesMut;
 
