@@ -104,9 +104,12 @@ body {
     > footer {
         grid-column: 1 / -1;
         grid-row: 3;
+        display: flex;
+        align-items: center;
         position: sticky;
         bottom: 0;
         z-index: 10;
+        color: $text-color-dim;
         background-color: $background-color;
 
         &::before {
@@ -152,6 +155,8 @@ body {
 #pager-nav {
     grid-column: 1/-1;
     grid-row: 3;
+    display: flex;
+    align-items: center;
     position: sticky;
     bottom: 0;
     z-index: 20;
@@ -164,7 +169,6 @@ body {
         position: absolute;
         display: flex;
         right: 0;
-        height: $global-nav-height;
         margin: 0;
         padding: 0;
         list-style: none;
