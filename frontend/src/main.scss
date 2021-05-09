@@ -342,14 +342,6 @@ article {
         border-top: 1px solid $border-color2;
     }
 
-    p {
-        margin: 2ex 0;
-        font-size: 90%;
-        line-height: 170%;
-        text-indent: 1em;
-        overflow: hidden;
-    }
-
     > aside {
         position: absolute;
         z-index: 0;
@@ -447,32 +439,79 @@ form {
 
 article {
     p {
-        font-feature-settings: "palt" 1;
-        letter-spacing: 0.03rem;
+        margin: 2ex 0;
+        overflow: hidden;
+        text-indent: 1em;
         text-align: justify;
+        line-height: 170%;
+        letter-spacing: 0.03rem;
+        font-size: 90%;
         font-weight: 400;
+        font-feature-settings: "palt" 1;
     }
-    span.yakumono-punctuation + span.non-yakumono,
-    span.yakumono-punctuation + span.yakumono-open-bracket,
-    span.non-yakumono + span.yakumono-open-bracket,
-    span.yakumono-close-bracket + span.non-yakumono,
-    span.yakumono-close-bracket + span.yakumono-open-bracket  {
-        &::before {
-            display: inline-block;
-            content: "";
-            width: 0.5em;
+
+    span.yakumono-punctuation::after,
+    span.yakumono-open-bracket::before,
+    span.yakumono-close-bracket::before,
+    span.yakumono-close-bracket::after,
+    span.yakumono-interpunct::before,
+    span.yakumono-interpunct::after {
+        // 約物用アキボックス
+        display: inline-block;
+        content: "";
+    }
+
+    span.yakumono-punctuation {
+        &:not(:last-child)::after {
+            // 段落末尾以外では後方二分アキ
+            margin-inline-end: 0.5em;
+        }
+
+        + span.yakumono-open-bracket::before {
+            // 句読点後の開き括弧はアキなし
+            margin-inline-start: 0;
+        }
+
+        + span.yakumono-close-bracket::before {
+            // 句読点後の閉じ括弧は句読点のアキを打ち消す
+            margin-inline-start: -0.5em;
         }
     }
+
+    span.yakumono-open-bracket {
+        &:not(:first-child)::before {
+            // 段落先頭以外では前方二分アキ
+            margin-inline-start: 0.5em;
+        }
+    }
+
+    span.yakumono-close-bracket {
+        &:not(:last-child)::after {
+            // 段落末尾以外では後方二分アキ
+            margin-inline-end: 0.5em;
+        }
+
+        + span.yakumono-open-bracket::before {
+            // 閉じ括弧後の開き括弧はアキなし（閉じ括弧の二分アキのみ）
+            margin-inline-start: 0;
+        }
+    }
+
     span.yakumono-interpunct {
-        &::before {
-            display: inline-block;
-            content: "";
-            width: 0.25em;
+        &:not(:first-child)::before {
+            // 段落先頭以外では前方四分アキ
+            margin-inline-start: 0.25em;
         }
-        &::after {
-            display: inline-block;
-            content: "";
-            width: 0.25em;
+
+        &:not(:last-child)::after {
+            // 段落末尾以外では後方四分アキ
+            margin-inline-end: 0.25em;
         }
+
+        &:first-child::before {
+            // 段落先頭に来る場合は箇条書きとみなして字下げを無視する
+            margin-inline-start: -0.75em;
+        }
+
     }
 }
