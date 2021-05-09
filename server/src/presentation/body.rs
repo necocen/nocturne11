@@ -7,7 +7,7 @@ pub struct Body<'a>(Vec<Topic<'a>>);
 impl Body<'_> {
     pub fn new(body: &str) -> Body {
         let separator = Regex::new(r"\n{3,}").unwrap();
-        Body(separator.split(body).map(Topic::new).collect())
+        Body(separator.split(body.trim()).map(Topic::new).collect())
     }
 
     pub fn to_html(&self) -> String {
