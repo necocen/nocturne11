@@ -1,4 +1,4 @@
-use crate::{presentation::body::Body, Error};
+use crate::Error;
 use actix_web::HttpResponse;
 use bytes::BytesMut;
 
@@ -29,8 +29,4 @@ pub mod filters {
     pub fn iso8601(date: &DateTime<Utc>) -> ::askama::Result<String> {
         Ok(date.with_timezone(&Local).to_rfc3339())
     }
-}
-
-pub fn convert_body(body: &str) -> String {
-    Body::new(body).to_html()
 }

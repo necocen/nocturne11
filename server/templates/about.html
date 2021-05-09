@@ -9,7 +9,7 @@
     <header>
         <h3>このサイトのこと、書いている人のこと</h3>
     </header>
-    {{ Self::convert_body(context.config.site.about) | safe }}
+    {{ context.converted_about() | safe }}
 </article>
 <h3>関連サイト</h3>
 <dl>

@@ -41,7 +41,7 @@ pub async fn posts_with_date(
 
 mod templates {
     pub use crate::askama_helpers::filters;
-    use crate::{askama_helpers::convert_body, context::AppContext};
+    use crate::{context::AppContext, presentation::body::Body};
     use askama::Template;
     use chrono::NaiveDate;
     use domain::entities::{date::DateCondition, AdjacentPage, Page, Post, PostId};
@@ -77,7 +77,7 @@ mod templates {
 
     impl PostExt for Post {
         fn converted_body(&self) -> String {
-            convert_body(&self.body)
+            Body::new(&self.body).to_html()
         }
 
         fn permalink(&self) -> url::Url {

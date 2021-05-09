@@ -8,7 +8,7 @@ pub async fn about(context: AppContext) -> Result<HttpResponse, Error> {
 }
 
 mod templates {
-    use crate::context::AppContext;
+    use crate::{context::AppContext, presentation::body::Body};
     use askama::Template;
 
     #[derive(Template)]
@@ -17,10 +17,14 @@ mod templates {
         pub context: AppContext,
     }
 
-    impl AboutTemplate {
-        pub fn convert_body(body: &str) -> String {
-            use crate::askama_helpers::convert_body;
-            convert_body(body)
+    trait AppContextExt {
+        /// aboutの段落記法をHTMLタグに変換します
+        fn converted_about(&self) -> String;
+    }
+
+    impl AppContextExt for AppContext {
+        fn converted_about(&self) -> String {
+            Body::new(&self.config.site.about).to_html()
         }
     }
 }
