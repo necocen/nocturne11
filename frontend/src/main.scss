@@ -458,15 +458,21 @@ article {
     span.yakumono-close-bracket + span.non-yakumono,
     span.yakumono-close-bracket + span.yakumono-open-bracket  {
         &::before {
-            content: "\2002";
+            display: inline-block;
+            content: "";
+            width: 0.5em;
         }
     }
     span.yakumono-interpunct {
         &::before {
-            content: "\2005"
+            display: inline-block;
+            content: "";
+            width: 0.25em;
         }
         &::after {
-            content: "\2005"
+            display: inline-block;
+            content: "";
+            width: 0.25em;
         }
     }
 }
