@@ -54,6 +54,7 @@ body {
     margin: 0 auto;
     min-height: 100vh;
     max-width: $max-width;
+    font-family: $main-font-family;
     font-size: small;
     background-color: $background-color;
     color: $text-color;
@@ -94,7 +95,6 @@ body {
         grid-column: 1;
         grid-row: 2;
         margin: $gradient-height 0;
-        font-family: $main-font-family;
 
         &.admin {
             grid-column: 1 / -1;
@@ -198,6 +198,7 @@ body {
        position: fixed;
        width: $sidebar-width;
        margin-top: $gradient-height;
+       font-feature-settings: "tnum";
     }
 
     @mixin side-nav-table {
@@ -438,6 +439,7 @@ article {
         display: block;
         height: 100%;
         line-height: 100%;
+        font-feature-settings: "tnum";
 
         &:not(:last-child) {
             // 最後の要素（最終更新）以外は打ち消し線
