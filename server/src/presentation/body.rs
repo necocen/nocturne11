@@ -81,3 +81,17 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+mod integration_tests {
+    use super::*;
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn decode_and_print_html() {
+        let body = include_str!("./fixtures/input.txt");
+        let html = Body::new(body).to_html();
+        let expected = include_str!("./fixtures/expected.txt");
+        assert_eq!(html, expected);
+    }
+}
