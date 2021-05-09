@@ -23,10 +23,7 @@ impl LineFragment<'_> {
     pub fn to_html(&self) -> String {
         match self {
             LineFragment::Text(text) => {
-                format!(
-                    r#"<span class="non-yakumono">{}</span>"#,
-                    escape(text, Html)
-                )
+                format!(r"<span>{}</span>", escape(text, Html))
             }
             LineFragment::Link(link) => {
                 format!(
