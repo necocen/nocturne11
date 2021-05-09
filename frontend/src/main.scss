@@ -426,16 +426,23 @@ article {
 
     > aside {
         position: absolute;
-        z-index: 0;
-        bottom: calc(100% - 4.6ex);
+        z-index: 2;
+        bottom: calc(100% - 5.85ex);
+        right: 0;
         text-align: right;
-        width: 100%;
+        font-size: 80%;
+        color: $text-color-dim;
     }
 
     time {
         display: block;
         height: 100%;
         line-height: 100%;
+
+        &:not(:last-child) {
+            // 最後の要素（最終更新）以外は打ち消し線
+            text-decoration: line-through;
+        }
     }
 
     time.created-at::before {
