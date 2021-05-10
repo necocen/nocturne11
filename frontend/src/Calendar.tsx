@@ -25,9 +25,13 @@ export function Calendar() {
     return (
         <table id="calendar" summary="calendar">
             <caption>
-                <button id="calendar-prev-month" onClick={moveToPrevMonth}><span>┗</span></button>
+                <button id="calendar-prev-month" onClick={moveToPrevMonth}>
+                    <span>┗</span>
+                </button>
                 <a href={dayjsToPath(currentMonth, true)}>{currentMonth.format("YYYY-MM")}</a>
-                <button id="calendar-next-month" onClick={moveToNextMonth}><span>┓</span></button>
+                <button id="calendar-next-month" onClick={moveToNextMonth}>
+                    <span>┓</span>
+                </button>
             </caption>
             <thead>
                 <tr>
