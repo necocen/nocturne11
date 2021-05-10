@@ -35,13 +35,14 @@ $main-font-family: "ellipsis", -apple-system, BlinkMacSystemFont, Arial, "Hiragi
 
 @mixin post-head-style {
     font-feature-settings: "pkna" 1;
-    font-weight: 400;
+    font-weight: 500;
     letter-spacing: 0.03em;
     text-align: start;
 }
 
 :root {
-    font-size: 9.5pt;
+    font-size: 12px;
+    font-family: $main-font-family;
 }
 
 a, a:visited {
@@ -59,10 +60,9 @@ body {
     min-height: 100vh;
     max-width: $max-width;
     overflow-y: auto;
-    font-family: $main-font-family;
     background-color: $background-color;
     color: $text-color;
-    line-height: 100%;
+    line-height: 1;
 
     > header {
         grid-column: 1;
@@ -233,17 +233,17 @@ body {
         th {
             margin: 0;
             padding: 0;
-            font-size: 7pt;
+            font-size: 0.8rem;
             color: $menu-color;
-            line-height: 140%;
+            line-height: 1.4;
         }
 
         td {
             margin: 0;
             padding: 0;
-            font-size: 9pt;
+            font-size: 1rem;
             color: $menu-color-dim;
-            line-height: 140%;
+            line-height: 1.4;
 
             a {
                 color: $menu-color;
@@ -260,13 +260,13 @@ body {
             a {
                 display: inline-block;
                 position: relative;
-                top: -0.015em;
-                line-height: 170%;
+                top: -0.05em;
+                line-height: 1.7;
             }
 
             button {
                 display: inline-block;
-                line-height: 170%;
+                line-height: 1.7;
 
                 > span {
                     // ┗グリフ・┓グリフを45°回転させて「＜」「＞」にする
@@ -292,7 +292,7 @@ body {
 
         tbody {
             display: block;
-            height: 2.25em;
+            height: 2.8rem;
             transition: all 200ms ease-out;
             overflow: hidden;
             text-align: center;
@@ -322,14 +322,12 @@ body {
 main {
     h3 {
         position: relative;
-        height: auto;
         z-index: 1;
         margin: 0;
-        line-height: 100%;
         vertical-align: middle;
         border-bottom: 1px solid $border-color1;
-        font-size: 1.4rem;
-        font-weight: normal;
+        font-size: 1.5rem;
+        line-height: 1;
         @include post-head-style;
     }
 
@@ -371,7 +369,7 @@ article {
         overflow: hidden;
         text-indent: 1em;
         text-align: justify;
-        line-height: 170%;
+        line-height: 1.7;
         letter-spacing: 0.03em;
         font-weight: 400;
         font-feature-settings: "palt" 1;
@@ -444,17 +442,17 @@ article {
     > aside {
         position: absolute;
         z-index: 2;
-        // articleの高さ - h3の高さ - h3ボーダー - permalink高さ
-        bottom: calc(100% - 1.4rem - 1px - max(10px, 1em));
+        // articleの高さ - h3の高さ - h3ボーダー - permalink高さ + 微調整
+        bottom: calc(100% - 1.5rem - 1px - 1em + 0.5px);
         right: 0;
         text-align: right;
         font-size: 0.8rem;
+        line-height: 1;
         color: $text-color-dim;
     }
 
     time {
         display: block;
-        line-height: 100%;
         font-feature-settings: "tnum";
 
         &:not(:last-child) {
@@ -492,7 +490,7 @@ form {
         border: 1px solid $border-color1;
         background-color: $input-color;
         font-family: monospace;
-        line-height: 1.25em;
+        line-height: 1.25;
 
         &:focus {
             background-color: $focused-input-color;
@@ -511,7 +509,7 @@ form {
         text-align: center;
         font-size: 100%;
         font-weight: 400;
-        line-height: 100%;
+        line-height: 1;
 
         &:hover {
             background-color: $focused-input-color;
