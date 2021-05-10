@@ -9,10 +9,10 @@
 $max-width: 832px;
 $sidebar-width: 144px;
 $sidebar-margin: 16px;
-$header-height: 100px;
-$footer-height: 24px;
-$global-nav-height: 20px;
-$gradient-height: 1em;
+$header-height: 6.5rem;
+$footer-height: 2rem;
+$global-nav-height: 2rem;
+$gradient-height: 1rem;
 $background-color: #faf8f4;
 $border-color1: #ddd;
 $border-color2: #eee;
@@ -85,12 +85,11 @@ body {
         }
 
         h1 {
-            box-sizing: border-box;
-            height: $header-height - $global-nav-height;
-            margin: 0;
-            padding: 22px 0 32px;
-            line-height: 26px;
-            font-size: 26px;
+            margin: 0 0 0 -0.05em;
+            padding: 1.25rem 0 0.75rem;
+            line-height: 1em;
+            font-family: Verdana, sans-serif;
+            font-size: 2.5rem;
             font-weight: normal;
         }
     }
@@ -130,6 +129,8 @@ body {
 }
 
 #global-nav {
+    display: flex;
+    align-items: center;
     height: $global-nav-height;
     color: $menu-color-dim;
     transform: translateZ(100px);
@@ -143,6 +144,7 @@ body {
         margin: 0;
         padding: 0;
         list-style: none;
+        justify-content: flex-start;
 
         li:not(:last-child)::after {
             content: "/";
@@ -201,7 +203,7 @@ body {
     #side-nav-content {
        position: fixed;
        width: $sidebar-width;
-       margin-top: $gradient-height;
+       margin-top: -0.5 * $gradient-height;
        font-feature-settings: "tnum";
     }
 
