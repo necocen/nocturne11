@@ -88,11 +88,15 @@ body {
         }
 
         h1 {
-            margin: 0 0 0 -0.05em;
-            padding: 1.25rem 0 0.75rem;
+            margin: 0;
+            padding: 0.5em 0 0.3em;
+            width: calc(115px + 0.05em);
+            height: 25px;
             line-height: 1em;
+            color: transparent;
+            background: url("andante.svg") no-repeat 0.05em 0.5em;
             font-family: Verdana, sans-serif;
-            font-size: 2.5rem;
+            font-size: 2.4rem;
             font-weight: normal;
         }
 
