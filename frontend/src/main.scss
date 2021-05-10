@@ -43,6 +43,7 @@ $main-font-family: "ellipsis", -apple-system, BlinkMacSystemFont, Arial, "Hiragi
 :root {
     font-size: 12px;
     font-family: $main-font-family;
+    overflow-y: scroll;
 }
 
 a, a:visited {
@@ -59,7 +60,6 @@ body {
     margin: 0 auto;
     min-height: 100vh;
     max-width: $max-width;
-    overflow-y: auto;
     background-color: $background-color;
     color: $text-color;
     line-height: 1;
