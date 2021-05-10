@@ -52,7 +52,9 @@ export function Calendar() {
                             if (day.isSame(currentMonth, "month")) {
                                 return (
                                     <td key={day.format("YYYY-MM-DD")}>
-                                        {!days || days.includes(day.date()) ? <a href={dayjsToPath(day)}>{day.format("D")}</a> : day.format("D")}
+                                        <a className={days && days.includes(day.date()) ? "" : "invalid"} href={dayjsToPath(day)}>
+                                            {day.format("D")}
+                                        </a>
                                     </td>
                                 );
                             } else {

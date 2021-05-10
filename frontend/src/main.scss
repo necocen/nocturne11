@@ -249,6 +249,11 @@ body {
 
             a {
                 color: $menu-color;
+
+                &.invalid {
+                    pointer-events: none;
+                    color: $menu-color-dim;
+                }
             }
             @include link-hover;
         }

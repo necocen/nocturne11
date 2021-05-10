@@ -47,13 +47,12 @@ function Year({ year, months, expand, expanded }: YearProps) {
                     <tr key={index}>
                         {monthRow.map((month) => (
                             <td key={month.format("YYYY-MM")}>
-                                {!months || months.includes(month.month() + 1) ? (
-                                    <a href={dayjsToPath(month, true)} onFocus={() => expand(year)}>
-                                        {month.format("MM")}
-                                    </a>
-                                ) : (
-                                    month.format("MM")
-                                )}
+                                <a
+                                    href={dayjsToPath(month, true)}
+                                    className={months && months.includes(month.month() + 1) ? "" : "invalid"}
+                                    onFocus={() => expand(year)}>
+                                    {month.format("MM")}
+                                </a>
                             </td>
                         ))}
                     </tr>
