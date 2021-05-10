@@ -44,6 +44,7 @@ $main-font-family: "ellipsis", -apple-system, BlinkMacSystemFont, Arial, "Hiragi
     font-size: 12px;
     font-family: $main-font-family;
     overflow-y: scroll;
+    -webkit-text-size-adjust: 100%; // for iPhone Safari
 }
 
 a, a:visited {
@@ -94,7 +95,7 @@ body {
             height: 25px;
             line-height: 1em;
             color: transparent;
-            background: url("andante.svg") no-repeat 0.05em 0.5em;
+            background: url("andante.svg") no-repeat 0 14.5px;
             font-family: Verdana, sans-serif;
             font-size: 2.4rem;
             font-weight: normal;
@@ -358,7 +359,7 @@ main {
         margin: 0;
         vertical-align: middle;
         border-bottom: 1px solid $border-color1;
-        font-size: 1.5rem;
+        font-size: 1.5rem !important;
         line-height: 1;
         @include post-head-style;
     }
