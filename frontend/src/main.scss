@@ -267,6 +267,7 @@ body {
             button {
                 display: inline-block;
                 line-height: 1.7;
+                user-select: none;
 
                 > span {
                     // ┗グリフ・┓グリフを45°回転させて「＜」「＞」にする
