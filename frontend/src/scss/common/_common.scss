@@ -1,0 +1,31 @@
+@use "colors.scss";
+
+a, a:visited {
+    text-decoration: none;
+    color: inherit;
+}
+@include colors.link-hover;
+
+main {
+    h3 {
+        font-feature-settings: "pkna" 1;
+        letter-spacing: 0.03em;
+        text-align: start;
+    }
+
+    dl {
+        margin-block-start: 1em;
+
+        dt {
+            font-weight: bold;
+
+            & + dd {
+                margin: 0.25em 1.5em 0.75em;
+            }
+
+            &.inactive, &.inactive + dd {
+                color: colors.$text-dim;
+            }
+        }
+    }
+}

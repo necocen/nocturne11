@@ -1,12 +1,6 @@
 @use "colors.scss";
 @use "metrics.scss" as *;
 
-@mixin header {
-    font-feature-settings: "pkna" 1;
-    letter-spacing: 0.03em;
-    text-align: start;
-}
-
 @mixin body {
     hr {
         display: block;
