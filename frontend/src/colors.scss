@@ -8,3 +8,11 @@ $menu: #999;
 $menu-dim: #ddd;
 $input: #eee;
 $focused-input: #e3e3e3;
+
+@mixin link-hover {
+    a {
+        &:hover {
+            color: $link-hover;
+        }
+    }
+}

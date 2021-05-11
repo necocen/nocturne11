@@ -33,19 +33,11 @@
     -webkit-text-size-adjust: 100%; // for iPhone Safari
 }
 
-@mixin link-hover {
-    a {
-        &:hover {
-            color: colors.$link-hover;
-        }
-    }
-}
-
 a, a:visited {
     text-decoration: none;
     color: inherit;
 }
-@include link-hover;
+@include colors.link-hover;
 
 body {
     display: grid;
@@ -177,7 +169,7 @@ body {
     a {
         color: colors.$menu;
     }
-    @include link-hover;
+    @include colors.link-hover;
 }
 
 #pager-nav {
@@ -215,7 +207,7 @@ body {
     a {
         color: colors.$menu;
     }
-    @include link-hover;
+    @include colors.link-hover;
 }
 
 #side-nav {
@@ -277,7 +269,7 @@ body {
                     color: colors.$menu-dim;
                 }
             }
-            @include link-hover;
+            @include colors.link-hover;
         }
     }
 
