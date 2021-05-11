@@ -9,11 +9,10 @@
     src: local("Hiragino Sans"), local("HiraginoSans-W4"), local("Yu Gothic Medium"), local("Meiryo");
     unicode-range: U+2026;
 }
-$main-font-family: "ellipsis", -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Yu Gothic Medium", Meiryo, sans-serif;
 
 :root {
     font-size: 12px;
-    font-family: $main-font-family;
+    font-family: "ellipsis", -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Yu Gothic Medium", Meiryo, sans-serif;
     overflow-y: scroll;
     -webkit-text-size-adjust: 100%; // for iPhone Safari
 }
