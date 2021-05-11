@@ -341,7 +341,7 @@ main {
         margin: 0;
         vertical-align: middle;
         border-bottom: 1px solid colors.$border1;
-        font-size: 1.5rem !important; // FIXME: なにこれ
+        font-size: 1.5rem;
         line-height: 1;
         @include post.header;
     }
