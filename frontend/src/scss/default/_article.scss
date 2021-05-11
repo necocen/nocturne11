@@ -1,6 +1,6 @@
-@use "colors.scss";
 @use "metrics.scss" as *;
-@use "post.scss";
+@use "../common/colors.scss";
+@use "../common/post.scss";
 
 article {
     @include post.body;

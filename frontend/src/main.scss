@@ -1,13 +1,13 @@
 @charset "utf-8";
-@use "colors.scss";
-@use "metrics.scss" as *;
-@use "post.scss";
-@use "article.scss";
-@use "calendar.scss" with (
+@use "scss/default/metrics.scss" as *;
+@use "scss/default/article.scss";
+@use "scss/common/colors.scss";
+@use "scss/common/post.scss";
+@use "scss/common/calendar.scss" with (
     $header-font-size: 0.9rem,
     $font-size: 1rem,
 );
-@use "form.scss" with (
+@use "scss/common/form.scss" with (
     $new-post-textarea-height: calc(
         100vh
         - #{$header-height}
