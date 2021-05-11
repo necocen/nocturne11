@@ -336,27 +336,24 @@ body {
 
 main {
     h3 {
+        @include post.header;
+
         position: relative;
         z-index: 1;
         margin: 0;
         vertical-align: middle;
         border-bottom: 1px solid colors.$border1;
         font-size: 1.5rem;
+        font-weight: 500;
         line-height: 1;
-        @include post.header;
-    }
-
-    h4 {
-        margin: 0.75em 0 0.5em;
-        @include post.header;
-        font-weight: bold;
     }
 
     dl {
         margin-block-start: 1em;
 
         dt {
-            font-weight: 500;
+            font-weight: bold;
+
             & + dd {
                 margin: 0.25em 1.5em 0.75em;
             }
@@ -369,9 +366,9 @@ main {
 }
 
 article {
-    position: relative;
-
     @include post.body;
+
+    position: relative;
 
     > aside {
         position: absolute;
@@ -409,6 +406,12 @@ form {
         border: none;
         margin: 0.5em 0 1em;
         padding: 0;
+    }
+
+    h4 {
+        margin: 0.75em 0 0.5em;
+        font-weight: bold;
+        line-height: 1;
     }
 
     p {
