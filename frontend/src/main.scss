@@ -461,14 +461,14 @@ form {
             - #{$header-height}
             - #{$footer-height}
             - 2rem /* main margin */
-            - $post-head-line-height - 1px /* h3 height + border */
+            - #{$post-head-line-height} - 1px /* h3 height + border */
             - 1.5rem /* fieldset margin */
             - 0.75rem - 1rem /* h4 top margin + h4 */
-            - $post-paragraph-vertical-margin - 1.25rem - 1rem /* p(input) margin + input + p(input) margin */
+            - #{$post-paragraph-vertical-margin} - 1.25rem - 1rem /* p(input) margin + input + p(input) margin */
             - 1rem /* h4 */
             - 2rem /* p(textarea) margin */
-            - $post-paragraph-vertical-margin - 2em /* p(input) margin + input */
-            - $post-paragraph-vertical-margin - 2em /* form p(input) margin + button */
+            - #{$post-paragraph-vertical-margin} - 2em /* p(input) margin + input */
+            - #{$post-paragraph-vertical-margin} - 2em /* form p(input) margin + button */
             );
     }
 
