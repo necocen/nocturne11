@@ -3,6 +3,10 @@
 @use "metrics.scss" as *;
 @use "post.scss";
 @use "article.scss";
+@use "calendar.scss" with (
+    $header-font-size: 0.9rem,
+    $font-size: 1rem,
+);
 @use "form.scss" with (
     $new-post-textarea-height: calc(
         100vh
@@ -220,121 +224,6 @@ body {
        width: $sidebar-width;
        margin-top: -0.5 * $gradient-height;
        font-feature-settings: "tnum";
-    }
-
-    @mixin side-nav-table {
-        width: 100%;
-        text-align: center;
-        table-layout: fixed;
-
-        caption {
-            color: colors.$menu;
-
-            button {
-                margin: 0;
-                padding: 0 0.33em;
-                color: inherit;
-                font: inherit;
-                background: inherit;
-                border: none;
-                cursor: pointer;
-                &:hover {
-                    color: colors.$link-hover;
-                }
-                &:focus:not(:focus-visible) {
-                    outline: none;
-                }
-            }
-        }
-
-        th {
-            margin: 0;
-            padding: 0;
-            font-size: 0.8rem;
-            color: colors.$menu;
-            line-height: 1.4;
-        }
-
-        td {
-            margin: 0;
-            padding: 0;
-            font-size: 1rem;
-            color: colors.$menu-dim;
-            line-height: 1.4;
-
-            a {
-                color: colors.$menu;
-
-                &.invalid {
-                    pointer-events: none;
-                    color: colors.$menu-dim;
-                }
-            }
-            @include colors.link-hover;
-        }
-    }
-
-    table#calendar {
-        @include side-nav-table;
-        border-spacing: 2px;
-
-        caption {
-            a {
-                display: inline-block;
-                position: relative;
-                top: -0.05em;
-                line-height: 1.7;
-            }
-
-            button {
-                display: inline-block;
-                line-height: 1.7;
-                user-select: none;
-
-                > span {
-                    // ┗グリフ・┓グリフを45°回転させて「＜」「＞」にする
-                    display: block;
-                    transform: rotate(45deg);
-                    font-size: 1.2em;
-                }
-            }
-        }
-    }
-
-    table.year-month {
-        @include side-nav-table;
-        margin-top: 0.5em;
-        text-align: left;
-        border-spacing: 0;
-
-        caption {
-            display: inline;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-
-        tbody {
-            display: block;
-            height: 2.8rem;
-            transition: all 200ms ease-out;
-            overflow: hidden;
-            text-align: center;
-            opacity: 1;
-
-            &:not(.expanded) {
-                line-height: 0;
-                height: 0;
-                opacity: 0;
-            }
-
-            tr {
-                display: flex;
-
-                td {
-                    flex: 1;
-                }
-            }
-        }
     }
 
     &.admin {
