@@ -1,0 +1,104 @@
+@use "colors.scss";
+@use "metrics.scss" as *;
+
+@mixin header {
+    font-feature-settings: "pkna" 1;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-align: start;
+}
+
+@mixin body {
+    hr {
+        display: block;
+        height: 0;
+        margin: $post-paragraph-vertical-margin 6em;
+        border-style: none;
+        border-top: 1px solid colors.$border2;
+    }
+
+    p {
+        margin: $post-paragraph-vertical-margin 0;
+        overflow: hidden;
+        text-indent: 1em;
+        text-align: justify;
+        line-height: 1.7;
+        letter-spacing: 0.03em;
+        font-weight: 400;
+        font-feature-settings: "palt" 1;
+    }
+
+    span.yakumono-punctuation::after,
+    span.yakumono-open-bracket::before,
+    span.yakumono-close-bracket::before,
+    span.yakumono-close-bracket::after,
+    span.yakumono-interpunct::before,
+    span.yakumono-interpunct::after {
+        // 約物用アキボックス
+        display: inline;
+        content: "";
+    }
+
+    span.yakumono-punctuation {
+        &:not(:last-child) {
+            // 段落末尾以外では後方二分アキ
+            margin-inline-end: 0.5em;
+        }
+
+        + span.yakumono-open-bracket {
+            // 句読点後の開き括弧はアキなし
+            margin-inline-start: 0;
+        }
+
+        + span.yakumono-close-bracket {
+            // 句読点後の閉じ括弧は句読点のアキを打ち消す
+            margin-inline-start: -0.5em;
+        }
+    }
+
+    span.yakumono-open-bracket {
+        &:not(:first-child) {
+            // 段落先頭以外では前方二分アキ
+            margin-inline-start: 0.5em;
+        }
+
+        + span.yakumono-open-bracket {
+            // 開き括弧の連続はアキなし
+            margin-inline-start: 0;
+        }
+    }
+
+    span.yakumono-close-bracket {
+        &:not(:last-child) {
+            // 段落末尾以外では後方二分アキ
+            margin-inline-end: 0.5em;
+        }
+
+        + span.yakumono-open-bracket {
+            // 閉じ括弧後の開き括弧はアキなし（閉じ括弧の二分アキのみ）
+            margin-inline-start: 0;
+        }
+
+        + span.yakumono-close-bracket, + span.yakumono-punctuation {
+            // 閉じ括弧の連続・閉じ括弧後の句読点は前方アキ打ち消し
+            margin-inline-start: -0.5em;
+        }
+    }
+
+    span.yakumono-interpunct {
+        &:not(:first-child) {
+            // 段落先頭以外では前方四分アキ
+            margin-inline-start: 0.25em;
+        }
+
+        &:not(:last-child) {
+            // 段落末尾以外では後方四分アキ
+            margin-inline-end: 0.25em;
+        }
+
+        &:first-child {
+            // 段落先頭に来る場合は箇条書きとみなして字下げを無視する
+            margin-inline-start: -0.75em;
+        }
+    }
+}

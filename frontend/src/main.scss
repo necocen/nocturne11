@@ -1,50 +1,29 @@
 @charset "utf-8";
+@use "colors.scss";
+@use "metrics.scss" as *;
+@use "post.scss";
+
 @font-face {
     // 三点リーダ対策
     font-family: "ellipsis";
     src: local("Hiragino Sans"), local("HiraginoSans-W4"), local("Yu Gothic Medium"), local("Meiryo");
     unicode-range: U+2026;
 }
-
-$max-width: 832px;
-$sidebar-width: 144px;
-$sidebar-margin: 16px;
-$header-height: 6.2rem;
-$footer-height: 2rem;
-$global-nav-height: 2rem;
-$gradient-height: 1rem;
-$background-color: #faf8f4;
-$border-color1: #ddd;
-$border-color2: #eee;
-$text-color: #333;
-$text-color-dim: #999;
-$link-color-hover: #448;
-$menu-color: #999;
-$menu-color-dim: #ddd;
-$input-color: #eee;
-$focused-input-color: #e3e3e3;
 $main-font-family: "ellipsis", -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Yu Gothic Medium", Meiryo, sans-serif;
-
-@mixin link-hover {
-    a {
-        &:hover {
-            color: $link-color-hover;
-        }
-    }
-}
-
-@mixin post-head-style {
-    font-feature-settings: "pkna" 1;
-    font-weight: 500;
-    letter-spacing: 0.03em;
-    text-align: start;
-}
 
 :root {
     font-size: 12px;
     font-family: $main-font-family;
     overflow-y: scroll;
     -webkit-text-size-adjust: 100%; // for iPhone Safari
+}
+
+@mixin link-hover {
+    a {
+        &:hover {
+            color: colors.$link-hover;
+        }
+    }
 }
 
 a, a:visited {
@@ -61,8 +40,8 @@ body {
     margin: 0 auto;
     min-height: 100vh;
     max-width: $max-width;
-    background-color: $background-color;
-    color: $text-color;
+    background-color: colors.$background;
+    color: colors.$text;
     line-height: 1;
 
     > header {
@@ -75,7 +54,7 @@ body {
         top: 0;
         z-index: 10;
         height: $header-height;
-        background-color: $background-color;
+        background-color: colors.$background;
 
         &::after {
             content: "";
@@ -84,7 +63,7 @@ body {
             top: 100%;
             width: 100%;
             height: $gradient-height;
-            background: linear-gradient(to top, rgba($background-color, 0), $background-color);
+            background: linear-gradient(to top, rgba(colors.$background, 0), colors.$background);
             pointer-events: none;
         }
 
@@ -109,7 +88,7 @@ body {
             padding: 0;
             font-size: 1rem;
             font-weight: normal;
-            color: $text-color-dim;
+            color: colors.$text-dim;
             font-feature-settings: "tnum";
 
             &::before {
@@ -139,8 +118,8 @@ body {
         position: sticky;
         bottom: 0;
         z-index: 10;
-        color: $text-color-dim;
-        background-color: $background-color;
+        color: colors.$text-dim;
+        background-color: colors.$background;
 
         &::before {
             content: "";
@@ -149,7 +128,7 @@ body {
             bottom: 100%;
             width: 100%;
             height: $gradient-height;
-            background: linear-gradient(to bottom, rgba($background-color, 0), $background-color);
+            background: linear-gradient(to bottom, rgba(colors.$background, 0), colors.$background);
             pointer-events: none;
         }
     }
@@ -160,7 +139,7 @@ body {
     align-items: center;
     width: 100%;
     height: $global-nav-height;
-    color: $menu-color-dim;
+    color: colors.$menu-dim;
     transform: translateZ(100px);
 
     h2 {
@@ -181,7 +160,7 @@ body {
     }
 
     a {
-        color: $menu-color;
+        color: colors.$menu;
     }
     @include link-hover;
 }
@@ -197,7 +176,7 @@ body {
     margin: 0;
     width: 100%;
     max-width: $max-width;
-    color: $menu-color-dim;
+    color: colors.$menu-dim;
 
     ul {
         position: absolute;
@@ -219,7 +198,7 @@ body {
     }
 
     a {
-        color: $menu-color;
+        color: colors.$menu;
     }
     @include link-hover;
 }
@@ -241,7 +220,7 @@ body {
         table-layout: fixed;
 
         caption {
-            color: $menu-color;
+            color: colors.$menu;
 
             button {
                 margin: 0;
@@ -252,7 +231,7 @@ body {
                 border: none;
                 cursor: pointer;
                 &:hover {
-                    color: $link-color-hover;
+                    color: colors.$link-hover;
                 }
                 &:focus:not(:focus-visible) {
                     outline: none;
@@ -264,7 +243,7 @@ body {
             margin: 0;
             padding: 0;
             font-size: 0.8rem;
-            color: $menu-color;
+            color: colors.$menu;
             line-height: 1.4;
         }
 
@@ -272,15 +251,15 @@ body {
             margin: 0;
             padding: 0;
             font-size: 1rem;
-            color: $menu-color-dim;
+            color: colors.$menu-dim;
             line-height: 1.4;
 
             a {
-                color: $menu-color;
+                color: colors.$menu;
 
                 &.invalid {
                     pointer-events: none;
-                    color: $menu-color-dim;
+                    color: colors.$menu-dim;
                 }
             }
             @include link-hover;
@@ -361,15 +340,15 @@ main {
         z-index: 1;
         margin: 0;
         vertical-align: middle;
-        border-bottom: 1px solid $border-color1;
-        font-size: 1.5rem !important;
+        border-bottom: 1px solid colors.$border1;
+        font-size: 1.5rem !important; // FIXME: なにこれ
         line-height: 1;
-        @include post-head-style;
+        @include post.header;
     }
 
     h4 {
         margin: 0.75em 0 0.5em;
-        @include post-head-style;
+        @include post.header;
         font-weight: bold;
     }
 
@@ -383,7 +362,7 @@ main {
             }
 
             &.inactive, &.inactive + dd {
-                color: $text-color-dim;
+                color: colors.$text-dim;
             }
         }
     }
@@ -392,109 +371,18 @@ main {
 article {
     position: relative;
 
-    hr {
-        display: block;
-        height: 0;
-        margin: 1em 6em;
-        border-style: none;
-        border-top: 1px solid $border-color2;
-    }
-
-    p {
-        margin: 1em 0;
-        overflow: hidden;
-        text-indent: 1em;
-        text-align: justify;
-        line-height: 1.7;
-        letter-spacing: 0.03em;
-        font-weight: 400;
-        font-feature-settings: "palt" 1;
-    }
-
-    span.yakumono-punctuation::after,
-    span.yakumono-open-bracket::before,
-    span.yakumono-close-bracket::before,
-    span.yakumono-close-bracket::after,
-    span.yakumono-interpunct::before,
-    span.yakumono-interpunct::after {
-        // 約物用アキボックス
-        display: inline;
-        content: "";
-    }
-
-    span.yakumono-punctuation {
-        &:not(:last-child) {
-            // 段落末尾以外では後方二分アキ
-            margin-inline-end: 0.5em;
-        }
-
-        + span.yakumono-open-bracket {
-            // 句読点後の開き括弧はアキなし
-            margin-inline-start: 0;
-        }
-
-        + span.yakumono-close-bracket {
-            // 句読点後の閉じ括弧は句読点のアキを打ち消す
-            margin-inline-start: -0.5em;
-        }
-    }
-
-    span.yakumono-open-bracket {
-        &:not(:first-child) {
-            // 段落先頭以外では前方二分アキ
-            margin-inline-start: 0.5em;
-        }
-
-        + span.yakumono-open-bracket {
-            // 開き括弧の連続はアキなし
-            margin-inline-start: 0;
-        }
-    }
-
-    span.yakumono-close-bracket {
-        &:not(:last-child) {
-            // 段落末尾以外では後方二分アキ
-            margin-inline-end: 0.5em;
-        }
-
-        + span.yakumono-open-bracket {
-            // 閉じ括弧後の開き括弧はアキなし（閉じ括弧の二分アキのみ）
-            margin-inline-start: 0;
-        }
-
-        + span.yakumono-close-bracket, + span.yakumono-punctuation {
-            // 閉じ括弧の連続・閉じ括弧後の句読点は前方アキ打ち消し
-            margin-inline-start: -0.5em;
-        }
-    }
-
-    span.yakumono-interpunct {
-        &:not(:first-child) {
-            // 段落先頭以外では前方四分アキ
-            margin-inline-start: 0.25em;
-        }
-
-        &:not(:last-child) {
-            // 段落末尾以外では後方四分アキ
-            margin-inline-end: 0.25em;
-        }
-
-        &:first-child {
-            // 段落先頭に来る場合は箇条書きとみなして字下げを無視する
-            margin-inline-start: -0.75em;
-        }
-    }
+    @include post.body;
 
     > aside {
         position: absolute;
         z-index: 2;
         // articleの高さ - h3の高さ - h3ボーダー - permalink高さ + 微調整
-        bottom: calc(100% - 1.5rem - 1px - 1em + 0.5px);
+        bottom: calc(100% - $post-head-line-height - 1px - 1em + 0.5px);
         right: 0;
         text-align: right;
         font-size: 0.8rem;
         line-height: 1;
-        color: $text-color-dim;
+        color: colors.$text-dim;
     }
 
     time {
@@ -524,7 +412,7 @@ form {
     }
 
     p {
-        margin: 1em 0;
+        margin: $post-paragraph-vertical-margin 0;
     }
 
     input[type=text], input[type=password], textarea {
@@ -533,13 +421,13 @@ form {
         margin: 0;
         padding: 0.25em 0.5em;
         width: 100%;
-        border: 1px solid $border-color1;
-        background-color: $input-color;
+        border: 1px solid colors.$border1;
+        background-color: colors.$input;
         font-family: monospace;
         line-height: 1.25;
 
         &:focus {
-            background-color: $focused-input-color;
+            background-color: colors.$focused-input;
         }
     }
 
@@ -549,20 +437,20 @@ form {
         padding: 0;
         width: 3.5em;
         height: 2em;
-        border: 1px solid $border-color1;
-        color: $text-color;
-        background-color: $input-color;
+        border: 1px solid colors.$border1;
+        color: colors.$text;
+        background-color: colors.$input;
         text-align: center;
         font-size: 100%;
         font-weight: 400;
         line-height: 1;
 
         &:hover {
-            background-color: $focused-input-color;
+            background-color: colors.$focused-input;
         }
 
         &:active {
-            background-color: $border-color1;
+            background-color: colors.$border1;
         }
     }
 
@@ -573,14 +461,14 @@ form {
             - #{$header-height}
             - #{$footer-height}
             - 2rem /* main margin */
-            - 1.4rem - 1px /* h3 height + border */
+            - $post-head-line-height - 1px /* h3 height + border */
             - 1.5rem /* fieldset margin */
             - 0.75rem - 1rem /* h4 top margin + h4 */
-            - 1rem - 1.25rem - 1rem /* p(input) margin + input + p(input) margin */
+            - $post-paragraph-vertical-margin - 1.25rem - 1rem /* p(input) margin + input + p(input) margin */
             - 1rem /* h4 */
             - 2rem /* p(textarea) margin */
-            - 1em - 2em /* p(input) margin + input */
-            - 1em - 2em /* form p(input) margin + button */
+            - $post-paragraph-vertical-margin - 2em /* p(input) margin + input */
+            - $post-paragraph-vertical-margin - 2em /* form p(input) margin + button */
             );
     }
 
