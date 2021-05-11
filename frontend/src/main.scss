@@ -373,10 +373,10 @@ article {
         position: absolute;
         z-index: 2;
         // articleの高さ - h3の高さ - h3ボーダー - permalink高さ + 微調整
-        bottom: calc(100% - $post-head-line-height - 1px - 1em + 0.5px);
+        bottom: calc(100% - #{$post-head-line-height} - 1px - 1em + 01px);
         right: 0;
         text-align: right;
-        font-size: 0.8rem;
+        font-size: max(0.8rem, 10px);
         line-height: 1;
         color: colors.$text-dim;
     }
