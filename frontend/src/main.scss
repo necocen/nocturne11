@@ -2,6 +2,22 @@
 @use "colors.scss";
 @use "metrics.scss" as *;
 @use "post.scss";
+@use "form.scss" with (
+    $new-post-textarea-height: calc(
+        100vh
+        - #{$header-height}
+        - #{$footer-height}
+        - 2rem /* main margin */
+        - #{$post-head-line-height} - 1px /* h3 height + border */
+        - 1.5rem /* fieldset margin */
+        - 0.75rem - 1rem /* h4 top margin + h4 */
+        - #{$post-paragraph-vertical-margin} - 1.25rem - 1rem /* p(input) margin + input + p(input) margin */
+        - 1rem /* h4 */
+        - 2rem /* p(textarea) margin */
+        - #{$post-paragraph-vertical-margin} - 2em /* p(input) margin + input */
+        - #{$post-paragraph-vertical-margin} - 2em /* form p(input) margin + button */
+        ),
+);
 
 @font-face {
     // 三点リーダ対策
@@ -397,87 +413,5 @@ article {
 
     time.updated-at::before {
         content: "updated at:\2005";
-    }
-}
-
-form {
-    fieldset {
-        border: none;
-        margin: 0.5em 0 1em;
-        padding: 0;
-    }
-
-    h4 {
-        margin: 0.75em 0 0.5em;
-        font-weight: bold;
-        line-height: 1;
-    }
-
-    p {
-        margin: $post-paragraph-vertical-margin 0;
-    }
-
-    input[type=text], input[type=password], textarea {
-        box-sizing: border-box;
-        display: block;
-        margin: 0;
-        padding: 0.25em 0.5em;
-        width: 100%;
-        border: 1px solid colors.$border1;
-        background-color: colors.$input;
-        font-family: monospace;
-        line-height: 1.25;
-
-        &:focus {
-            background-color: colors.$focused-input;
-        }
-    }
-
-    input[type=submit], input[type=button], button {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        width: 3.5em;
-        height: 2em;
-        border: 1px solid colors.$border1;
-        color: colors.$text;
-        background-color: colors.$input;
-        text-align: center;
-        font-size: 100%;
-        font-weight: 400;
-        line-height: 1;
-
-        &:hover {
-            background-color: colors.$focused-input;
-        }
-
-        &:active {
-            background-color: colors.$border1;
-        }
-    }
-
-    textarea {
-        height:
-        calc(
-            100vh
-            - #{$header-height}
-            - #{$footer-height}
-            - 2rem /* main margin */
-            - #{$post-head-line-height} - 1px /* h3 height + border */
-            - 1.5rem /* fieldset margin */
-            - 0.75rem - 1rem /* h4 top margin + h4 */
-            - #{$post-paragraph-vertical-margin} - 1.25rem - 1rem /* p(input) margin + input + p(input) margin */
-            - 1rem /* h4 */
-            - 2rem /* p(textarea) margin */
-            - #{$post-paragraph-vertical-margin} - 2em /* p(input) margin + input */
-            - #{$post-paragraph-vertical-margin} - 2em /* form p(input) margin + button */
-            );
-    }
-
-    &#form-delete {
-        margin: 0;
-        padding: 0;
-        margin-top: calc(-1em - 2em);
-        margin-left: calc(3.5em + 1em);
     }
 }
