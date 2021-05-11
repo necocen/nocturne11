@@ -1,0 +1,39 @@
+@use "colors.scss";
+@use "metrics.scss" as *;
+@use "post.scss";
+
+article {
+    @include post.body;
+
+    position: relative;
+
+    > aside {
+        position: absolute;
+        z-index: 2;
+        // articleの高さ - h3の高さ - h3ボーダー - permalink高さ + 微調整
+        bottom: calc(100% - #{$post-head-line-height} - 1px - 1em + 01px);
+        right: 0;
+        text-align: right;
+        font-size: max(0.8rem, 10px);
+        line-height: 1;
+        color: colors.$text-dim;
+    }
+
+    time {
+        display: block;
+        font-feature-settings: "tnum";
+
+        &:not(:last-child) {
+            // 最後の要素（最終更新）以外は打ち消し線
+            text-decoration: line-through;
+        }
+    }
+
+    time.created-at::before {
+        content: "posted at:\2005";
+    }
+
+    time.updated-at::before {
+        content: "updated at:\2005";
+    }
+}
