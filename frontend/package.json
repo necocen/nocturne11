@@ -6,7 +6,7 @@
   "scripts": {
     "start": "snowpack dev",
     "build": "snowpack build",
-    "format": "prettier --write '{src,tests}/**/*.{ts,tsx}'"
+    "format": "prettier --write '{ts,tests}/**/*.{ts,tsx}'"
   },
   "author": "necocen",
   "license": "ISC",

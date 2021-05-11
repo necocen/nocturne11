@@ -4,8 +4,10 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
   mount: {
-    src: "/src",
+    ts: "/src",
     static: "/",
+    scss: "/src",
+    images: "/src",
   },
   plugins: [
     "@snowpack/plugin-typescript",
