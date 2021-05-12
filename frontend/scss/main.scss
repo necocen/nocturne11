@@ -1,15 +1,15 @@
 @charset "utf-8";
-@use "default/metrics.scss" as *;
-@use "default/article.scss";
-@use "default/nav.scss";
-@use "common/common.scss";
-@use "common/colors.scss";
-@use "common/post.scss";
-@use "common/calendar.scss" with (
+@use "default/_metrics.scss" as *;
+@use "default/_article.scss";
+@use "default/_nav.scss";
+@use "common/_common.scss";
+@use "common/_colors.scss";
+@use "common/_post.scss";
+@use "common/_calendar.scss" with (
     $header-font-size: 0.9rem,
     $font-size: 1rem,
 );
-@use "common/form.scss" with (
+@use "common/_form.scss" with (
     $new-post-textarea-height: calc(
         100vh
         - #{$header-height}

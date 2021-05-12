@@ -1,6 +1,6 @@
-@use "metrics.scss" as *;
-@use "../common/colors.scss";
-@use "../common/post.scss";
+@use "_metrics.scss" as *;
+@use "../common/_colors.scss";
+@use "../common/_post.scss";
 
 #global-nav {
     display: flex;

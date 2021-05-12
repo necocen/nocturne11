@@ -1,5 +1,5 @@
-@use "colors.scss";
-@use "metrics.scss" as *;
+@use "_colors.scss";
+@use "_metrics.scss" as *;
 
 @mixin body {
     hr {
