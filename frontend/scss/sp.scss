@@ -1,0 +1,141 @@
+@charset "utf-8";
+@use "sp/_metrics.scss" as *;
+@use "sp/_article.scss";
+@use "sp/_nav.scss";
+@use "common/_common.scss";
+@use "common/_colors.scss";
+@use "common/_post.scss";
+@use "common/_calendar.scss" with (
+    $header-font-size: 0.9rem,
+    $font-size: 1rem,
+);
+@use "common/_form.scss" with (
+    $new-post-textarea-height: calc(
+        100vh
+        - #{$header-height}
+        - #{$footer-height}
+        - 2rem /* main margin */
+        - #{$post-head-line-height} - 1px /* h3 height + border */
+        - 1.5rem /* fieldset margin */
+        - 0.75rem - 1rem /* h4 top margin + h4 */
+        - #{$post-paragraph-vertical-margin} - 1.25rem - 1rem /* p(input) margin + input + p(input) margin */
+        - 1rem /* h4 */
+        - 2rem /* p(textarea) margin */
+        - #{$post-paragraph-vertical-margin} - 2em /* p(input) margin + input */
+        - #{$post-paragraph-vertical-margin} - 2em /* form p(input) margin + button */
+        ),
+);
+
+@font-face {
+    // 三点リーダ対策
+    font-family: "ellipsis";
+    src: local("Hiragino Sans"), local("HiraginoSans-W4"), local("Yu Gothic Medium"), local("Meiryo"), local("Noto Sans CJK JP");
+    unicode-range: U+2026;
+}
+
+:root {
+    font-size: 12px;
+    font-family: "ellipsis", -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Yu Gothic Medium", Meiryo, sans-serif;
+    overflow-y: scroll;
+    -webkit-text-size-adjust: 100%; // for iPhone Safari
+}
+
+body {
+    position: relative;
+    margin: 0 1em;
+    background-color: colors.$background;
+    color: colors.$text;
+    line-height: 1;
+
+    > header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        top: 0;
+        z-index: 10;
+        height: $header-height;
+        background-color: colors.$background;
+
+        &::after {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 100%;
+            width: 100%;
+            height: $gradient-height;
+            background: linear-gradient(to top, rgba(colors.$background, 0), colors.$background);
+            pointer-events: none;
+        }
+
+        h1 {
+            margin: 0.6em 0 calc(0.2em - 1px);
+            padding: 0 0 1px;
+            width: 115px;
+            height: 25px;
+            line-height: 1em;
+            color: transparent;
+            background: url(andante.png) no-repeat 0 1px;
+            background: -webkit-image-set(url(andante.png) 1x, url(andante@2x.png) 2x, url(andante@3x.png) 3x) no-repeat 0 1px;
+            background: image-set(url(andante.png) 1x, url(andante@2x.png) 2x, url(andante@3x.png) 3x) no-repeat 0 1px;
+            background: url(andante.svg) no-repeat 0 1px;
+            font-family: Verdana, sans-serif;
+            font-size: 2.4rem;
+            font-weight: normal;
+        }
+
+        h2 {
+            margin: 0;
+            padding: 0;
+            font-size: 1rem;
+            font-weight: normal;
+            color: colors.$text-dim;
+            font-feature-settings: "tnum";
+
+            &::before {
+                display: inline-block;
+                vertical-align: 0.15ex;
+                content: "::";
+                margin: 0 0.1rem 0 0.1rem;
+            }
+        }
+    }
+
+    > main {
+        margin: 1em 0;
+
+        &.admin {
+            grid-column: 1 / -1;
+        }
+
+        h3 {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            vertical-align: middle;
+            border-bottom: 1px solid colors.$border1;
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 1;
+        }
+    }
+
+    > footer {
+        display: flex;
+        align-items: center;
+        bottom: 0;
+        z-index: 10;
+        color: colors.$text-dim;
+        background-color: colors.$background;
+
+        &::before {
+            content: "";
+            display: block;
+            position: absolute;
+            bottom: 100%;
+            width: 100%;
+            height: $gradient-height;
+            background: linear-gradient(to bottom, rgba(colors.$background, 0), colors.$background);
+            pointer-events: none;
+        }
+    }
+}

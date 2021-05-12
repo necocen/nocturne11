@@ -1,0 +1,73 @@
+@use "metrics.scss" as *;
+@use "../common/_colors.scss";
+@use "../common/_post.scss";
+
+#global-nav {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: $global-nav-height;
+    color: colors.$menu-dim;
+    transform: translateZ(100px);
+
+    h2 {
+        display: none;
+    }
+
+    ul {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        justify-content: flex-start;
+
+        li:not(:last-child)::after {
+            content: "/";
+            margin: 0 0.33em;
+        }
+    }
+
+    a {
+        color: colors.$menu;
+    }
+    @include colors.link-hover;
+}
+
+#pager-nav {
+    margin: 0;
+    color: colors.$menu-dim;
+
+    ul {
+        display: flex;
+        right: 0;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        justify-content: center;
+
+        li:not(:first-child)::before {
+            content: "/";
+            margin: 0 0.33em;
+        }
+
+        li + li:empty::before, li:empty + li::before {
+            content: none;
+        }
+    }
+
+    a {
+        color: colors.$menu;
+    }
+    @include colors.link-hover;
+}
+
+#side-nav {
+    #side-nav-content {
+       width: 100%;
+       font-feature-settings: "tnum";
+    }
+
+    &.admin {
+        display: none;
+    }
+}

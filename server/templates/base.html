@@ -11,7 +11,9 @@
         <meta name="description" content="{{ context.config.site.description }}" />
         <meta name="robots" content="index,follow" />
         <meta name="generator" content="{{ context.config.site.generator }}" />
-        <link rel="stylesheet" href="/static/main.css" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+        <link rel="stylesheet" href="/static/main.css" media="(min-device-width:481px)" />
+        <link rel="stylesheet" href="/static/sp.css" media="only screen and (max-device-width:480px)" />
         <link rel="icon" href="/static/favicon.png" />
         <link rel="icon" href="/static/favicon.svg" />
         <link rel="mask-icon" href="/static/mask-icon.svg" color="#333333" />
