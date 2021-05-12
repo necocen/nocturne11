@@ -26,20 +26,6 @@
         ),
 );
 
-@font-face {
-    // 三点リーダ対策
-    font-family: "ellipsis";
-    src: local("Hiragino Sans"), local("HiraginoSans-W4"), local("Yu Gothic Medium"), local("Meiryo"), local("Noto Sans CJK JP");
-    unicode-range: U+2026;
-}
-
-:root {
-    font-size: 12px;
-    font-family: "ellipsis", -apple-system, BlinkMacSystemFont, Arial, "Hiragino Sans", "Yu Gothic Medium", Meiryo, sans-serif;
-    overflow-y: scroll;
-    -webkit-text-size-adjust: 100%; // for iPhone Safari
-}
-
 body {
     display: grid;
     grid-template-columns: calc(100% - #{$sidebar-width} - #{$sidebar-margin}) $sidebar-margin auto;
