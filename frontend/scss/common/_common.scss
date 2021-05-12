@@ -20,6 +20,44 @@ a, a:visited {
 }
 @include colors.link-hover;
 
+body > header {
+    h1 {
+        $baseline-adjustment: 1px;
+        margin: 0.6em 0 calc(0.2em - #{$baseline-adjustment});
+        padding: 0 0 $baseline-adjustment;
+        width: 115px;
+        height: 25px;
+        line-height: 1em;
+        color: transparent;
+        background: url(andante.png) no-repeat 0 $baseline-adjustment;
+        background: -webkit-image-set(url(andante.png) 1x, url(andante@2x.png) 2x, url(andante@3x.png) 3x) no-repeat 0 $baseline-adjustment;
+        background: image-set(url(andante.png) 1x, url(andante@2x.png) 2x, url(andante@3x.png) 3x) no-repeat 0 $baseline-adjustment;
+        background: url(andante.svg) no-repeat 0 $baseline-adjustment;
+        font-family: Verdana, sans-serif;
+        font-size: 28.8px;
+        font-weight: normal;
+    }
+
+    h2 {
+        margin: 0;
+        padding: 0;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: normal;
+        line-height: 1;
+        color: colors.$text-dim;
+        font-feature-settings: "tnum";
+
+        &::before {
+            $baseline-adjustment: 1px;
+            display: inline-block;
+            vertical-align: $baseline-adjustment;
+            content: "::";
+            margin: -$baseline-adjustment 0.1em 0 0.15em;
+        }
+    }
+}
+
 main {
     h3 {
         font-feature-settings: "pkna" 1;
