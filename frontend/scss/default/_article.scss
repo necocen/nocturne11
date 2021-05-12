@@ -11,7 +11,7 @@ article {
         position: absolute;
         z-index: 2;
         // articleの高さ - h3の高さ - h3ボーダー - permalink高さ + 微調整
-        bottom: calc(100% - #{$post-head-line-height} - 1px - 1em + 01px);
+        bottom: calc(100% - #{$post-head-line-height} - 1px - 1em + 1px);
         right: 0;
         text-align: right;
         font-size: max(0.8rem, 10px);
