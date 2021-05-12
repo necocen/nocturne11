@@ -10,9 +10,8 @@ article {
 
     > aside {
         position: absolute;
-        z-index: 2;
-        // articleの高さ - h3の高さ - h3ボーダー - permalink高さ + 微調整
-        bottom: calc(100% - #{$post-head-line-height} - 1px - 1em + 01px);
+        // articleの高さ - h3の高さ - h3ボーダー - timestamp高さ
+        bottom: calc(100% - #{$post-head-line-height} - 1px - 1em);
         text-align: start;
         font-size: max(0.8rem, 10px);
         line-height: 1;
