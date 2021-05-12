@@ -26,9 +26,13 @@
         ),
 );
 
+:root {
+    font-size: 13px;
+}
+
 body {
     position: relative;
-    margin: 0 1em;
+    margin: 0 1.25em;
     background-color: colors.$background;
     color: colors.$text;
     line-height: 1;
