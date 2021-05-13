@@ -43,10 +43,6 @@ body {
         align-items: center;
         background-color: colors.$background;
 
-        h1 {
-            user-select: none;
-        }
-
         h2 {
             width: $title-width;
             text-align: end;
