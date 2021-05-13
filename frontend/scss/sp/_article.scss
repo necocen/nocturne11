@@ -5,6 +5,11 @@
 article {
     @include post.body;
 
+    p {
+        line-height: 1.6;
+        font-weight: 400;
+    }
+
     position: relative;
     margin-bottom: 2em;
 
