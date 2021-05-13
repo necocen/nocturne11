@@ -56,6 +56,10 @@ body {
             background: linear-gradient(to top, rgba(colors.$background, 0), colors.$background);
             pointer-events: none;
         }
+
+        h1 {
+            user-select: none;
+        }
     }
 
     > main {
