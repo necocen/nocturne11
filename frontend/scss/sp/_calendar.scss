@@ -1,0 +1,7 @@
+@forward "../common/_calendar.scss";
+
+table.year-month {
+    caption {
+        pointer-events: none;
+    }
+}

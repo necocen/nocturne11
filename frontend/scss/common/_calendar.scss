@@ -100,12 +100,6 @@ table.year-month {
         text-align: center;
         opacity: 1;
 
-        &:not(.expanded) {
-            line-height: 0;
-            height: 0;
-            opacity: 0;
-        }
-
         tr {
             display: flex;
 

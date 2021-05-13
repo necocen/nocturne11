@@ -2,13 +2,13 @@
 @use "sp/_metrics.scss" as *;
 @use "sp/_article.scss";
 @use "sp/_nav.scss";
-@use "common/_common.scss";
-@use "common/_colors.scss";
-@use "common/_post.scss";
-@use "common/_calendar.scss" with (
+@use "sp/_calendar.scss" with (
     $header-font-size: 0.9rem,
     $font-size: 1rem,
 );
+@use "common/_common.scss";
+@use "common/_colors.scss";
+@use "common/_post.scss";
 @use "common/_form.scss" with (
     $new-post-textarea-height: calc(
         100vh

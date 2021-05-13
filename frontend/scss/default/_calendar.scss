@@ -1,0 +1,11 @@
+@forward "../common/_calendar.scss";
+
+table.year-month {
+    tbody {
+        &:not(.expanded) {
+            line-height: 0;
+            height: 0;
+            opacity: 0;
+        }
+    }
+}
