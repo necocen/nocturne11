@@ -1,12 +1,14 @@
-@use "metrics.scss" as *;
+@use "_metrics.scss" as *;
 @use "../common/_colors.scss";
 @use "../common/_post.scss";
 
 #global-nav {
     display: flex;
+    justify-content: center;
     align-items: center;
     width: 100%;
-    height: $global-nav-height;
+    height: 2em;
+    margin-top: 1em;
     color: colors.$menu-dim;
     transform: translateZ(100px);
 
@@ -23,12 +25,13 @@
 
         li:not(:last-child)::after {
             content: "/";
-            margin: 0 0.33em;
+            margin: 0 1em;
         }
     }
 
     a {
         color: colors.$menu;
+        line-height: 2rem;
     }
     @include colors.link-hover;
 }

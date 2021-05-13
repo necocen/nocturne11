@@ -1,4 +1,5 @@
 @use "_colors.scss";
+@use "_metrics.scss" as *;
 
 @font-face {
     // 三点リーダ対策
@@ -25,8 +26,8 @@ body > header {
         $baseline-adjustment: 1px;
         margin: 0.6em 0 calc(0.2em - #{$baseline-adjustment});
         padding: 0 0 $baseline-adjustment;
-        width: 115px;
-        height: 25px;
+        width: $title-width;
+        height: $title-height;
         line-height: 1em;
         color: transparent;
         background: url(andante.png) no-repeat 0 $baseline-adjustment;
@@ -49,7 +50,7 @@ body > header {
         font-feature-settings: "tnum";
 
         &::before {
-            $baseline-adjustment: 1px;
+            $baseline-adjustment: 0.09em;
             display: inline-block;
             vertical-align: $baseline-adjustment;
             content: "::";
