@@ -2,10 +2,7 @@
 @use "default/_metrics.scss" as *;
 @use "default/_article.scss";
 @use "default/_nav.scss";
-@use "default/_calendar.scss" with (
-    $header-font-size: 0.9rem,
-    $font-size: 1rem,
-);
+@use "default/_calendar.scss";
 @use "common/_common.scss";
 @use "common/_colors.scss";
 @use "common/_post.scss";

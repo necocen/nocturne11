@@ -1,4 +1,7 @@
-@forward "../common/_calendar.scss";
+@forward "../common/_calendar.scss" with (
+    $header-font-size: 0.9rem,
+    $font-size: 1rem,
+);
 
 table.year-month {
     tbody {
