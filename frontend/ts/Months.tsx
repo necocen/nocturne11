@@ -48,8 +48,7 @@ function Year({ year, months, expand, expanded }: YearProps) {
                         {monthRow.map((month) => (
                             <td key={month.format("YYYY-MM")}>
                                 <a
-                                    href={dayjsToPath(month, true)}
-                                    className={months && months.includes(month.month() + 1) ? "" : "invalid"}
+                                    href={months && months.includes(month.month() + 1) ? dayjsToPath(month, true) : undefined}
                                     onFocus={() => expand(year)}>
                                     {month.format("MM")}
                                 </a>
