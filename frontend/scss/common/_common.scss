@@ -24,7 +24,7 @@ a, a:visited {
 body > header {
     h1 {
         $baseline-adjustment: 1px;
-        margin: 0.6em 0 calc(0.2em - #{$baseline-adjustment});
+        margin: $title-top-margin 0 calc(#{$title-bottom-margin} - #{$baseline-adjustment});
         padding: 0 0 $baseline-adjustment;
         width: $title-width;
         height: $title-height;

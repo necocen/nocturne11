@@ -3,24 +3,10 @@
 @use "sp/_article.scss";
 @use "sp/_nav.scss";
 @use "sp/_calendar.scss";
+@use "sp/_form.scss";
 @use "common/_common.scss";
 @use "common/_colors.scss";
 @use "common/_post.scss";
-@use "common/_form.scss" with (
-    $new-post-textarea-height: calc(
-        100vh
-        - #{$footer-height}
-        - 2rem /* main margin */
-        - #{$post-head-line-height} - 1px /* h3 height + border */
-        - 1.5rem /* fieldset margin */
-        - 0.75rem - 1rem /* h4 top margin + h4 */
-        - #{$post-paragraph-vertical-margin} - 1.25rem - 1rem /* p(input) margin + input + p(input) margin */
-        - 1rem /* h4 */
-        - 2rem /* p(textarea) margin */
-        - #{$post-paragraph-vertical-margin} - 2em /* p(input) margin + input */
-        - #{$post-paragraph-vertical-margin} - 2em /* form p(input) margin + button */
-        ),
-);
 
 :root {
     font-size: 13.5px;
@@ -67,7 +53,7 @@ body {
     }
 
     > footer {
-        margin: 2em 0 calc(1em + env(safe-area-inset-bottom, 0));
+        margin: $footer-top-margin 0 $footer-bottom-margin;
         color: colors.$text-dim;
         background-color: colors.$background;
 

@@ -1,4 +1,13 @@
+@use "../common/metrics" as *;
 @forward "../common/_metrics.scss";
-$max-width: 832px;
-$footer-height: 2rem;
+$global-nav-height: 2rem;
+$global-nav-top-margin: 0.25rem;
+$header-height: calc(
+    #{$title-height} +
+    #{$title-top-margin} +
+    #{$title-bottom-margin} +
+    #{$global-nav-height} +
+    #{$global-nav-top-margin});
+$footer-top-margin: 2rem;
+$footer-bottom-margin: calc(1em + env(safe-area-inset-bottom, 0));
 $post-head-line-height: 1.5rem;
