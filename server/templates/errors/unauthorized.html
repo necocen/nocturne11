@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{%- block variables -%}
+    {%- let mode_class = "" -%}
+    {%- let subtitle = "error".to_owned() -%}
+{%- endblock -%}
+
+{%- block content -%}
+    <header>
+        <h3>401 Unauthorized</h3>
+    </header>
+    <p>
+        認証が必要なページです。
+    </p>
+{%- endblock -%}

@@ -1,15 +1,17 @@
 use crate::{
     context::{AppContextService, RequestHeadContext},
-    handlers::{about, admin, api, auth, posts},
+    handlers::{about, admin, api, auth, errors, posts},
     Service,
 };
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_session::CookieSession;
+use actix_web::middleware::ErrorHandlers;
 use actix_web::{
     cookie::SameSite,
     guard::fn_guard,
+    http::StatusCode,
     web::{get, post, resource, route, scope, ServiceConfig},
     HttpResponse,
 };
@@ -34,6 +36,7 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
             .service(scope("/api").wrap(cors).configure(api))
             .service(
                 scope("")
+                    .wrap(ErrorHandlers::new().handler(StatusCode::UNAUTHORIZED, errors::error_401))
                     .wrap(AppContextService)
                     .wrap(session)
                     .wrap(identity)
