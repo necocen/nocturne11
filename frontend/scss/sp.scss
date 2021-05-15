@@ -67,11 +67,12 @@ body {
     }
 
     > footer {
-        display: flex;
-        align-items: center;
-        bottom: 0;
-        z-index: 10;
+        margin: 2em 0 calc(1em + env(safe-area-inset-bottom, 0));
         color: colors.$text-dim;
         background-color: colors.$background;
+
+        address {
+            text-align: end;
+        }
     }
 }
