@@ -44,9 +44,7 @@ mod templates {
     use crate::{context::AppContext, presentation::body::Body};
     use askama::Template;
     use chrono::NaiveDate;
-    use domain::entities::{
-        date::DateCondition, AdjacentPage, Page, Post, PostId, SearchCondition,
-    };
+    use domain::entities::{date::DateCondition, AdjacentPage, Page, Post, PostId};
 
     #[derive(Template)]
     #[template(path = "all_posts.html")]
@@ -80,11 +78,11 @@ mod templates {
         }
     }
 
-    trait DateConditionToString {
+    trait ConditionToString {
         fn to_string(&self) -> String;
     }
 
-    impl DateConditionToString for DateCondition {
+    impl ConditionToString for DateCondition {
         fn to_string(&self) -> String {
             NaiveDate::from_ymd(
                 self.ym.0.into(),
@@ -97,6 +95,12 @@ mod templates {
                 "%Y-%m"
             })
             .to_string()
+        }
+    }
+
+    impl ConditionToString for () {
+        fn to_string(&self) -> String {
+            "".to_owned()
         }
     }
 
