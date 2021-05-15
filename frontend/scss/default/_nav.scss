@@ -78,8 +78,10 @@
     #side-nav-content {
        position: fixed;
        width: $sidebar-width;
-       margin-top: -0.5 * $gradient-height;
+       top: $header-height - 0.5 * $gradient-height;
+       bottom: $footer-height + $gradient-height;
        font-feature-settings: "tnum";
+       overflow-y: scroll;
     }
 
     &.admin {
