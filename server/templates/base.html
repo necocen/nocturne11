@@ -7,7 +7,7 @@
 <!DOCTYPE html>
 <html lang="ja">
     <head>
-        <title>{{ context.config.site.title }}</title>
+        <title>{{ context.config.site.title }}{% if !subtitle.is_empty() %} :: {{ subtitle }}{% endif %}</title>
         <meta charset="UTF-8" />
         <meta name="author" content="{{ context.config.author.name }}" />
         <meta name="description" content="{{ context.config.site.description }}" />
