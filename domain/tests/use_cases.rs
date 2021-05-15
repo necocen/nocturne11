@@ -252,3 +252,48 @@ fn test_get_post_by_day_last_page() -> Result<()> {
     );
     Ok(())
 }
+
+#[test]
+fn test_get_posts_first_page() -> Result<()> {
+    let repo = PostsRepositoryMock::new();
+    let Page {
+        posts,
+        next_page,
+        prev_page,
+        ..
+    } = get_posts(&repo, 10, 1)?;
+    assert_eq!(posts.len(), 10);
+    assert_eq!(prev_page, AdjacentPage::None);
+    assert_eq!(next_page, AdjacentPage::Page(2));
+    Ok(())
+}
+
+#[test]
+fn test_get_posts_second_page() -> Result<()> {
+    let repo = PostsRepositoryMock::new();
+    let Page {
+        posts,
+        next_page,
+        prev_page,
+        ..
+    } = get_posts(&repo, 10, 2)?;
+    assert_eq!(posts.len(), 10);
+    assert_eq!(prev_page, AdjacentPage::Condition(()));
+    assert_eq!(next_page, AdjacentPage::Page(3));
+    Ok(())
+}
+
+#[test]
+fn test_get_posts_last_page() -> Result<()> {
+    let repo = PostsRepositoryMock::new();
+    let Page {
+        posts,
+        next_page,
+        prev_page,
+        ..
+    } = get_posts(&repo, 10, 17)?;
+    assert_eq!(posts.len(), 8);
+    assert_eq!(prev_page, AdjacentPage::Page(16));
+    assert_eq!(next_page, AdjacentPage::None);
+    Ok(())
+}

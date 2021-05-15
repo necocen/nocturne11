@@ -28,12 +28,12 @@ pub fn get_posts(
         posts: posts.into_iter().take(per_page).collect(),
         per_page,
         page,
-        next_page,
-        prev_page: if page > 2 {
-            AdjacentPage::Page(page - 1)
-        } else {
-            AdjacentPage::Condition(())
+        prev_page: match page {
+            1 => AdjacentPage::None,
+            2 => AdjacentPage::Condition(()),
+            _ => AdjacentPage::Page(page - 1),
         },
+        next_page,
     })
 }
 
