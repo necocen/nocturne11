@@ -1,3 +1,4 @@
+{%- let permalink = self.context.config.site.url.join(post.id.to_string()).unwrap() -%}
 <article id="post-{{ post.id }}">
     <header>
         <h3><a href="/{{ post.id }}">{{ post.title }}</a></h3>
@@ -10,6 +11,6 @@
             <time class="updated-at" datetime="{{ post.updated_at | iso8601 }}">{{ post.updated_at | format_date }}</time>
             {% endif %}
         </div>
-        <a class="permalink" href="{{ post.permalink() }}">{{ post.permalink() }}</a>
+        <a class="permalink" href="{{ permalink }}">{{ permalink }}</a>
     </aside>
 </article>

@@ -1,7 +1,7 @@
 [site]
 title = "andante"
 description = "個人的な日記です"
-host = "ofni.necocen.info"
+url = "https://ofni.necocen.info/"
 about = """
 物理学・数学・哲学に関心がある（けれどもそれほど勉強しているわけではない）ソフトウェアエンジニアの日記です。このサイト自身はRustで書かれています。
 

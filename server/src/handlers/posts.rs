@@ -72,19 +72,11 @@ mod templates {
     trait PostExt {
         /// 本文の段落記法をHTMLタグに変換します
         fn converted_body(&self) -> String;
-
-        /// Permalink URLの出力
-        fn permalink(&self) -> url::Url;
     }
 
     impl PostExt for Post {
         fn converted_body(&self) -> String {
             Body::new(&self.body).to_html()
-        }
-
-        fn permalink(&self) -> url::Url {
-            let base_url = url::Url::parse("https://ofni.necocen.info/").unwrap();
-            base_url.join(&self.id.to_string()).unwrap()
         }
     }
 

@@ -13,6 +13,7 @@ pub struct Site {
     pub description: String,
     pub generator: String,
     pub about: String,
+    pub url: url::Url,
     pub links: Vec<Link>,
 }
 
