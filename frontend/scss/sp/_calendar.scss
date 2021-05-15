@@ -6,9 +6,15 @@
 
 table#calendar {
     margin-bottom: 1em;
+
+    caption {
+        margin-bottom: 0.5em;
+    }
 }
 
 table.year-month {
+    margin-top: 1em;
+
     caption {
         display: table-caption;
         margin: 0.25em 0 0.25em;
