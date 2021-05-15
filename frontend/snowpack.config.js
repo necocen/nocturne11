@@ -12,7 +12,8 @@ module.exports = {
   plugins: [
     "@snowpack/plugin-typescript",
     "@snowpack/plugin-react-refresh",
-    "@snowpack/plugin-sass"
+    "@snowpack/plugin-sass",
+    "@snowpack/plugin-dotenv"
   ],
   packageOptions: {
     /* ... */
