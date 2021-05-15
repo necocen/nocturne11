@@ -38,6 +38,10 @@ body > header {
         font-size: 28.8px;
         font-weight: normal;
 
+        a {
+            -webkit-touch-callout: none;
+        }
+
         a:hover {
             color: inherit;
         }
