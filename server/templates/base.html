@@ -1,6 +1,8 @@
 {%- let mode_class -%}
+{%- let subtitle -%}
 {%- block variables -%}
     {%- let mode_class = "" -%}
+    {%- let subtitle = "".to_owned() -%}
 {%- endblock -%}
 <!DOCTYPE html>
 <html lang="ja">
@@ -22,6 +24,7 @@
     <body>
         <header>
             <h1>{{ context.config.site.title }}</h1>
+            {% if !subtitle.is_empty() %}<h2>{{ subtitle }}</h2>{% endif %}
             <nav id="global-nav">
                 <h2>Menu</h2>
                 <ul>

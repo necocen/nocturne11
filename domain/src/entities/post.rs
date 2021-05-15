@@ -1,7 +1,14 @@
+use super::SearchCondition;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 pub type PostId = i32;
+
+impl SearchCondition for PostId {
+    fn subtitle(&self) -> String {
+        self.to_string()
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -54,7 +61,7 @@ impl NewPost {
 }
 
 #[derive(Debug, Clone)]
-pub struct Page<'a, C> {
+pub struct Page<'a, C: SearchCondition> {
     pub condition: &'a C,
     pub posts: Vec<Post>,
     pub per_page: usize,

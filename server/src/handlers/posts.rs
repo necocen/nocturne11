@@ -44,7 +44,9 @@ mod templates {
     use crate::{context::AppContext, presentation::body::Body};
     use askama::Template;
     use chrono::NaiveDate;
-    use domain::entities::{date::DateCondition, AdjacentPage, Page, Post, PostId};
+    use domain::entities::{
+        date::DateCondition, AdjacentPage, Page, Post, PostId, SearchCondition,
+    };
 
     #[derive(Template)]
     #[template(path = "all_posts.html")]
