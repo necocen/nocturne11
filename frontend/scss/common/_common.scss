@@ -37,6 +37,10 @@ body > header {
         font-family: Verdana, sans-serif;
         font-size: 28.8px;
         font-weight: normal;
+
+        a:hover {
+            color: inherit;
+        }
     }
 
     h2 {

@@ -23,7 +23,7 @@
     </head>
     <body>
         <header>
-            <h1>{{ context.config.site.title }}</h1>
+            <h1><a href="/">{{ context.config.site.title }}</a></h1>
             {% if !subtitle.is_empty() %}<h2>{{ subtitle }}</h2>{% endif %}
             <nav id="global-nav">
                 <h2>Menu</h2>
