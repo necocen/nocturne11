@@ -65,6 +65,11 @@
 }
 
 #side-nav {
+
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid colors.$border1;
+
     #side-nav-content {
        width: 100%;
        font-feature-settings: "tnum";

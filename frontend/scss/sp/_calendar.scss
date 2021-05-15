@@ -4,6 +4,10 @@
     $line-height: 1.7em,
 );
 
+table#calendar {
+    margin-bottom: 1em;
+}
+
 table.year-month {
     caption {
         display: table-caption;
