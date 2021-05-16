@@ -45,6 +45,6 @@ pub struct DeleteFormParams {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct ConfigFormParams {
-    pub about: String,
+pub struct LoginFormParams {
+    pub id_token: String,
 }

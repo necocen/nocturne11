@@ -8,6 +8,7 @@ embed_migrations!("migrations/");
 
 pub mod config_repository_impl;
 mod diesel_helpers;
+pub mod google_auth_cert_repository_impl;
 pub mod legacy;
 pub mod migration;
 mod models;

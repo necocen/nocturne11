@@ -1,16 +1,18 @@
 use crate::{
-    entities::config::Config,
-    repositories::{config::ConfigRepository, posts::PostsRepository},
-};
-use crate::{
     entities::{
+        config::Config,
         date::{DateCondition, Year, YearMonth},
         AdjacentPage, NewPost, Page, Post, PostId,
     },
-    repositories::search::SearchRepository,
+    repositories::{
+        config::ConfigRepository, google_auth_cert::GoogleAuthCertRepository,
+        posts::PostsRepository, search::SearchRepository,
+    },
 };
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use chrono::{Datelike, Duration, Local, TimeZone};
+use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
+use serde::Deserialize;
 
 pub fn get_posts(
     repository: &impl PostsRepository,
@@ -222,4 +224,41 @@ pub async fn delete_post(
 
 pub fn get_config(config_repository: &impl ConfigRepository) -> Result<Config> {
     config_repository.get()
+}
+
+pub async fn check_login(
+    config_repository: &impl ConfigRepository,
+    cert_repository: &impl GoogleAuthCertRepository,
+    jwt: &str,
+) -> Result<String> {
+    const ISSUERS: [&str; 2] = ["accounts.google.com", "https://accounts.google.com"];
+    let header = decode_header(jwt)?;
+    let kid = header
+        .kid
+        .context("JWT token does not contain 'kid' field.")?;
+    let config = config_repository.get()?;
+    let (n, e) = cert_repository.key(&kid).await?;
+    let key = DecodingKey::from_rsa_components(&n, &e);
+    let validation = Validation {
+        sub: Some(config.auth.admin_user_id),
+        aud: Some([config.auth.google_client_id].iter().cloned().collect()),
+        // 今のところRS256だが将来のことを考慮して
+        algorithms: vec![Algorithm::RS256, Algorithm::RS384, Algorithm::RS512],
+        // issも検証したいが現在のjsonwebtoken crateは複数のissuerに対応できないのであとで自前でやる
+        ..Validation::default()
+    };
+    #[derive(Debug, Deserialize)]
+    struct Claims {
+        iss: String,
+        sub: String,
+    }
+    let data = decode::<Claims>(&jwt, &key, &validation)?;
+
+    // issuerはこちらで判定
+    if !ISSUERS.contains(&data.claims.iss.as_str()) {
+        bail!("Invalid issuer '{}'", data.claims.iss);
+    }
+
+    // IDを返す
+    Ok(data.claims.sub)
 }

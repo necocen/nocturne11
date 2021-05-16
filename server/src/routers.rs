@@ -76,7 +76,7 @@ fn api(cfg: &mut ServiceConfig) {
 }
 
 fn auth(cfg: &mut ServiceConfig) {
-    cfg.service(resource("/login").route(get().to(auth::login)))
+    cfg.service(resource("/login").route(post().to(auth::login)))
         .service(resource("/logout").route(get().to(auth::logout)));
 }
 

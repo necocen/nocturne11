@@ -1,6 +1,7 @@
 use anyhow::{ensure, Result};
 use infrastructure::{
     config_repository_impl::{ConfigRepositoryImpl, Version},
+    google_auth_cert_repository_impl::GoogleAuthCertRepositoryImpl,
     posts_repository_impl::PostsRepositoryImpl,
     search_repository_impl::SearchRepositoryImpl,
 };
@@ -11,6 +12,7 @@ pub struct Service {
     pub search_repository: SearchRepositoryImpl,
     pub posts_repository: PostsRepositoryImpl,
     pub config_repository: ConfigRepositoryImpl,
+    pub cert_repository: GoogleAuthCertRepositoryImpl,
     pub admin_user_id: String,
     pub secret_key: String,
     pub static_path: PathBuf,
@@ -34,11 +36,13 @@ impl Service {
         let search_repository = SearchRepositoryImpl::new(&es_url)?;
         let posts_repository = PostsRepositoryImpl::new(&pg_url)?;
         let config_repository = ConfigRepositoryImpl::new(config_toml, &version)?;
+        let cert_repository = GoogleAuthCertRepositoryImpl::default();
 
         Ok(Service {
             search_repository,
             posts_repository,
             config_repository,
+            cert_repository,
             admin_user_id,
             secret_key,
             static_path,
