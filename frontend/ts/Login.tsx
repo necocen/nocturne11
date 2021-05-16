@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import GoogleLogin, { GoogleLoginResponseOffline } from "react-google-login";
+import { GoogleLogin, useGoogleLogout, GoogleLoginResponseOffline } from "react-google-login";
 
 export function LoginButton() {
     const formRef = useRef<HTMLFormElement>(null);
@@ -24,6 +24,21 @@ export function LoginButton() {
             </form>
         </>
     );
+}
+
+export function LogoutButton() {
+    const { signOut } = useGoogleLogout({
+        clientId: import.meta.env.SNOWPACK_PUBLIC_GOOGLE_CLIENT_ID,
+        onLogoutSuccess: () => {
+            window.location.href = "/logout";
+        },
+        onFailure: () => {
+            console.warn("Failed to log out from Google");
+            window.location.href = "/logout";
+        },
+    });
+
+    return <button onClick={signOut}>logout</button>;
 }
 
 function isGoogleLoginResponseOffline(arg: any): arg is GoogleLoginResponseOffline {

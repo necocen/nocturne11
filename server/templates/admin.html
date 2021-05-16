@@ -8,7 +8,7 @@
 {%- block top_nav -%}
     <li><a href="/" title="トップページ" accesskey="1">diary</a></li>
     <li><a href="/admin/new" title="新規作成" accesskey="6">new</a></li>
-    <li><a href="/logout" title="ログアウト" accesskey="9">logout</a></li>
+    <li class="logout-button"><a href="/logout" title="ログアウト">logout</a></li>
 {%- endblock -%}
 
 {%- block content -%}
@@ -18,7 +18,7 @@
     <dl>
         <dt><a href="/admin/new" title="新規作成">new</a></dt>
         <dd>あたらしい記事を作成します</dd>
-        <dt><a href="/logout" title="ログアウト">logout</a></dt>
+        <dt class="logout-button"><a href="/logout" title="ログアウト">logout</a></dt>
         <dd>ログアウトします</dd>
     </dl>
 {%- endblock -%}

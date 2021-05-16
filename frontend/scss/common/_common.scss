@@ -87,6 +87,24 @@ main {
             &.inactive, &.inactive + dd {
                 color: colors.$text-dim;
             }
+
+            button {
+                margin: 0;
+                padding: 0;
+                color: inherit;
+                font: inherit;
+                background: inherit;
+                border: none;
+                cursor: pointer;
+
+                &:hover {
+                    color: colors.$link-hover;
+                }
+
+                &:focus:not(:focus-visible) {
+                    outline: none;
+                }
+            }
         }
     }
 }
@@ -94,5 +112,23 @@ main {
 body > footer {
     address {
         font-style: normal;
+    }
+}
+
+#global-nav button {
+    margin: 0;
+    padding: 0;
+    color: colors.$menu;
+    font: inherit;
+    background: inherit;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+        color: colors.$link-hover;
+    }
+
+    &:focus:not(:focus-visible) {
+        outline: none;
     }
 }
