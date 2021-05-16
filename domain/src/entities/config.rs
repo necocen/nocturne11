@@ -5,6 +5,7 @@ pub struct Config {
     pub site: Site,
     pub author: Author,
     pub mathjax: MathJax,
+    pub auth: AuthenticationSettings,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -33,4 +34,12 @@ pub struct Link {
     pub name: String,
     pub url: url::Url,
     pub active: bool,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct AuthenticationSettings {
+    /// Sign In With GoogleのクライアントID
+    pub google_client_id: String,
+    /// 管理者になるユーザーのGoogle User ID
+    pub admin_user_id: String,
 }
