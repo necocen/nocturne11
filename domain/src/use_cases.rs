@@ -8,8 +8,9 @@ use crate::{
         config::ConfigRepository, google_auth_cert::GoogleAuthCertRepository,
         posts::PostsRepository, search::SearchRepository,
     },
+    Error, Result,
 };
-use anyhow::{bail, Context, Result};
+use anyhow::Context;
 use chrono::{Datelike, Duration, Local, TimeZone};
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use serde::Deserialize;
@@ -223,7 +224,7 @@ pub async fn delete_post(
 }
 
 pub fn get_config(config_repository: &impl ConfigRepository) -> Result<Config> {
-    config_repository.get()
+    Ok(config_repository.get()?)
 }
 
 pub async fn check_login(
@@ -256,7 +257,7 @@ pub async fn check_login(
 
     // issuerはこちらで判定
     if !ISSUERS.contains(&data.claims.iss.as_str()) {
-        bail!("Invalid issuer '{}'", data.claims.iss);
+        return Err(Error::JwtIssuer(data.claims.iss));
     }
 
     // IDを返す

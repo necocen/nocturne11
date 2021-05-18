@@ -62,7 +62,7 @@ where
                     });
                     Box::pin(self.service.call(req))
                 }
-                Err(e) => Box::pin(ready(Err(AppError::General(e).into()))),
+                Err(e) => Box::pin(ready(Err(AppError::Domain(e).into()))),
             }
         } else {
             Box::pin(ready(Err(ErrorInternalServerError(

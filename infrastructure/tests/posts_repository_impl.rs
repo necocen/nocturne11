@@ -3,7 +3,7 @@ use assert_matches::assert_matches;
 use chrono::{Local, TimeZone, Utc};
 use domain::{
     entities::*,
-    repositories::{import_posts::*, posts::*},
+    repositories::{import_posts::*, posts::Error, posts::*},
 };
 use infrastructure::posts_repository_impl::*;
 use pretty_assertions::assert_eq;
@@ -24,25 +24,20 @@ fn import_and_find() -> Result<()> {
 
 #[test]
 fn id_not_found() -> Result<()> {
-    use diesel::result::*;
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
     let post = repo.get(1);
-    assert_eq!(post.unwrap_err().downcast::<Error>()?, Error::NotFound);
+    assert_matches!(post, Err(Error::NotFound(_)));
     Ok(())
 }
 
 #[test]
 fn import_duplicated_id() -> Result<()> {
-    use diesel::result::*;
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
     repo.import(&[Post::new(1, "1", "1111", Utc::now(), Utc::now())])?;
     let result = repo.import(&[Post::new(1, "1", "1111", Utc::now(), Utc::now())]);
-    assert_matches!(
-        result.unwrap_err().downcast()?,
-        Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)
-    );
+    assert_matches!(result, Err(_));
     Ok(())
 }
 
@@ -100,7 +95,6 @@ fn create_and_update() -> Result<()> {
 
 #[test]
 fn create_and_delete() -> Result<()> {
-    use diesel::result::*;
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
     let created_at = Local.ymd(2021, 5, 2).and_hms(2, 10, 28).with_timezone(&Utc);
@@ -109,7 +103,7 @@ fn create_and_delete() -> Result<()> {
     assert_eq!(post.id, 1);
     repo.delete(1)?;
     let result = repo.get(post.id);
-    assert_matches!(result.unwrap_err().downcast()?, Error::NotFound);
+    assert_matches!(result, Err(Error::NotFound(_)));
     Ok(())
 }
 

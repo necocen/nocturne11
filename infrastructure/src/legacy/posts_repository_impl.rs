@@ -1,8 +1,11 @@
 use crate::legacy::models::Article as OldArticle;
-use anyhow::{Context, Result};
+use anyhow::Context;
 use chrono::{TimeZone, Utc};
 use diesel::prelude::*;
-use domain::{entities::Post, repositories::export_posts::ExportPostsRepository};
+use domain::{
+    entities::Post,
+    repositories::export_posts::{ExportPostsRepository, Result},
+};
 
 pub struct OldPostsRepositoryImpl {
     connection: MysqlConnection,
@@ -10,7 +13,8 @@ pub struct OldPostsRepositoryImpl {
 
 impl OldPostsRepositoryImpl {
     pub fn new(database_url: &url::Url) -> Result<OldPostsRepositoryImpl> {
-        let connection = MysqlConnection::establish(database_url.as_str())?;
+        let connection = MysqlConnection::establish(database_url.as_str())
+            .with_context(|| format!("Failed to connect export DB: {}", database_url))?;
         Ok(OldPostsRepositoryImpl { connection })
     }
 }
@@ -22,7 +26,8 @@ impl ExportPostsRepository for OldPostsRepositoryImpl {
             .order_by(created_at.desc())
             .offset(offset as i64)
             .limit(limit as i64)
-            .get_results::<OldArticle>(&self.connection)?
+            .get_results::<OldArticle>(&self.connection)
+            .context("Failed to get old articles")?
             .into_iter()
             .map(|article| {
                 Ok(Post::new(

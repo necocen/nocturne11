@@ -1,6 +1,16 @@
 use crate::entities::{date::YearMonth, NewPost, Post, PostId};
-use anyhow::Result;
 use chrono::{DateTime, TimeZone};
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("Post for given id '{0}' was not found")]
+    NotFound(PostId),
+    #[error(transparent)]
+    Other(#[from] anyhow::Error),
+}
+
+pub type Result<T> = std::result::Result<T, Error>;
 
 pub trait PostsRepository {
     fn get(&self, id: PostId) -> Result<Post>;

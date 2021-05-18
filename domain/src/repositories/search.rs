@@ -1,5 +1,11 @@
 use crate::entities::{Post, PostId, SearchResult};
-use anyhow::Result;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+#[error(transparent)]
+pub struct Error(#[from] anyhow::Error);
+
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[async_trait::async_trait]
 pub trait SearchRepository {

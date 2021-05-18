@@ -1,7 +1,7 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context};
 use chrono::prelude::*;
 use domain::entities::{Post, PostId, SearchResult};
-use domain::repositories::search::SearchRepository;
+use domain::repositories::search::{Result, SearchRepository};
 use elasticsearch::{
     http::transport::{SingleNodeConnectionPool, TransportBuilder},
     http::StatusCode,
@@ -28,7 +28,10 @@ impl SearchRepositoryImpl {
 
     pub fn new(es_url: &url::Url) -> Result<SearchRepositoryImpl> {
         let conn_pool = SingleNodeConnectionPool::new(es_url.clone());
-        let transport = TransportBuilder::new(conn_pool).disable_proxy().build()?;
+        let transport = TransportBuilder::new(conn_pool)
+            .disable_proxy()
+            .build()
+            .with_context(|| format!("Failed to build transport: {}", es_url))?;
         let client = Elasticsearch::new(transport);
         Ok(SearchRepositoryImpl {
             client,
@@ -46,7 +49,10 @@ impl SearchRepositoryImpl {
         aws_secret_access_key: Option<String>,
     ) -> Result<SearchRepositoryImpl> {
         let conn_pool = SingleNodeConnectionPool::new(es_url.clone());
-        let transport = TransportBuilder::new(conn_pool).disable_proxy().build()?;
+        let transport = TransportBuilder::new(conn_pool)
+            .disable_proxy()
+            .build()
+            .with_context(|| format!("Failed to build transport: {}", es_url))?;
         let client = Elasticsearch::new(transport);
         Ok(SearchRepositoryImpl {
             client,
@@ -67,7 +73,8 @@ impl SearchRepositoryImpl {
             .snapshot()
             .get_repository(SnapshotGetRepositoryParts::Repository(&[repository_name]))
             .send()
-            .await?;
+            .await
+            .context("Failed to get repository")?;
         if response.status_code() == StatusCode::OK {
             info!("Repository '{}' was already registered.", repository_name);
         } else {
@@ -84,7 +91,7 @@ impl SearchRepositoryImpl {
                     },
                 }))
                 .send()
-                .await?;
+                .await.context("Failed to create repository")?;
         }
         Ok(())
     }
@@ -95,7 +102,8 @@ impl SearchRepositoryImpl {
             .indices()
             .get(IndicesGetParts::Index(&[Self::INDEX_NAME]))
             .send()
-            .await?;
+            .await
+            .context("Failed to check index")?;
         if response.status_code() == StatusCode::OK {
             debug!("Index exists");
             return Ok(false);
@@ -191,7 +199,8 @@ impl SearchRepositoryImpl {
                     }
                 }))
                 .send()
-                .await?;
+                .await
+                .context("Failed to create index")?;
         }
         Ok(true)
     }
@@ -257,14 +266,20 @@ impl SearchRepository for SearchRepositoryImpl {
             .body(body)
             .allow_no_indices(true)
             .send()
-            .await?;
+            .await
+            .context("Search failed")?;
 
-        let body = response.json::<Value>().await?;
+        let body = response
+            .json::<Value>()
+            .await
+            .context("Failed to parse search result")?;
         let posts = body["hits"]["hits"]
             .as_array()
             .context("`hits` was not an array")?
             .iter()
-            .map(|v| -> Result<Post> { Ok(serde_json::from_value(v["_source"].clone())?) })
+            .map(|v| -> Result<Post> {
+                Ok(serde_json::from_value(v["_source"].clone()).context("Failed to parse Post")?)
+            })
             .collect::<Result<Vec<_>>>()?;
         let total_count = body["hits"]["total"]["value"]
             .as_u64()
@@ -295,7 +310,8 @@ impl SearchRepository for SearchRepositoryImpl {
             .create(CreateParts::IndexId(Self::INDEX_NAME, &post.id.to_string()))
             .body(post)
             .send()
-            .await?;
+            .await
+            .context("Failed to insert")?;
         Ok(())
     }
 
@@ -309,7 +325,8 @@ impl SearchRepository for SearchRepositoryImpl {
             .bulk(BulkParts::Index(Self::INDEX_NAME))
             .body(posts)
             .send()
-            .await?;
+            .await
+            .context("Failed to bulk insert")?;
         Ok(())
     }
 
@@ -320,7 +337,8 @@ impl SearchRepository for SearchRepositoryImpl {
                 "doc": post,
             }))
             .send()
-            .await?;
+            .await
+            .context("Failed to update")?;
         Ok(())
     }
 
@@ -328,7 +346,8 @@ impl SearchRepository for SearchRepositoryImpl {
         self.client
             .delete(DeleteParts::IndexId(Self::INDEX_NAME, &id.to_string()))
             .send()
-            .await?;
+            .await
+            .context("Failed to delete")?;
         Ok(())
     }
 
@@ -350,11 +369,19 @@ impl SearchRepository for SearchRepositoryImpl {
             ))
             .body(json!({ "indices": Self::INDEX_NAME }))
             .send()
-            .await?;
+            .await
+            .context("Failed to save snapshot")?;
 
         match response.status_code() {
             StatusCode::OK => Ok(()),
-            _ => Err(anyhow!("{}", response.text().await?)),
+            _ => Err(anyhow!(
+                "{}",
+                response
+                    .text()
+                    .await
+                    .unwrap_or_else(|_| "Unknown Error".to_owned())
+            )
+            .into()),
         }
     }
 
@@ -363,7 +390,8 @@ impl SearchRepository for SearchRepositoryImpl {
             .indices()
             .delete(IndicesDeleteParts::Index(&[Self::INDEX_NAME]))
             .send()
-            .await?;
+            .await
+            .context("Failed to reset")?;
         Ok(())
     }
 
@@ -384,9 +412,11 @@ impl SearchRepository for SearchRepositoryImpl {
                 &["*"],
             ))
             .send()
-            .await?
+            .await
+            .context("Failed to get snapshots")?
             .json::<Value>()
-            .await?["snapshots"]
+            .await
+            .context("Failed to parse snapshots data")?["snapshots"]
             .as_array()
             .context("No snapshots were found")?
             .clone();
@@ -416,11 +446,19 @@ impl SearchRepository for SearchRepositoryImpl {
                 snapshot_name,
             ))
             .send()
-            .await?;
+            .await
+            .context("Failed to restore snapshot")?;
 
         match response.status_code() {
             StatusCode::OK => Ok(()),
-            _ => Err(anyhow!("{}", response.text().await?)),
+            _ => Err(anyhow!(
+                "{}",
+                response
+                    .text()
+                    .await
+                    .unwrap_or_else(|_| "Unknown Error".to_owned())
+            )
+            .into()),
         }
     }
 }

@@ -869,6 +869,7 @@ dependencies = [
  "jsonwebtoken",
  "pretty_assertions",
  "serde",
+ "thiserror",
  "url 2.2.1",
 ]
 

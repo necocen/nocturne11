@@ -1,9 +1,8 @@
-use anyhow::{Context, Result};
 use chrono::{Local, TimeZone, Utc};
-use domain::repositories::posts::PostsRepository;
+use domain::repositories::posts::{Error, PostsRepository, Result as PostsResult};
 use domain::{
     entities::{date::*, *},
-    repositories::import_posts::ImportPostsRepository,
+    repositories::import_posts::{ImportPostsRepository, Result as ImportResult},
 };
 use std::cell::{Cell, RefCell};
 
@@ -38,13 +37,13 @@ impl PostsRepositoryMock {
 }
 
 impl PostsRepository for PostsRepositoryMock {
-    fn get(&self, id: PostId) -> Result<Post> {
+    fn get(&self, id: PostId) -> PostsResult<Post> {
         Ok(self
             .posts
             .borrow()
             .iter()
             .find(|p| p.id == id)
-            .context("Not Found")?
+            .ok_or(Error::NotFound(id))?
             .clone())
     }
 
@@ -53,7 +52,7 @@ impl PostsRepository for PostsRepositoryMock {
         from: chrono::DateTime<Tz>,
         offset: usize,
         limit: usize,
-    ) -> Result<Vec<Post>> {
+    ) -> PostsResult<Vec<Post>> {
         let mut posts = self
             .posts
             .borrow()
@@ -70,7 +69,7 @@ impl PostsRepository for PostsRepositoryMock {
         until: chrono::DateTime<Tz>,
         offset: usize,
         limit: usize,
-    ) -> Result<Vec<Post>> {
+    ) -> PostsResult<Vec<Post>> {
         let mut posts = self
             .posts
             .borrow()
@@ -82,21 +81,21 @@ impl PostsRepository for PostsRepositoryMock {
         Ok(posts.into_iter().rev().skip(offset).take(limit).collect())
     }
 
-    fn get_all(&self, offset: usize, limit: usize) -> Result<Vec<Post>> {
+    fn get_all(&self, offset: usize, limit: usize) -> PostsResult<Vec<Post>> {
         let mut posts = self.posts.borrow().clone().into_iter().collect::<Vec<_>>();
         posts.sort_by_key(|p| p.created_at);
         Ok(posts.into_iter().rev().skip(offset).take(limit).collect())
     }
 
-    fn get_year_months(&self) -> Result<Vec<YearMonth>> {
+    fn get_year_months(&self) -> PostsResult<Vec<YearMonth>> {
         Ok((1..=6).map(|m| YearMonth(2020, m * 2)).collect())
     }
 
-    fn get_days(&self, ym: YearMonth) -> Result<Vec<u8>> {
+    fn get_days(&self, ym: YearMonth) -> PostsResult<Vec<u8>> {
         Ok((1..=14).map(|d| d * 2 - ym.1 % 2).collect())
     }
 
-    fn create(&self, new_post: &NewPost) -> Result<Post> {
+    fn create(&self, new_post: &NewPost) -> PostsResult<Post> {
         let NewPost {
             title,
             body,
@@ -109,7 +108,7 @@ impl PostsRepository for PostsRepositoryMock {
         Ok(post)
     }
 
-    fn update(&self, id: PostId, new_post: &NewPost) -> Result<Post> {
+    fn update(&self, id: PostId, new_post: &NewPost) -> PostsResult<Post> {
         let NewPost {
             title,
             body,
@@ -120,27 +119,27 @@ impl PostsRepository for PostsRepositoryMock {
         let post = posts
             .iter_mut()
             .find(|post| post.id == id)
-            .context("Post with specified ID does not exist.")?;
+            .ok_or(Error::NotFound(id))?;
         post.title = title;
         post.body = body;
         post.updated_at = updated_at;
         Ok(post.clone())
     }
 
-    fn delete(&self, id: PostId) -> Result<()> {
+    fn delete(&self, id: PostId) -> PostsResult<()> {
         self.posts.borrow_mut().retain(|post| post.id != id);
         Ok(())
     }
 }
 
 impl ImportPostsRepository for PostsRepositoryMock {
-    fn import(&self, posts: &[Post]) -> Result<Vec<Post>> {
+    fn import(&self, posts: &[Post]) -> ImportResult<Vec<Post>> {
         let mut posts = posts.to_vec();
         self.posts.borrow_mut().append(&mut posts);
         Ok(posts)
     }
 
-    fn reset_id_sequence(&self) -> Result<()> {
+    fn reset_id_sequence(&self) -> ImportResult<()> {
         let max_id = self
             .posts
             .borrow()
