@@ -36,7 +36,12 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
             .service(scope("/api").wrap(cors).configure(api))
             .service(
                 scope("")
-                    .wrap(ErrorHandlers::new().handler(StatusCode::UNAUTHORIZED, errors::error_401))
+                    .wrap(
+                        ErrorHandlers::new()
+                            .handler(StatusCode::UNAUTHORIZED, errors::error_401)
+                            .handler(StatusCode::NOT_FOUND, errors::error_404)
+                            .handler(StatusCode::INTERNAL_SERVER_ERROR, errors::error_500),
+                    )
                     .wrap(AppContextService)
                     .wrap(session)
                     .wrap(identity)

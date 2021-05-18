@@ -1,0 +1,13 @@
+{% extends "error.html" %}
+
+{%- block content -%}
+    <header>
+        <h3>500 Internal Server Error</h3>
+    </header>
+    <p>
+        システムの内部的なエラーです。
+    </p>
+    <p>
+        {{ error }}
+    </p>
+{%- endblock -%}
