@@ -2,7 +2,6 @@ use super::args::{CreateFormParams, DeleteFormParams, IdArguments, UpdateFormPar
 use crate::{askama_helpers::TemplateToResponse, context::AppContext};
 use crate::{Error, Service};
 use actix_web::{http::header, web, HttpResponse};
-use anyhow::anyhow;
 use chrono::Utc;
 use domain::{
     entities::NewPost,
@@ -24,9 +23,7 @@ pub async fn edit_post_form(
     args: web::Query<IdArguments>,
 ) -> Result<HttpResponse, Error> {
     let page = get_post_with_id(&service.posts_repository, &args.id)?;
-    let post = page
-        .post()
-        .ok_or_else(|| Error::General(anyhow!("Post not found")))?;
+    let post = page.post().unwrap();
     EditPostTemplate { context, post }.to_response()
 }
 
