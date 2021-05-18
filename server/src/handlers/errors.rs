@@ -1,6 +1,6 @@
 use self::templates::{InternalErrorTemplate, NotFoundTemplate, UnauthorizedTemplate};
 use crate::{askama_helpers::TemplateToResponse, context::AppContext};
-use actix_web::{dev::ServiceResponse, middleware::ErrorHandlerResponse, Result};
+use actix_web::{Result, dev::ServiceResponse, http::StatusCode, middleware::ErrorHandlerResponse};
 use futures::{future::FutureExt, TryStreamExt};
 
 pub fn error_401(res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web::dev::Body>> {
@@ -38,7 +38,9 @@ pub fn error_500(mut res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_
             res.take_body().try_collect::<Vec<_>>().map(move |result| {
                 let req = res.request().clone();
                 let error = std::str::from_utf8(&result?.concat())?.to_owned();
-                let res = InternalErrorTemplate { context, error }.to_response()?;
+                let mut res = InternalErrorTemplate { context, error }.to_response()?;
+                let status = res.status_mut();
+                *status = StatusCode::INTERNAL_SERVER_ERROR;
                 Ok(ServiceResponse::new(req, res))
             }),
         )))
