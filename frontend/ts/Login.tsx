@@ -1,5 +1,7 @@
 import React, { useRef } from "react";
-import { GoogleLogin, useGoogleLogout, GoogleLoginResponseOffline } from "react-google-login";
+import { GoogleLogin, GoogleLoginResponseOffline } from "react-google-login";
+import * as GL from "react-google-login";
+const { useGoogleLogout } = GL;
 
 export function LoginButton() {
     const formRef = useRef<HTMLFormElement>(null);
