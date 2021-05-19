@@ -25,7 +25,7 @@ pub fn error_401(res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web:
     }
 }
 
-pub fn error_404(res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web::dev::Body>> {
+pub fn error_404(mut res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web::dev::Body>> {
     // AppContextが取得できればそれを使ってテンプレートを描画する
     // 取得できない場合は何もしない
     if let Some(context) = res
@@ -35,8 +35,19 @@ pub fn error_404(res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web:
         .get::<AppContext>()
         .cloned()
     {
-        let body = NotFoundTemplate { context }.to_response()?.take_body();
-        Ok(ErrorHandlerResponse::Response(res.map_body(|_, _| body)))
+        Ok(ErrorHandlerResponse::Future(Box::pin(
+            res.take_body().try_collect::<Vec<_>>().map(move |result| {
+                let req = res.request().clone();
+                let status = res.status();
+                let mut body = std::str::from_utf8(&result?.concat())?.to_owned();
+                if body.is_empty() {
+                    body = "指定されたファイルが見つかりませんでした。".to_owned();
+                }
+                let mut res = NotFoundTemplate { context, body }.to_response()?;
+                *res.status_mut() = status;
+                Ok(ServiceResponse::new(req, res))
+            }),
+        )))
     } else {
         Ok(ErrorHandlerResponse::Response(res))
     }
@@ -79,9 +90,17 @@ impl ResponseError for Error {
     }
 
     fn error_response(&self) -> HttpResponse {
-        HttpResponseBuilder::new(self.status_code())
+        use domain::repositories::posts::Error::NotFound;
+        use domain::Error::Posts;
+        if let Self::Domain(Posts(NotFound(id))) = self {
+            HttpResponseBuilder::new(self.status_code())
             .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
-            .body(self.to_string())
+            .body(format!("指定されたID({})の記事が見つかりませんでした。", id))
+        } else {
+            HttpResponseBuilder::new(self.status_code())
+            .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
+            .body(&self.to_string())
+        }
     }
 }
 
@@ -99,6 +118,7 @@ mod templates {
     #[template(path = "errors/not_found.html")]
     pub struct NotFoundTemplate {
         pub context: AppContext,
+        pub body: String,
     }
 
     #[derive(Template)]
