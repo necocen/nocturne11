@@ -94,12 +94,21 @@ impl ResponseError for Error {
         use domain::Error::Posts;
         if let Self::Domain(Posts(NotFound(id))) = self {
             HttpResponseBuilder::new(self.status_code())
-            .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
-            .body(format!("指定されたID({})の記事が見つかりませんでした。", id))
+                .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
+                .body(format!(
+                    "指定されたID({})の記事が見つかりませんでした。",
+                    id
+                ))
         } else {
+            use std::error::Error;
+            let msg = if let Some(source) = self.source() {
+                format!("{} (from {})", self, source)
+            } else {
+                self.to_string()
+            };
             HttpResponseBuilder::new(self.status_code())
-            .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
-            .body(&self.to_string())
+                .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
+                .body(msg)
         }
     }
 }
