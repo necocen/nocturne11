@@ -33,6 +33,7 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
 
         cfg.data(service)
             .service(Files::new("/static", static_path))
+            .service(Files::new("/mathjax-extra", "./mathjax-extra"))
             .service(scope("/api").wrap(cors).configure(api))
             .service(
                 scope("")

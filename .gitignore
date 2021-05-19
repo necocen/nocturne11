@@ -48,3 +48,5 @@ docker-compose.yml
 .vscode
 elasticsearch
 .env
+mathjax-extra
+mathjax-extra.tar.gz
