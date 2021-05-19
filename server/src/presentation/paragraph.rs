@@ -5,7 +5,23 @@ pub struct Paragraph<'a>(Vec<Line<'a>>);
 
 impl Paragraph<'_> {
     pub fn new(paragraph: &str) -> Paragraph {
-        Paragraph(paragraph.split('\n').map(Line::new).collect())
+        // MathJaxのディスプレイ数式を検出し、その中では数式モード行にする
+        let mut math_mode = false;
+        let lines = paragraph.split('\n').fold(vec![], |mut acc, line| {
+            if math_mode {
+                acc.push(Line::new_math(line));
+                if line.trim_end().ends_with(r"\]") {
+                    math_mode = false;
+                }
+            } else if line.trim_start().starts_with(r"\[") {
+                math_mode = true;
+                acc.push(Line::new_math(line));
+            } else {
+                acc.push(Line::new(line));
+            }
+            acc
+        });
+        Paragraph(lines)
     }
 
     pub fn to_html(&self) -> String {
@@ -37,6 +53,22 @@ mod tests {
         assert_eq!(
             Paragraph::new(body).0,
             vec![Line::new("Line1"), Line::new("Line2"), Line::new("Line3"),]
+        );
+    }
+
+    #[test]
+    fn has_math_mode() {
+        let body = "Line1\n\\[\nMathLineA\nMathLineB\n\\]\nLine2";
+        assert_eq!(
+            Paragraph::new(body).0,
+            vec![
+                Line::new("Line1"),
+                Line::new_math(r"\["),
+                Line::new_math("MathLineA"),
+                Line::new_math("MathLineB"),
+                Line::new_math(r"\]"),
+                Line::new("Line2")
+            ]
         );
     }
 }
