@@ -18,8 +18,12 @@ article {
 
     > aside {
         position: absolute;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
         // articleの高さ - h3の高さ - h3ボーダー - timestamp高さ
         bottom: calc(100% - #{$post-head-line-height} - 1px - 1em);
+        width: 100%;
         text-align: start;
         font-size: max(0.8rem, 10px);
         line-height: 1;
