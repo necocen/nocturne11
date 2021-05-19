@@ -12,5 +12,6 @@
             {% endif %}
         </div>
         <a class="permalink" href="{{ permalink }}">{{ permalink }}</a>
+        {% if context.is_authorized -%}<a class="edit-post" href="/admin/edit?id={{ post.id }}">edit</a>{%- endif %}
     </aside>
 </article>
