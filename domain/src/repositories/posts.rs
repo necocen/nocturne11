@@ -1,5 +1,5 @@
 use crate::entities::{date::YearMonth, NewPost, Post, PostId};
-use chrono::{DateTime, TimeZone};
+use chrono::{DateTime, TimeZone, Utc};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -33,6 +33,9 @@ pub trait PostsRepository {
 
     /// すべてのPostを`created_at`降順で最大`limit`件返します
     fn get_all(&self, offset: usize, limit: usize) -> Result<Vec<Post>>;
+
+    /// 最後に記事が更新された日時を返します
+    fn get_last_updated(&self) -> Result<Option<DateTime<Utc>>>;
 
     fn get_year_months(&self) -> Result<Vec<YearMonth>>;
 

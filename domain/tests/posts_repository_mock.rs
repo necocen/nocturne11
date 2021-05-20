@@ -1,4 +1,4 @@
-use chrono::{Local, TimeZone, Utc};
+use chrono::{DateTime, Local, TimeZone, Utc};
 use domain::repositories::posts::{Error, PostsRepository, Result as PostsResult};
 use domain::{
     entities::{date::*, *},
@@ -93,6 +93,11 @@ impl PostsRepository for PostsRepositoryMock {
 
     fn get_days(&self, ym: YearMonth) -> PostsResult<Vec<u8>> {
         Ok((1..=14).map(|d| d * 2 - ym.1 % 2).collect())
+    }
+
+    fn get_last_updated(&self) -> PostsResult<Option<DateTime<Utc>>> {
+        let date = Local.ymd(2020i32, 12, 28);
+        Ok(Some(date.and_hms(12, 0, 0).with_timezone(&Utc)))
     }
 
     fn create(&self, new_post: &NewPost) -> PostsResult<Post> {

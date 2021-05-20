@@ -11,7 +11,7 @@ use crate::{
     Error, Result,
 };
 use anyhow::Context;
-use chrono::{Datelike, Duration, Local, TimeZone};
+use chrono::{DateTime, Datelike, Duration, Local, TimeZone, Utc};
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use serde::Deserialize;
 
@@ -160,6 +160,10 @@ pub fn get_posts_with_date_condition<'a>(
             next_page: next_condition.map_or(AdjacentPage::None, AdjacentPage::Condition),
         })
     }
+}
+
+pub fn get_last_updated_date(repository: &impl PostsRepository) -> Result<Option<DateTime<Utc>>> {
+    Ok(repository.get_last_updated()?)
 }
 
 pub fn get_years(repository: &impl PostsRepository) -> Result<Vec<Year>> {

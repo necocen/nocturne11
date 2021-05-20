@@ -1,7 +1,7 @@
 use crate::diesel_helpers::{extract, DatePart, TimezoneCustomizer};
 use crate::models::Post as PostModel;
 use anyhow::{Context, Result as AnyhowResult};
-use chrono::offset::Local;
+use chrono::{offset::Local, Utc};
 use chrono::{DateTime, TimeZone};
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
@@ -101,6 +101,16 @@ impl PostsRepository for PostsRepositoryImpl {
             .get_results::<PostModel>(&self.get_conn()?)
             .context("Failed to get results")?;
         Ok(results.into_vec())
+    }
+
+    fn get_last_updated(&self) -> PostsResult<Option<DateTime<Utc>>> {
+        use crate::schema::posts::dsl::{posts, updated_at};
+        let post = posts
+            .order_by(updated_at.desc())
+            .first::<PostModel>(&self.get_conn()?)
+            .optional()
+            .context("Failed to get result")?;
+        Ok(post.map(|p| p.updated_at))
     }
 
     fn get_year_months(&self) -> PostsResult<Vec<YearMonth>> {

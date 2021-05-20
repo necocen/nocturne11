@@ -1,6 +1,6 @@
 use crate::{
     context::{AppContextService, RequestHeadContext},
-    handlers::{about, admin, api, auth, errors, posts},
+    handlers::{about, admin, api, atom, auth, errors, posts},
     Service,
 };
 use actix_cors::Cors;
@@ -47,6 +47,7 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
                     .wrap(session)
                     .wrap(identity)
                     .configure(posts)
+                    .configure(atom)
                     .configure(auth)
                     .configure(about)
                     .service(
@@ -72,6 +73,10 @@ fn posts(cfg: &mut ServiceConfig) {
             resource(r"/{year:\d{4}}-{month:\d{2}}-{day:\d{2}}")
                 .route(get().to(posts::posts_with_date)),
         );
+}
+
+fn atom(cfg: &mut ServiceConfig) {
+    cfg.service(resource("/atom").route(get().to(atom::all_posts)));
 }
 
 fn api(cfg: &mut ServiceConfig) {
