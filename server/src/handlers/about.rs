@@ -24,7 +24,7 @@ mod templates {
 
     impl AppContextExt for AppContext {
         fn converted_about(&self) -> String {
-            Body::new(&self.config.site.about).to_html()
+            Body::new(&self.config.site.about).to_html(true)
         }
     }
 }

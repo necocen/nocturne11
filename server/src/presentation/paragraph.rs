@@ -24,12 +24,12 @@ impl Paragraph<'_> {
         Paragraph(lines)
     }
 
-    pub fn to_html(&self) -> String {
+    pub fn to_html(&self, yakumono: bool) -> String {
         "<p>".to_owned()
             + &self
                 .0
                 .iter()
-                .map(Line::to_html)
+                .map(|line| line.to_html(yakumono))
                 .collect::<Vec<_>>()
                 .join("<br />")
             + "</p>"

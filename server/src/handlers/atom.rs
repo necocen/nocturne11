@@ -42,7 +42,7 @@ mod templates {
 
     impl PostExt for Post {
         fn converted_body(&self) -> String {
-            Body::new(&self.body).to_html()
+            Body::new(&self.body).to_html(false)
         }
     }
 

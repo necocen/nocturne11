@@ -20,11 +20,8 @@ pub enum LineFragment<'a> {
 }
 
 impl LineFragment<'_> {
-    pub fn to_html(&self) -> String {
+    pub fn to_html(&self, yakumono: bool) -> String {
         match self {
-            LineFragment::Text(text) => {
-                format!(r"<span>{}</span>", escape(text, Html))
-            }
             LineFragment::Link(link) => {
                 format!(
                     r#"<a href="{}" rel="external">{}</a>"#,
@@ -32,20 +29,47 @@ impl LineFragment<'_> {
                     escape(link, Html)
                 )
             }
+            LineFragment::Text(text) => {
+                if yakumono {
+                    format!(r"<span>{}</span>", escape(text, Html))
+                } else {
+                    escape(text, Html).to_string()
+                }
+            }
             LineFragment::OpenBracket(c) => {
-                format!(r#"<span class="yakumono-open-bracket">{}</span>"#, c)
+                if yakumono {
+                    format!(r#"<span class="yakumono-open-bracket">{}</span>"#, c)
+                } else {
+                    c.to_string()
+                }
             }
             LineFragment::CloseBracket(c) => {
-                format!(r#"<span class="yakumono-close-bracket">{}</span>"#, c)
+                if yakumono {
+                    format!(r#"<span class="yakumono-close-bracket">{}</span>"#, c)
+                } else {
+                    c.to_string()
+                }
             }
             LineFragment::Punctuation(c) => {
-                format!(r#"<span class="yakumono-punctuation">{}</span>"#, c)
+                if yakumono {
+                    format!(r#"<span class="yakumono-punctuation">{}</span>"#, c)
+                } else {
+                    c.to_string()
+                }
             }
             LineFragment::Interpunct(c) => {
-                format!(r#"<span class="yakumono-interpunct">{}</span>"#, c)
+                if yakumono {
+                    format!(r#"<span class="yakumono-interpunct">{}</span>"#, c)
+                } else {
+                    c.to_string()
+                }
             }
             LineFragment::Other(c) => {
-                format!(r#"<span class="yakumono-other">{}</span>"#, c)
+                if yakumono {
+                    format!(r#"<span class="yakumono-other">{}</span>"#, c)
+                } else {
+                    c.to_string()
+                }
             }
         }
     }

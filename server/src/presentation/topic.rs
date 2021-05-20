@@ -8,10 +8,10 @@ impl Topic<'_> {
         Topic(topic.split("\n\n").map(Paragraph::new).collect())
     }
 
-    pub fn to_html(&self) -> String {
+    pub fn to_html(&self, yakumono: bool) -> String {
         self.0
             .iter()
-            .map(Paragraph::to_html)
+            .map(|p| p.to_html(yakumono))
             .collect::<Vec<_>>()
             .join("\n")
     }

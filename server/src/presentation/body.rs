@@ -10,10 +10,10 @@ impl Body<'_> {
         Body(separator.split(body.trim()).map(Topic::new).collect())
     }
 
-    pub fn to_html(&self) -> String {
+    pub fn to_html(&self, yakumono: bool) -> String {
         self.0
             .iter()
-            .map(Topic::to_html)
+            .map(|topic| topic.to_html(yakumono))
             .collect::<Vec<_>>()
             .join("\n<hr />\n")
     }
@@ -90,7 +90,7 @@ mod integration_tests {
     #[test]
     fn decode_and_print_html() {
         let body = include_str!("./fixtures/input.txt");
-        let html = Body::new(body).to_html();
+        let html = Body::new(body).to_html(true);
         let expected = include_str!("./fixtures/expected.txt");
         assert_eq!(html, expected);
     }

@@ -35,11 +35,11 @@ impl Line<'_> {
         Line::Math(math)
     }
 
-    pub fn to_html(&self) -> String {
+    pub fn to_html(&self, yakumono: bool) -> String {
         match self {
             Line::Normal(fragments) => fragments
                 .iter()
-                .map(LineFragment::to_html)
+                .map(|f| f.to_html(yakumono))
                 .collect::<Vec<_>>()
                 .join(""),
             Line::Math(math) => math.to_string(),
