@@ -30,10 +30,11 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
             .secure(false); // for development
         let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
         let static_path = service.static_path.clone();
+        let mathjax_path = service.mathjax_path.clone();
 
         cfg.data(service)
             .service(Files::new("/static", static_path))
-            .service(Files::new("/mathjax-extra", "./mathjax-extra"))
+            .service(Files::new("/mathjax-extra", mathjax_path))
             .service(scope("/api").wrap(cors).configure(api))
             .service(
                 scope("")
