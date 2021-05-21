@@ -1,0 +1,4 @@
+target
+mathjax-extra
+node_modules
+docker-compose.yml
