@@ -120,6 +120,10 @@ main {
 body > footer {
     address {
         font-style: normal;
+
+        picture, img {
+            vertical-align: bottom;
+        }
     }
 }
 

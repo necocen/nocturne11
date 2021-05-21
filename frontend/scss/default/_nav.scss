@@ -34,11 +34,9 @@
 }
 
 #pager-nav {
-    grid-column: 1/-1;
-    grid-row: 3;
     display: flex;
     align-items: center;
-    position: sticky;
+    position: fixed;
     bottom: 0;
     z-index: 20;
     margin: 0;
@@ -50,9 +48,12 @@
         position: absolute;
         display: flex;
         right: 0;
+        bottom: 0;
+        height: $footer-height;
         margin: 0;
         padding: 0;
         list-style: none;
+        align-items: center;
         justify-content: flex-end;
 
         li:not(:first-child)::before {
