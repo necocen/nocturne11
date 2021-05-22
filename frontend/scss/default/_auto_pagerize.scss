@@ -1,0 +1,11 @@
+@use "../common/_colors.scss" as colors;
+
+hr.autopagerize_page_separator {
+    display: none;
+}
+
+p.autopagerize_page_info {
+    margin: 2em auto;
+    color: colors.$menu;
+    text-align: center;
+}

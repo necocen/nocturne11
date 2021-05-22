@@ -14,9 +14,9 @@
 {%- block prev_page -%}
     {%- match page.prev_page -%}
         {%- when AdjacentPage::Condition with (prev_condition) -%}
-            <a href="/{{ prev_condition.to_string() }}">prev</a>
+            <a href="/{{ prev_condition.to_string() }}" rel="prev">prev</a>
         {%- when AdjacentPage::Page with (number) -%}
-            <a href="/{{ page.condition.to_string() }}?page={{ number }}">prev</a>
+            <a href="/{{ page.condition.to_string() }}?page={{ number }}" rel="prev">prev</a>
         {%- when AdjacentPage::None -%}
     {%- endmatch -%}
 {%- endblock -%}
@@ -24,9 +24,9 @@
 {%- block next_page -%}
     {%- match page.next_page -%}
         {%- when AdjacentPage::Condition with (next_condition) -%}
-            <a href="/{{ next_condition.to_string() }}">next</a>
+            <a href="/{{ next_condition.to_string() }}" rel="next">next</a>
         {%- when AdjacentPage::Page with (number) -%}
-            <a href="/{{ page.condition.to_string() }}?page={{ number }}">next</a>
+            <a href="/{{ page.condition.to_string() }}?page={{ number }}" rel="next">next</a>
         {%- when AdjacentPage::None -%}
     {%- endmatch -%}
 {%- endblock -%}

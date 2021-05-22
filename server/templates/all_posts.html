@@ -3,9 +3,9 @@
 {%- block prev_page -%}
     {%- match page.prev_page -%}
         {%- when AdjacentPage::Condition with (_) -%}
-            <a href="/">newer</a>
+            <a href="/" rel="prev">newer</a>
         {%- when AdjacentPage::Page with (number) -%}
-            <a href="/?page={{ number }}">newer</a>
+            <a href="/?page={{ number }}" rel="prev">newer</a>
         {%- when AdjacentPage::None -%}
     {%- endmatch -%}
 {%- endblock -%}
@@ -14,9 +14,9 @@
     {%- match page.next_page -%}
         {%- when AdjacentPage::Condition with (_) -%}
             {# Unexpected path #}
-            <a href="/">older</a>
+            <a href="/" rel="next">older</a>
         {%- when AdjacentPage::Page with (number) -%}
-            <a href="/?page={{ number }}">older</a>
+            <a href="/?page={{ number }}" rel="next">older</a>
         {%- when AdjacentPage::None -%}
     {%- endmatch -%}
 {%- endblock -%}

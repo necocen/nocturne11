@@ -1,5 +1,5 @@
 {%- let permalink = self.context.config.site.url.join(post.id.to_string()).unwrap() -%}
-<article id="post-{{ post.id }}">
+<article id="post-{{ post.id }}" class="autopagerize_page_element">
     <header>
         <h3><a href="/{{ post.id }}">{{ post.title }}</a></h3>
     </header>
