@@ -126,13 +126,33 @@ url = "https://logt.necocen.info/"
 active = true
 
 [[site.links]]
+name = "twilog"
+url = "https://twilog.org/necocen"
+active = true
+
+[[site.links]]
 name = "read"
 url = "https://bookmeter.com/u/27151"
 active = true
 
 [[site.links]]
+name = "wrote"
+url = "http://sokkyo-shosetsu.com/author.php?id=14087520"
+active = false
+
+[[site.links]]
 name = "d.hatena"
 url = "https://necocen.hatenadiary.org/"
+active = false
+
+[[site.links]]
+name = "took"
+url = "http://movapic.com/necocen"
+active = false
+
+[[site.links]]
+name = "asked"
+url = "https://ask.fm/necocen"
 active = false
 
 [author]
