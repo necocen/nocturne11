@@ -17,7 +17,6 @@ pub struct Service {
     pub admin_user_id: String,
     pub secret_key: String,
     pub static_path: PathBuf,
-    pub mathjax_path: PathBuf,
 }
 
 impl Service {
@@ -26,7 +25,6 @@ impl Service {
         let pg_url = url::Url::parse(&env::var("DATABASE_URL")?)?;
         let admin_user_id = env::var("ADMIN_USER_ID")?;
         let static_path = opts.static_path.clone();
-        let mathjax_path = opts.mathjax_path.clone();
         let secret_key = env::var("SECRET_KEY")?;
         ensure!(secret_key.len() >= 32, "SECRET_KEY is not long enough.");
 
@@ -49,7 +47,6 @@ impl Service {
             admin_user_id,
             secret_key,
             static_path,
-            mathjax_path,
         })
     }
 

@@ -21,9 +21,6 @@ struct Opts {
     /// 静的ファイルの配信元ディレクトリ
     #[clap(long("static"), default_value = "./frontend/build/src")]
     static_path: PathBuf,
-    /// MathJax関連ファイルの配信元ディレクトリ
-    #[clap(long("mathjax-extra"), default_value = "./mathjax-extra")]
-    mathjax_path: PathBuf,
 }
 
 #[actix_web::main]
