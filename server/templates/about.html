@@ -13,6 +13,9 @@
     {{ context.converted_about() | safe }}
 </article>
 <h3>関連サイト</h3>
+<p>
+    {{ context.config.author.name }}によるその他の活動です：
+</p>
 <dl>
     {% for link in context.config.site.links -%}
         <dt {% if !link.active -%}class="inactive"{%- endif -%}>{{ link.name }}{% if !link.active %} (inactive){%- endif -%}</dt>
