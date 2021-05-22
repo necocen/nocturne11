@@ -16,9 +16,8 @@
         text-indent: 1em;
         text-align: justify;
         line-height: 1.7;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.01em;
         font-weight: 300;
-        font-feature-settings: "palt" 1;
     }
 
     span.yakumono-punctuation::after,
@@ -33,43 +32,33 @@
     }
 
     span.yakumono-punctuation {
-        &:not(:last-child) {
-            // 段落末尾以外では後方二分アキ
-            margin-inline-end: 0.5em;
-        }
-
         + span.yakumono-open-bracket {
             // 句読点後の開き括弧はアキなし
-            margin-inline-start: 0;
+            margin-inline-start: -0.5em;
         }
 
         + span.yakumono-close-bracket {
-            // 句読点後の閉じ括弧は句読点のアキを打ち消す
+            // 句読点後の閉じ括弧は詰める
             margin-inline-start: -0.5em;
         }
     }
 
     span.yakumono-open-bracket {
-        &:not(:first-child) {
-            // 段落先頭以外では前方二分アキ
-            margin-inline-start: 0.5em;
+        &:first-child {
+            // 段落先頭の開き括弧は詰める
+            margin-inline-start: -0.5em;
         }
 
         + span.yakumono-open-bracket {
             // 開き括弧の連続はアキなし
-            margin-inline-start: 0;
+            margin-inline-start: -0.5em;
         }
     }
 
     span.yakumono-close-bracket {
-        &:not(:last-child) {
-            // 段落末尾以外では後方二分アキ
-            margin-inline-end: 0.5em;
-        }
-
         + span.yakumono-open-bracket {
             // 閉じ括弧後の開き括弧はアキなし（閉じ括弧の二分アキのみ）
-            margin-inline-start: 0;
+            margin-inline-start: -0.5em;
         }
 
         + span.yakumono-close-bracket, + span.yakumono-punctuation {
@@ -79,19 +68,9 @@
     }
 
     span.yakumono-interpunct {
-        &:not(:first-child) {
-            // 段落先頭以外では前方四分アキ
-            margin-inline-start: 0.25em;
-        }
-
-        &:not(:last-child) {
-            // 段落末尾以外では後方四分アキ
-            margin-inline-end: 0.25em;
-        }
-
         &:first-child {
             // 段落先頭に来る場合は箇条書きとみなして字下げを無視する
-            margin-inline-start: -0.75em;
+            margin-inline-start: -1em;
         }
     }
 }
