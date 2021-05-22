@@ -1,5 +1,13 @@
 <script type="text/javascript">window.MathJax = {{- context.config.mathjax.options|safe -}};</script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" defer></script>
+<script type="text/javascript">
+// settings for autopagerize/autopatchwork with MathJax
+if (window.addEventListener) {
+    var NodeInsert = function(evt) { window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, evt.target]); };
+    window.addEventListener('AutoPagerize_DOMNodeInserted', NodeInsert, false);
+    window.addEventListener('AutoPatchWork.DOMNodeInserted', NodeInsert, false);
+}
+</script>
 <script type="text/javascript" src="//s.hatena.ne.jp/js/HatenaStar.js"></script>
 <script type="text/javascript">
 Hatena.Star.Token = "{{ context.config.hatena_star_token }}";
@@ -14,7 +22,19 @@ Hatena.Star.SiteConfig = {
 };
 // settings for autopagerize/autopatchwork with hatena-star.
 if (window.addEventListener) {
-    var NodeInsert = function(evt) { Hatena.Star.EntryLoader.loadNewEntries(evt.target); };
+    var NodeInsert = function(evt) {
+        // NOTE: https://s.hatena.ne.jp/js/HatenaStar.js の詳細に依存した実装。
+        // EntryLoader.loadNewEntriesは単一のエントリを生やすことができなさそうなので。
+        var entries_org = Hatena.Star.EntryLoader.entries;
+        Hatena.Star.EntryLoader.entries = null;
+        var entry = Hatena.Star.EntryLoader.getEntryByENodeAndSelectors(evt.target, Hatena.Star.SiteConfig.entryNodes["main.posts article"]);
+        Hatena.Star.EntryLoader.entries = [];
+        var e = new Hatena.Star.Entry(entry);
+        e.showButtons();
+        Hatena.Star.EntryLoader.entries.push(e);
+        Hatena.Star.EntryLoader.getStarEntries();
+        Hatena.Star.EntryLoader.entries = Hatena.Star.EntryLoader.entries.concat(entries_org);
+    };
     window.addEventListener("AutoPagerize_DOMNodeInserted", NodeInsert, false);
     window.addEventListener("AutoPatchWork.DOMNodeInserted", NodeInsert, false);
 }

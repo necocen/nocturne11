@@ -15,11 +15,19 @@ for (const el of logout) {
 }
 
 // rel="external"のついたリンクは別タブで開く
-for (const link of document.getElementsByTagName("a")) {
-    if (link.rel.split(" ").includes("external")) {
-        link.onclick = () => {
-            window.open(link.href);
-            return false;
-        };
+function modifyExternalLinks() {
+    for (const link of document.getElementsByTagName("a")) {
+        if (link.rel.split(" ").includes("external")) {
+            link.onclick = () => {
+                window.open(link.href);
+                return false;
+            };
+        }
     }
+}
+modifyExternalLinks();
+
+if (window.addEventListener) {
+    window.addEventListener('AutoPagerize_DOMNodeInserted', modifyExternalLinks, false);
+    window.addEventListener('AutoPatchWork.DOMNodeInserted', modifyExternalLinks, false);
 }
