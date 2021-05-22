@@ -36,4 +36,4 @@ clap = "^3.0.0-beta.2"
 pretty_assertions = "^0.7.2"
 
 [build-dependencies]
-vergen = "^5"
+vergen = { version = "^5", default-features = false, features = ["build"] }
