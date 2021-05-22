@@ -1,3 +1,4 @@
+use super::Opts;
 use anyhow::{ensure, Result};
 use infrastructure::{
     config_repository_impl::{ConfigRepositoryImpl, Version},
@@ -6,7 +7,6 @@ use infrastructure::{
     search_repository_impl::SearchRepositoryImpl,
 };
 use std::{env, path::PathBuf};
-use super::Opts;
 
 #[derive(Clone)] // FIXME: dieselのConnectionManagerがDebugを実装したらDebugにできる
 pub struct Service {

@@ -1,6 +1,6 @@
-use std::path::PathBuf;
 use errors::Error;
 use service::Service;
+use std::path::PathBuf;
 mod askama_helpers;
 mod context;
 mod errors;
