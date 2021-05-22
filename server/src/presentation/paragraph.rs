@@ -10,10 +10,10 @@ impl Paragraph<'_> {
         let lines = paragraph.split('\n').fold(vec![], |mut acc, line| {
             if math_mode {
                 acc.push(Line::new_math(line));
-                if line.trim_end().ends_with(r"\]") {
+                if line.trim_end().ends_with(r"\]") || line.trim_end().ends_with("$$") {
                     math_mode = false;
                 }
-            } else if line.trim_start().starts_with(r"\[") {
+            } else if line.trim_start().starts_with(r"\[") || line.trim_start().starts_with("$$") {
                 math_mode = true;
                 acc.push(Line::new_math(line));
             } else {
@@ -67,6 +67,22 @@ mod tests {
                 Line::new_math("MathLineA"),
                 Line::new_math("MathLineB"),
                 Line::new_math(r"\]"),
+                Line::new("Line2")
+            ]
+        );
+    }
+
+    #[test]
+    fn has_dollar_math_mode() {
+        let body = "Line1\n$$\nMathLineA\nMathLineB\n$$\nLine2";
+        assert_eq!(
+            Paragraph::new(body).0,
+            vec![
+                Line::new("Line1"),
+                Line::new_math(r"$$"),
+                Line::new_math("MathLineA"),
+                Line::new_math("MathLineB"),
+                Line::new_math(r"$$"),
                 Line::new("Line2")
             ]
         );
