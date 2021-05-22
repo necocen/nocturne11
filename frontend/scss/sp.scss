@@ -31,7 +31,12 @@ body {
         align-items: center;
         background-color: colors.$background;
 
+        h1 {
+            margin-bottom: calc(0.3rem + #{$title-bottom-margin});
+        }
+
         h2 {
+            margin-top: -1em;
             width: $title-width;
             text-align: end;
             font-size: 0.75em;
