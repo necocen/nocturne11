@@ -1,4 +1,105 @@
-<script type="text/javascript">window.MathJax = {{- context.config.mathjax.options|safe -}};</script>
+<script type="text/javascript">
+window.MathJax = {
+    AuthorInit: function () {
+        MathJax.Hub.Register.LoadHook("[MathJax]/jax/output/HTML-CSS/config.js", function () {
+            MathJax.OutputJax["HTML-CSS"].webfontDir = "/mathjax-extra/webfonts";
+            MathJax.OutputJax["HTML-CSS"].fontDir = "/mathjax-extra/webfontsdata";
+        });
+        MathJax.Hub.Register.LoadHook("[MathJax]/jax/output/SVG/config.js", function () {
+            MathJax.OutputJax["SVG"].fontDir = "/mathjax-extra/svg";
+        });
+        MathJax.Hub.Register.StartupHook("SVG Jax Config", function (message) {
+            MathJax.OutputJax.SVG.fontNames.unshift("CMBright");
+            MathJax.OutputJax.SVG.fontNames.unshift("SansMathFonts");
+        });
+    },
+    styles: {
+        ".MathJax:before, .MathJax:after": {
+            content: "\"\\2005\""
+        },
+        ".MathJax_Display": {
+            "overflow-x": "scroll"
+        },
+        ".MathJax_Display > .MathJax:before, .MathJax_Display > .MathJax:after": {
+            content: "\"\""
+        },
+        ".MathJax .mtext:before, .MathJax .mtext + *:before": {
+            content: "\"\\2005\""
+        },
+        ".MathJax .mtext": {
+            "font-weight": "300",
+        },
+        ".MathJax .mo + .mtext:before, .MathJax .mtext + .mo:before": {
+            content: "\"\""
+        },
+        ".MathJax_Display + script[id^=\"MathJax-Element\"] + br": {
+            display: "none"
+        },
+        ".MathJax_SVG:before, .MathJax_SVG:after": {
+            content: "\"\\2005\""
+        },
+        ".MathJax_SVG_Display > .MathJax_SVG:before, .MathJax_SVG_Display > .MathJax_SVG:after": {
+            content: "\"\""
+        },
+        ".MathJax_SVG_Display + script[id^=\"MathJax-Element\"] + br": {
+            display: "none"
+        },
+        "span.MathJax_MathML:before, span.MathJax_MathML:after": {
+            content: "\"\\2005\""
+        },
+        ".MathJax_MathML mtext:before, .MathJax_MathML mtext:after": {
+            content: "\"\\2005\""
+        },
+        ".MathJax_CHTML:before, .MathJax_CHTML:after": {
+            content: "\"\\2005\""
+        },
+        ".MathJax_CHTML_Display > .MathJax_CHTML:before, .MathJax_CHTML_Display > .MathJax_CHTML:after": {
+            content: "\"\""
+        },
+        ".MathJax_CHTML .MJXc-mtext:before, .MathJax_CHTML .MJXc-mtext + *:before": {
+            content: "\"\\2005\""
+        },
+        ".MathJax_CHTML .MJXc-mo + .MJXc-mtext:before, .MathJax_CHTML .MJXc-mtext + .MJXc-mo:before": {
+            content: "\"\""
+        },
+        ".MathJax_CHTML_Display + script[id^=\"MathJax-Element\"] + br": {
+            display: "none"
+        }
+    },
+    tex2jax: {
+        inlineMath: [['$','$'], ["\\(","\\)"]],
+        processEscapes: true
+    },
+    TeX: {
+        Macros: {
+            N: '\\mathbb{N}',
+            Z: '\\mathbb{Z}',
+            Q: '\\mathbb{Q}',
+            R: '\\mathbb{R}',
+            C: '\\mathbb{C}',
+            ord: '\\operatorname{ord}',
+            bm: ["\\boldsymbol{ {{- "#1" -}} }", 1]{# テンプレート文法を回避する #}
+        }
+    },
+    "HTML-CSS": {
+        mtextFontInherit: true,
+        availableFonts: ["SansMathFonts", "CMBright", "TeX"],
+        webFont: "SansMathFonts"
+    },
+    CommonHTML: {
+        mtextFontInherit: true
+    },
+    SVG: {
+        mtextFontInherit: true,
+        font: "SansMathFonts"
+    },
+    MathML: {
+        mtextFontInherit: true
+    },
+    displayAlign: "left",
+    displayIndent: "4em"
+};
+</script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" defer></script>
 <script type="text/javascript">
 // settings for autopagerize/autopatchwork with MathJax

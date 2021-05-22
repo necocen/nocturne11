@@ -4,7 +4,6 @@ use serde::Deserialize;
 pub struct Config {
     pub site: Site,
     pub author: Author,
-    pub mathjax: MathJax,
     pub auth: AuthenticationSettings,
     pub hatena_star_token: String,
 }
@@ -23,11 +22,6 @@ pub struct Site {
 pub struct Author {
     pub name: String,
     pub email: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct MathJax {
-    pub options: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
