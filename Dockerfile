@@ -19,6 +19,10 @@ COPY --from=cacher /nocturne/target target
 COPY --from=cacher $CARGO_HOME $CARGO_HOME
 RUN cargo build --release
 
+FROM rust:$RUST_VERSION as diesel-cli
+WORKDIR /diesel
+RUN cargo install diesel_cli --no-default-features --features postgres --root .
+
 FROM node:16-alpine AS build-js
 ARG SNOWPACK_PUBLIC_GOOGLE_CLIENT_ID
 WORKDIR /nocturne
@@ -92,4 +96,5 @@ ENTRYPOINT ["./import"]
 FROM base AS migrate
 WORKDIR /nocturne
 COPY --from=build-rust /nocturne/target/release/migrate .
-ENTRYPOINT ["./migrate"]
+COPY --from=diesel-cli /diesel/bin/diesel .
+ENTRYPOINT ["/bin/sh", "-c", "./diesel setup && ./migrate"]
