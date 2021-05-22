@@ -6,6 +6,7 @@ pub struct Config {
     pub author: Author,
     pub mathjax: MathJax,
     pub auth: AuthenticationSettings,
+    pub hatena_star_token: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]

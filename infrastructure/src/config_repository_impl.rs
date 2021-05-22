@@ -36,6 +36,12 @@ impl ConfigRepositoryImpl {
                 env::var("ADMIN_USER_ID").context("Failed to get ADMIN_USER_ID env")?,
             )
             .context("Failed to set auth.admin_user_id")?;
+        config
+            .set(
+                "hatena_star_token",
+                env::var("HATENA_STAR_TOKEN").context("Failed to get HATENA_STAR_TOKEN")?,
+            )
+            .context("Failed to set hatena_star_token")?;
         let config = config
             .try_into::<Config>()
             .context("Failed to build Config")?;
