@@ -97,4 +97,4 @@ FROM base AS migrate
 WORKDIR /nocturne
 COPY --from=build-rust /nocturne/target/release/migrate .
 COPY --from=diesel-cli /diesel/bin/diesel .
-ENTRYPOINT ["/bin/sh", "-c", "./diesel setup && ./migrate"]
+ENTRYPOINT ["./migrate"]
