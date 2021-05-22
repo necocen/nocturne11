@@ -50,3 +50,4 @@ elasticsearch
 .env
 mathjax-extra
 mathjax-extra.tar.gz
+nginx
