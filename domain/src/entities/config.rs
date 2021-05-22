@@ -6,6 +6,8 @@ pub struct Config {
     pub author: Author,
     pub auth: AuthenticationSettings,
     pub hatena_star_token: String,
+    /// Google Analytics トラッキングコード
+    pub ga_code: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]

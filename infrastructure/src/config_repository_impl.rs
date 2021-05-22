@@ -42,6 +42,12 @@ impl ConfigRepositoryImpl {
                 env::var("HATENA_STAR_TOKEN").context("Failed to get HATENA_STAR_TOKEN")?,
             )
             .context("Failed to set hatena_star_token")?;
+        config
+            .set(
+                "ga_code",
+                env::var("GA_TRACKING_CODE").context("Failed to get GA_TRACKING_CODE")?,
+            )
+            .context("Failed to set ga_code")?;
         let config = config
             .try_into::<Config>()
             .context("Failed to build Config")?;
