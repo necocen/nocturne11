@@ -97,4 +97,6 @@ FROM base AS migrate
 WORKDIR /nocturne
 COPY --from=build-rust /nocturne/target/release/migrate .
 COPY --from=diesel-cli /diesel/bin/diesel .
+# なんかdieselのためにCargo.tomlが必要なので置いておく。空でよいがtouchがないのでCOPYする
+COPY ./Cargo.toml .
 ENTRYPOINT ["./migrate"]
