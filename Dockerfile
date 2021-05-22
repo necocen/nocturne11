@@ -82,6 +82,7 @@ WORKDIR /nocturne
 COPY --from=build-rust /nocturne/target/release/server .
 COPY --from=build-js /nocturne/build/src ./static
 ENTRYPOINT ["./server"]
+CMD ["--bind", "0.0.0.0", "--static", "./static", "--production"]
 
 FROM base AS import
 WORKDIR /nocturne
