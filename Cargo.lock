@@ -1394,7 +1394,6 @@ dependencies = [
  "assert_matches",
  "async-trait",
  "chrono",
- "clap",
  "config",
  "diesel",
  "diesel_migrations",
