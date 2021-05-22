@@ -24,6 +24,11 @@
 );
 
 body {
+    margin: 0;
+    background-color: colors.$background;
+}
+
+#container {
     display: grid;
     grid-template-columns: calc(100% - #{$sidebar-width} - #{$sidebar-margin}) $sidebar-margin auto;
     grid-template-rows: $header-height auto $footer-height;
@@ -31,7 +36,6 @@ body {
     margin: 0 auto;
     min-height: 100vh;
     max-width: $max-width;
-    background-color: colors.$background;
     color: colors.$text;
     line-height: 1;
 

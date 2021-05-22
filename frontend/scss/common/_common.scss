@@ -21,7 +21,7 @@ a, a:visited {
 }
 @include colors.link-hover;
 
-body > header {
+#container > header {
     h1 {
         $baseline-adjustment: 1px;
         margin: $title-top-margin 0 calc(#{$title-bottom-margin} - #{$baseline-adjustment});
