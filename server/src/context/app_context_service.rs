@@ -58,9 +58,9 @@ where
             match get_config(&app.config_repository) {
                 Ok(config) => {
                     req.extensions_mut().insert(AppContext {
-                        config,
                         is_authorized,
                         is_development,
+                        config,
                     });
                     Box::pin(self.service.call(req))
                 }
