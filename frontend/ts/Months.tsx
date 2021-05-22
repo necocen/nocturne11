@@ -9,7 +9,7 @@ export function Months() {
     const defaultYears = [...Array(dayjs().year() - 2010 + 1).keys()].map((y) => ({ year: y + 2010, months: undefined }));
     const { thisMonth } = useRouting();
     const [{ data: { years } = { years: defaultYears } }] = useAxios<{ years: { year: number; months?: number[] }[] }>({
-        url: "http://localhost:4000/api/months",
+        url: "/api/months",
     });
     const [expandedYear, setExpandedYear] = useState(thisMonth.year());
 

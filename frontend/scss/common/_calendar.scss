@@ -26,7 +26,21 @@ $button-height: 1.7em !default;
             &:focus:not(:focus-visible) {
                 outline: none;
             }
+            &:disabled {
+                pointer-events: none;
+                color: colors.$menu-dim;
+            }
         }
+
+        a {
+            color: colors.$menu;
+
+            &:not([href]) {
+                pointer-events: none;
+                color: colors.$menu-dim;
+            }
+        }
+        @include colors.link-hover;
     }
 
     th {

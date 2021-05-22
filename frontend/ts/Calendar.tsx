@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import useAxios from "axios-hooks";
 import { useRouting } from "./routing";
+import dayjs from "dayjs";
 
 export function Calendar() {
     const { thisMonth, dayjsToPath } = useRouting();
@@ -8,8 +9,14 @@ export function Calendar() {
 
     // 記事のある日付一覧を取得
     const [{ data: { days } = { days: undefined } }] = useAxios<{ days?: number[] }>({
-        url: `http://localhost:4000/api/days/${currentMonth.format("YYYY-MM")}`,
+        url: `/api/days/${currentMonth.format("YYYY-MM")}`,
     });
+    const [{ data: { years } = { years: [] } }] = useAxios<{ years: { year: number; months?: number[] }[] }>({
+        url: "/api/months",
+    });
+    const months = years.flatMap(({year, months}) => months?.map((month) => dayjs(`${year}-${month}-01`)) ?? []).sort((a, b) => a.unix() - b.unix());
+    const hasPrevMonth = months.length > 0 && months[0].isBefore(currentMonth);
+    const hasNextMonth = months.length > 0 && months[months.length - 1].isAfter(currentMonth);
 
     const moveToPrevMonth = () => {
         setCurrentMonth(currentMonth.subtract(1, "month"));
@@ -25,11 +32,11 @@ export function Calendar() {
     return (
         <table id="calendar" summary="calendar">
             <caption>
-                <button id="calendar-prev-month" onClick={moveToPrevMonth}>
+                <button id="calendar-prev-month" onClick={moveToPrevMonth} disabled={!hasPrevMonth}>
                     <span>┗</span>
                 </button>
-                <a href={dayjsToPath(currentMonth, true)}>{currentMonth.format("YYYY-MM")}</a>
-                <button id="calendar-next-month" onClick={moveToNextMonth}>
+                <a href={days && days.length > 0 ? dayjsToPath(currentMonth, true) : undefined}>{currentMonth.format("YYYY-MM")}</a>
+                <button id="calendar-next-month" onClick={moveToNextMonth} disabled={!hasNextMonth}>
                     <span>┓</span>
                 </button>
             </caption>
