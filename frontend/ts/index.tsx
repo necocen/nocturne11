@@ -13,3 +13,13 @@ const logout = document.getElementsByClassName("logout-button");
 for (const el of logout) {
     ReactDOM.render(<LogoutButton />, el);
 }
+
+// rel="external"のついたリンクは別タブで開く
+for (const link of document.getElementsByTagName("a")) {
+    if (link.rel.split(" ").includes("external")) {
+        link.onclick = () => {
+            window.open(link.href);
+            return false;
+        };
+    }
+}
