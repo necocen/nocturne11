@@ -33,6 +33,10 @@
         line-height: 2rem;
     }
     @include colors.link-hover;
+
+    button {
+        height: 2rem;
+    }
 }
 
 #pager-nav {
