@@ -9,6 +9,7 @@ use std::future::{ready, Ready};
 #[derive(Clone, Debug)]
 pub struct AppContext {
     pub is_authorized: bool,
+    pub is_development: bool,
     pub config: Config,
 }
 

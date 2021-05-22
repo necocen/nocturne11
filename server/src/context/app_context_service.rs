@@ -54,11 +54,13 @@ where
     fn call(&self, req: ServiceRequest) -> Self::Future {
         if let Some(app) = req.app_data::<Data<Service>>() {
             let is_authorized = matches!(req.get_identity(), Some(ref id) if app.authorize(id));
+            let is_development = app.is_development;
             match get_config(&app.config_repository) {
                 Ok(config) => {
                     req.extensions_mut().insert(AppContext {
                         config,
                         is_authorized,
+                        is_development,
                     });
                     Box::pin(self.service.call(req))
                 }

@@ -21,6 +21,9 @@ struct Opts {
     /// 静的ファイルの配信元ディレクトリ
     #[clap(long("static"), default_value = "./frontend/build/src")]
     static_path: PathBuf,
+    /// 開発モード
+    #[clap(long("production"), parse(from_flag = std::ops::Not::not))]
+    is_development: bool,
 }
 
 #[actix_web::main]

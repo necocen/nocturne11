@@ -22,13 +22,17 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
             CookieIdentityPolicy::new(service.secret_key.as_bytes())
                 .name("nocturne-identity")
                 .same_site(SameSite::Lax)
-                .secure(false), // for development
+                .secure(!service.is_development),
         );
         let session = CookieSession::signed(service.secret_key.as_bytes())
             .name("nocturne-session")
             .same_site(SameSite::Lax)
-            .secure(false); // for development
-        let cors = Cors::default().allowed_origin("http://localhost:8080"); // for development
+            .secure(!service.is_development);
+        let cors = if service.is_development {
+            Cors::default().allowed_origin("http://localhost:8080")
+        } else {
+            Cors::default()
+        };
         let static_path = service.static_path.clone();
 
         cfg.data(service)

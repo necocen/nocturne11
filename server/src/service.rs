@@ -17,6 +17,7 @@ pub struct Service {
     pub admin_user_id: String,
     pub secret_key: String,
     pub static_path: PathBuf,
+    pub is_development: bool,
 }
 
 impl Service {
@@ -47,6 +48,7 @@ impl Service {
             admin_user_id,
             secret_key,
             static_path,
+            is_development: opts.is_development,
         })
     }
 
