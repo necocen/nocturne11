@@ -85,12 +85,14 @@ table#calendar {
             display: inline-block;
             line-height: $button-height;
             user-select: none;
+            vertical-align: -0.05em;
 
             > span {
                 // ┗グリフ・┓グリフを45°回転させて「＜」「＞」にする
                 display: block;
                 transform: rotate(45deg);
                 font-size: 1.2em;
+                line-height: 1;
             }
         }
     }
