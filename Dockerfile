@@ -54,8 +54,7 @@ RUN apt-get update -y && \
         zlib1g
 
 # server
-FROM gcr.io/distroless/cc AS server
-WORKDIR /nocturne
+FROM gcr.io/distroless/cc AS base
 COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1 /lib/x86_64-linux-gnu/libz.so.1
 COPY --from=deps /lib/x86_64-linux-gnu/libcom_err.so.2 /lib/x86_64-linux-gnu/libcom_err.so.2
 COPY --from=deps /lib/x86_64-linux-gnu/libkeyutils.so.1 /lib/x86_64-linux-gnu/libkeyutils.so.1
@@ -77,6 +76,19 @@ COPY --from=deps /usr/lib/x86_64-linux-gnu/libpq.so.5 /usr/lib/x86_64-linux-gnu/
 COPY --from=deps /usr/lib/x86_64-linux-gnu/libsasl2.so.2 /usr/lib/x86_64-linux-gnu/libsasl2.so.2
 COPY --from=deps /usr/lib/x86_64-linux-gnu/libtasn1.so.6 /usr/lib/x86_64-linux-gnu/libtasn1.so.6
 COPY --from=deps /usr/lib/x86_64-linux-gnu/libunistring.so.2 /usr/lib/x86_64-linux-gnu/libunistring.so.2
+
+FROM base AS server
+WORKDIR /nocturne
 COPY --from=build-rust /nocturne/target/release/server .
 COPY --from=build-js /nocturne/build/src ./static
 ENTRYPOINT ["./server"]
+
+FROM base AS import
+WORKDIR /nocturne
+COPY --from=build-rust /nocturne/target/release/import .
+ENTRYPOINT ["./import"]
+
+FROM base AS migrate
+WORKDIR /nocturne
+COPY --from=build-rust /nocturne/target/release/migrate .
+ENTRYPOINT ["./migrate"]
