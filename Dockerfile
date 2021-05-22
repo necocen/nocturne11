@@ -58,7 +58,7 @@ RUN apt-get update -y && \
         zlib1g
 
 # server
-FROM gcr.io/distroless/cc AS base
+FROM gcr.io/distroless/cc-debian10 AS base
 COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1 /lib/x86_64-linux-gnu/libz.so.1
 COPY --from=deps /lib/x86_64-linux-gnu/libcom_err.so.2 /lib/x86_64-linux-gnu/libcom_err.so.2
 COPY --from=deps /lib/x86_64-linux-gnu/libkeyutils.so.1 /lib/x86_64-linux-gnu/libkeyutils.so.1
