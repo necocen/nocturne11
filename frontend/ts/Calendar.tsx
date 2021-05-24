@@ -3,7 +3,7 @@ import useAxios from "axios-hooks";
 import { useRouting } from "./routing";
 import dayjs from "dayjs";
 
-const API_HOST = import.meta.env.MODE == "production" ? "" : "http://localhost:4000"
+const API_HOST = import.meta.env.MODE == "production" ? "" : "http://localhost:4000";
 
 export function Calendar() {
     const { thisMonth, dayjsToPath } = useRouting();
@@ -16,7 +16,9 @@ export function Calendar() {
     const [{ data: { years } = { years: [] } }] = useAxios<{ years: { year: number; months?: number[] }[] }>({
         url: `${API_HOST}/api/months`,
     });
-    const months = years.flatMap(({year, months}) => months?.map((month) => dayjs(`${year}-${month}-01`)) ?? []).sort((a, b) => a.unix() - b.unix());
+    const months = years
+        .flatMap(({ year, months }) => months?.map((month) => dayjs(`${year}-${month}-01`)) ?? [])
+        .sort((a, b) => a.unix() - b.unix());
     const hasPrevMonth = months.length > 0 && months[0].isBefore(currentMonth);
     const hasNextMonth = months.length > 0 && months[months.length - 1].isAfter(currentMonth);
 

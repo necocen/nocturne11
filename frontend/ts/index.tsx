@@ -28,6 +28,6 @@ function modifyExternalLinks() {
 modifyExternalLinks();
 
 if (window.addEventListener) {
-    window.addEventListener('AutoPagerize_DOMNodeInserted', modifyExternalLinks, false);
-    window.addEventListener('AutoPatchWork.DOMNodeInserted', modifyExternalLinks, false);
+    window.addEventListener("AutoPagerize_DOMNodeInserted", modifyExternalLinks, false);
+    window.addEventListener("AutoPatchWork.DOMNodeInserted", modifyExternalLinks, false);
 }

@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import useAxios from "axios-hooks";
 import { useRouting } from "./routing";
 
-const API_HOST = import.meta.env.MODE == "production" ? "" : "http://localhost:4000"
+const API_HOST = import.meta.env.MODE == "production" ? "" : "http://localhost:4000";
 
 export function Months() {
     // 記事のある月の一覧を取得
