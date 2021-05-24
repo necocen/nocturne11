@@ -20,17 +20,6 @@
         font-weight: 300;
     }
 
-    span.yakumono-punctuation::after,
-    span.yakumono-open-bracket::before,
-    span.yakumono-close-bracket::before,
-    span.yakumono-close-bracket::after,
-    span.yakumono-interpunct::before,
-    span.yakumono-interpunct::after {
-        // 約物用アキボックス
-        display: inline;
-        content: "";
-    }
-
     span.yakumono-punctuation {
         + span.yakumono-open-bracket {
             // 句読点後の開き括弧はアキなし
