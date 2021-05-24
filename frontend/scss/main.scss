@@ -35,6 +35,7 @@ body {
     grid-template-rows: $header-height auto $footer-height;
     position: relative;
     margin: 0 auto;
+    padding: 0 $content-margin;
     min-height: 100vh;
     max-width: $max-width;
     color: colors.$text;
