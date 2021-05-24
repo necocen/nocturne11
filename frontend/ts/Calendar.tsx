@@ -3,16 +3,18 @@ import useAxios from "axios-hooks";
 import { useRouting } from "./routing";
 import dayjs from "dayjs";
 
+const API_HOST = import.meta.env.MODE == "production" ? "" : "http://localhost:4000"
+
 export function Calendar() {
     const { thisMonth, dayjsToPath } = useRouting();
     const [currentMonth, setCurrentMonth] = useState(thisMonth);
 
     // 記事のある日付一覧を取得
     const [{ data: { days } = { days: undefined } }] = useAxios<{ days?: number[] }>({
-        url: `/api/days/${currentMonth.format("YYYY-MM")}`,
+        url: `${API_HOST}/api/days/${currentMonth.format("YYYY-MM")}`,
     });
     const [{ data: { years } = { years: [] } }] = useAxios<{ years: { year: number; months?: number[] }[] }>({
-        url: "/api/months",
+        url: `${API_HOST}/api/months`,
     });
     const months = years.flatMap(({year, months}) => months?.map((month) => dayjs(`${year}-${month}-01`)) ?? []).sort((a, b) => a.unix() - b.unix());
     const hasPrevMonth = months.length > 0 && months[0].isBefore(currentMonth);
