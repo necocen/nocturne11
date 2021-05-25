@@ -1,6 +1,6 @@
 use crate::legacy::models::Article as OldArticle;
 use anyhow::Context;
-use chrono::{TimeZone, Utc, Local};
+use chrono::{Local, TimeZone, Utc};
 use diesel::prelude::*;
 use domain::{
     entities::Post,
@@ -34,12 +34,16 @@ impl ExportPostsRepository for OldPostsRepositoryImpl {
                     article.id,
                     article.title,
                     article.text,
-                    Local.from_local_datetime(&article.created_at)
+                    Local
+                        .from_local_datetime(&article.created_at)
                         .single()
-                        .context("Failed to fetch created_at")?.with_timezone(&Utc),
-                        Local.from_local_datetime(&article.updated_at)
+                        .context("Failed to fetch created_at")?
+                        .with_timezone(&Utc),
+                    Local
+                        .from_local_datetime(&article.updated_at)
                         .single()
-                        .context("Failed to fetch updated_at")?.with_timezone(&Utc),
+                        .context("Failed to fetch updated_at")?
+                        .with_timezone(&Utc),
                 ))
             })
             .collect()
