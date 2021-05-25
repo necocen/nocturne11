@@ -2,6 +2,7 @@ use super::AppContext;
 use crate::Error as AppError;
 use crate::Service;
 use actix_identity::RequestIdentity;
+use actix_session::UserSession;
 use actix_web::{
     dev::{Service as ActixService, ServiceRequest, ServiceResponse, Transform},
     error::ErrorInternalServerError,
@@ -53,6 +54,10 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         if let Some(app) = req.app_data::<Data<Service>>() {
+            let message = req
+                .get_session()
+                .remove_as::<String>("message")
+                .and_then(Result::ok);
             let is_authorized = matches!(req.get_identity(), Some(ref id) if app.authorize(id));
             let is_development = app.is_development;
             match get_config(&app.config_repository) {
@@ -61,6 +66,7 @@ where
                         is_authorized,
                         is_development,
                         config,
+                        message,
                     });
                     Box::pin(self.service.call(req))
                 }

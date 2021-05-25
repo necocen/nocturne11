@@ -11,6 +11,7 @@ pub struct AppContext {
     pub is_authorized: bool,
     pub is_development: bool,
     pub config: Config,
+    pub message: Option<String>,
 }
 
 impl FromRequest for AppContext {

@@ -42,6 +42,7 @@
                 </nav>
             </header>
             <main class="{{ mode_class }}">
+                {% match context.message %}{% when Some with (message) %}<div>{{ message }}</div>{% else %}{% endmatch %}
                 {% block content %}{% endblock %}
                 <div class="autopagerize_insert_before"></div>
             </main>
