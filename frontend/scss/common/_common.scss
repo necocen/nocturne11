@@ -68,6 +68,16 @@ a, a:visited {
 }
 
 main {
+
+    div.flash {
+        margin-bottom: 1em;
+        padding: 1em;
+        border: 1px solid green;
+        color: green;
+        font-size: 0.9em;
+        line-height: 1.7;
+    }
+
     h3 {
         font-feature-settings: "pkna" 1;
         letter-spacing: 0.03em;
