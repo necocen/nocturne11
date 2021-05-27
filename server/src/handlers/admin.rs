@@ -1,6 +1,7 @@
 use super::args::{CreateFormParams, DeleteFormParams, IdArguments, UpdateFormParams};
 use crate::{askama_helpers::TemplateToResponse, context::AppContext};
 use crate::{Error, Service};
+use actix_session::Session;
 use actix_web::{http::header, web, HttpResponse};
 use chrono::Utc;
 use domain::{
@@ -30,6 +31,7 @@ pub async fn edit_post_form(
 pub async fn create(
     service: web::Data<Service>,
     form: web::Form<CreateFormParams>,
+    session: Session,
 ) -> Result<HttpResponse, Error> {
     let new_post = NewPost::new(&form.title, &form.body, Utc::now());
     create_post(
@@ -38,6 +40,7 @@ pub async fn create(
         &new_post,
     )
     .await?;
+    session.insert("message", "記事の投稿に成功しました").ok();
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, "/"))
         .finish())
@@ -46,6 +49,7 @@ pub async fn create(
 pub async fn update(
     service: web::Data<Service>,
     form: web::Form<UpdateFormParams>,
+    session: Session,
 ) -> Result<HttpResponse, Error> {
     let new_post = NewPost::new(&form.title, &form.body, Utc::now());
     update_post(
@@ -55,6 +59,7 @@ pub async fn update(
         &new_post,
     )
     .await?;
+    session.insert("message", "記事の編集に成功しました").ok();
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, format!("/{}", form.id)))
         .finish())
@@ -63,6 +68,7 @@ pub async fn update(
 pub async fn delete(
     service: web::Data<Service>,
     form: web::Form<DeleteFormParams>,
+    session: Session,
 ) -> Result<HttpResponse, Error> {
     delete_post(
         &service.posts_repository,
@@ -70,6 +76,7 @@ pub async fn delete(
         form.id,
     )
     .await?;
+    session.insert("message", "記事の削除に成功しました").ok();
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, "/"))
         .finish())
