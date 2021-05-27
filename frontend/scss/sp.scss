@@ -25,11 +25,13 @@ body {
     line-height: 1;
 
     > header {
+        position: relative;
         display: flex;
         flex-direction: column;
         justify-content: right;
         align-items: center;
         background-color: colors.$background;
+        z-index: 10;
 
         h1 {
             margin-bottom: calc(0.3rem + #{$title-bottom-margin});

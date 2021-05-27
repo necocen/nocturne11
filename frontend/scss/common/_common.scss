@@ -76,6 +76,18 @@ main {
         color: green;
         font-size: 0.9em;
         line-height: 1.7;
+        overflow: hidden;
+        animation: 0.25s ease-in 1s forwards hide;
+
+        @keyframes hide {
+            to {
+                transform: translateY(calc(-100% - 2em));
+                margin-bottom: -2em;
+                padding: 0 1em;
+                opacity: 0;
+                overflow: hidden;
+            }
+        }
     }
 
     h3 {
