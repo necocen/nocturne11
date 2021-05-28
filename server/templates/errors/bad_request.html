@@ -1,0 +1,13 @@
+{% extends "error.html" %}
+
+{%- block content -%}
+    <header>
+        <h3>400 Bad Request</h3>
+    </header>
+    <p>
+        誤ったリクエストが送信されました。
+    </p>
+    <p>
+        {{ body }}
+    </p>
+{%- endblock -%}

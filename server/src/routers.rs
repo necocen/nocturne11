@@ -42,6 +42,7 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
                 scope("")
                     .wrap(
                         ErrorHandlers::new()
+                            .handler(StatusCode::BAD_REQUEST, errors::error_400)
                             .handler(StatusCode::UNAUTHORIZED, errors::error_401)
                             .handler(StatusCode::NOT_FOUND, errors::error_404)
                             .handler(StatusCode::INTERNAL_SERVER_ERROR, errors::error_500),

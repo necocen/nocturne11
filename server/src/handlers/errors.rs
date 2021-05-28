@@ -1,4 +1,6 @@
-use self::templates::{InternalErrorTemplate, NotFoundTemplate, UnauthorizedTemplate};
+use self::templates::{
+    BadRequestTemplate, InternalErrorTemplate, NotFoundTemplate, UnauthorizedTemplate,
+};
 use crate::{askama_helpers::TemplateToResponse, context::AppContext, errors::Error};
 use actix_web::{
     dev::{HttpResponseBuilder, ServiceResponse},
@@ -7,6 +9,31 @@ use actix_web::{
     HttpResponse, ResponseError, Result,
 };
 use futures::{future::FutureExt, TryStreamExt};
+
+pub fn error_400(mut res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web::dev::Body>> {
+    // AppContextが取得できればそれを使ってテンプレートを描画する
+    // 取得できない場合は何もしない
+    if let Some(context) = res
+        .request()
+        .clone()
+        .extensions()
+        .get::<AppContext>()
+        .cloned()
+    {
+        Ok(ErrorHandlerResponse::Future(Box::pin(
+            res.take_body().try_collect::<Vec<_>>().map(move |result| {
+                let req = res.request().clone();
+                let status = res.status();
+                let body = std::str::from_utf8(&result?.concat())?.to_owned();
+                let mut res = BadRequestTemplate { context, body }.to_response()?;
+                *res.status_mut() = status;
+                Ok(ServiceResponse::new(req, res))
+            }),
+        )))
+    } else {
+        Ok(ErrorHandlerResponse::Response(res))
+    }
+}
 
 pub fn error_401(res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web::dev::Body>> {
     // AppContextが取得できればそれを使ってテンプレートを描画する
@@ -81,17 +108,19 @@ pub fn error_500(mut res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_
 impl ResponseError for Error {
     fn status_code(&self) -> StatusCode {
         use domain::repositories::posts::Error::NotFound;
-        use domain::Error::Posts;
+        use domain::Error::{Jwt, JwtIssuer, Posts};
         match self {
             Self::Domain(Posts(NotFound(_))) => StatusCode::NOT_FOUND,
             Self::NoResult(_) => StatusCode::NOT_FOUND,
+            Self::Domain(Jwt(_)) => StatusCode::BAD_REQUEST,
+            Self::Domain(JwtIssuer(_)) => StatusCode::BAD_REQUEST,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
     fn error_response(&self) -> HttpResponse {
         use domain::repositories::posts::Error::NotFound;
-        use domain::Error::Posts;
+        use domain::Error::{Jwt, JwtIssuer, Posts};
         match self {
             Self::Domain(Posts(NotFound(id))) => HttpResponseBuilder::new(self.status_code())
                 .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
@@ -102,6 +131,12 @@ impl ResponseError for Error {
             Self::NoResult(message) => HttpResponseBuilder::new(self.status_code())
                 .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
                 .body(message),
+            Self::Domain(Jwt(error)) => HttpResponseBuilder::new(self.status_code())
+                .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
+                .body(format!("認証エラー: {}", error)),
+            Self::Domain(JwtIssuer(issuer)) => HttpResponseBuilder::new(self.status_code())
+                .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
+                .body(format!("予期しないJWT issuer: {}", issuer)),
             _ => {
                 use std::error::Error;
                 let msg = if let Some(source) = self.source() {
@@ -120,6 +155,13 @@ impl ResponseError for Error {
 mod templates {
     use crate::context::AppContext;
     use askama::Template;
+
+    #[derive(Template)]
+    #[template(path = "errors/bad_request.html")]
+    pub struct BadRequestTemplate {
+        pub context: AppContext,
+        pub body: String,
+    }
 
     #[derive(Template)]
     #[template(path = "errors/unauthorized.html")]
