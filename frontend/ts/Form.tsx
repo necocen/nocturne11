@@ -12,7 +12,11 @@ export function Form(props: Props) {
     const [title, setTitle] = useState(props.title ?? "");
     const [body, setBody] = useState(props.body ?? "");
 
-    const submit = () => formRef.current?.submit();
+    const submit = () => {
+        if (formRef.current?.reportValidity()) {
+            formRef.current?.submit();
+        }
+    };
     const submitDelete = () => deleteFormRef.current?.submit();
 
     return (
@@ -23,14 +27,14 @@ export function Form(props: Props) {
                         <label htmlFor="post-form-title">タイトル</label>
                     </h4>
                     <p>
-                        <input type="text" name="title" id="post-form-title" value={title} onChange={(e) => setTitle(e.target.value)} />
+                        <input type="text" name="title" id="post-form-title" value={title} onChange={(e) => setTitle(e.target.value)} required />
                         <input type="text" id="dummy-to-prevent-submit" style={{ display: "none" }} />
                     </p>
                     <h4>
                         <label htmlFor="post-form-body">本文</label>
                     </h4>
                     <p>
-                        <textarea name="body" id="post-form-body" value={body} onChange={(e) => setBody(e.target.value)} />
+                        <textarea name="body" id="post-form-body" value={body} onChange={(e) => setBody(e.target.value)} required />
                     </p>
                 </fieldset>
                 <p>
