@@ -82,33 +82,37 @@ impl ResponseError for Error {
     fn status_code(&self) -> StatusCode {
         use domain::repositories::posts::Error::NotFound;
         use domain::Error::Posts;
-        if let Self::Domain(Posts(NotFound(_))) = self {
-            StatusCode::NOT_FOUND
-        } else {
-            StatusCode::INTERNAL_SERVER_ERROR
+        match self {
+            Self::Domain(Posts(NotFound(_))) => StatusCode::NOT_FOUND,
+            Self::NoResult(_) => StatusCode::NOT_FOUND,
+            _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
     fn error_response(&self) -> HttpResponse {
         use domain::repositories::posts::Error::NotFound;
         use domain::Error::Posts;
-        if let Self::Domain(Posts(NotFound(id))) = self {
-            HttpResponseBuilder::new(self.status_code())
+        match self {
+            Self::Domain(Posts(NotFound(id))) => HttpResponseBuilder::new(self.status_code())
                 .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
                 .body(format!(
                     "指定されたID({})の記事が見つかりませんでした。",
                     id
-                ))
-        } else {
-            use std::error::Error;
-            let msg = if let Some(source) = self.source() {
-                format!("{} (from {})", self, source)
-            } else {
-                self.to_string()
-            };
-            HttpResponseBuilder::new(self.status_code())
+                )),
+            Self::NoResult(message) => HttpResponseBuilder::new(self.status_code())
                 .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
-                .body(msg)
+                .body(message),
+            _ => {
+                use std::error::Error;
+                let msg = if let Some(source) = self.source() {
+                    format!("{} (from {})", self, source)
+                } else {
+                    self.to_string()
+                };
+                HttpResponseBuilder::new(self.status_code())
+                    .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
+                    .body(msg)
+            }
         }
     }
 }

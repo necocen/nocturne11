@@ -11,6 +11,11 @@ pub async fn all_posts(
     query: web::Query<PageQuery>,
 ) -> Result<HttpResponse, Error> {
     let page = get_posts(&service.posts_repository, 10, query.page.unwrap_or(1))?;
+    if page.posts.is_empty() {
+        return Err(Error::NoResult(
+            "このページには記事が存在しません。".to_owned(),
+        ));
+    }
     AllPostsTemplate { context, page }.to_response()
 }
 
@@ -35,7 +40,11 @@ pub async fn posts_with_date(
         10,
         query.page.unwrap_or(1),
     )?;
-
+    if page.posts.is_empty() {
+        return Err(Error::NoResult(
+            "この日付には記事が存在しません。".to_owned(),
+        ));
+    }
     PostsWithDateTemplate { context, page }.to_response()
 }
 
