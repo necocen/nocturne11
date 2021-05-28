@@ -3,19 +3,18 @@
 @use "../common/_post.scss";
 
 #global-nav {
-    display: flex;
-    align-items: center;
     width: 100%;
-    height: $global-nav-height;
     color: colors.$menu-dim;
     transform: translateZ(100px);
 
     ul {
         display: flex;
+        height: $global-nav-height;
         margin: 0;
         padding: 0;
         list-style: none;
         justify-content: flex-start;
+        align-items: center;
 
         li:not(:last-child)::after {
             content: "/";
