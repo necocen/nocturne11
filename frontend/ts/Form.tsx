@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useSessionStorage } from "./storage";
 
 type Props = {
     title?: string;
@@ -9,15 +10,32 @@ type Props = {
 export function Form(props: Props) {
     const formRef = useRef<HTMLFormElement>(null);
     const deleteFormRef = useRef<HTMLFormElement>(null);
-    const [title, setTitle] = useState(props.title ?? "");
-    const [body, setBody] = useState(props.body ?? "");
+    const [sessionStorageTitle, setSessionStorageTitle] = useSessionStorage<string | undefined>(`post-title${props.id ?? ""}`, undefined);
+    const [sessionStorageBody, setSessionStorageBody] = useSessionStorage<string | undefined>(`post-body${props.id ?? ""}`, undefined);
+    const [title, rawSetTitle] = useState(sessionStorageTitle ?? props.title ?? "");
+    const [body, rawSetBody] = useState(sessionStorageBody ?? props.body ?? "");
+
+    const setTitle = (title: string) => {
+        rawSetTitle(title);
+        setSessionStorageTitle(title);
+    };
+    const setBody = (body: string) => {
+        rawSetBody(body);
+        setSessionStorageBody(body);
+    };
 
     const submit = () => {
         if (formRef.current?.reportValidity()) {
             formRef.current?.submit();
+            setSessionStorageTitle(undefined);
+            setSessionStorageBody(undefined);
         }
     };
-    const submitDelete = () => deleteFormRef.current?.submit();
+    const submitDelete = () => {
+        deleteFormRef.current?.submit();
+        setSessionStorageTitle(undefined);
+        setSessionStorageBody(undefined);
+    };
 
     return (
         <>
