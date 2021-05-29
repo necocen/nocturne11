@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { Nav } from "./Nav";
 import { LoginButton, LogoutButton } from "./Login";
 import { Form } from "./Form";
+import { SearchButton } from "./SearchButton";
 
 ReactDOM.render(<Nav />, document.getElementById("side-nav"));
 const button = document.getElementById("google-login");
@@ -18,6 +19,11 @@ for (const el of logout) {
 const diaryForm = document.getElementById("diary-form-slot");
 if (diaryForm) {
     ReactDOM.render(<Form id={diaryForm.dataset.id} title={diaryForm.dataset.title} body={diaryForm.dataset.body} />, diaryForm);
+}
+
+const search = document.getElementById("search-button");
+if (search) {
+    ReactDOM.render(<SearchButton />, search);
 }
 
 // rel="external"のついたリンクは別タブで開く
