@@ -28,7 +28,8 @@ form {
         border: 1px solid colors.$border1;
         background-color: colors.$input;
         font-family: monospace;
-        line-height: 1.25;
+        line-height: calc(1.5em - 2px);
+        font-size: 1em;
 
         &:focus {
             background-color: colors.$focused-input;
@@ -67,5 +68,17 @@ form {
         padding: 0;
         margin-top: calc(-1em - 2em);
         margin-left: calc(3.5em + 1em);
+    }
+}
+
+form#search-box {
+
+    display: flex;
+    align-items: center;
+    height: 3em;
+
+    input[type=text] {
+        width: 12em;
+        margin-right: 1em;
     }
 }

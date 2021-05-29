@@ -3,7 +3,7 @@
     $new-post-textarea-height: 12em,
 );
 
-form {
+form:not(#search-box) {
     input[type=text], input[type=password], textarea {
         font-size: 16px; // iOS Safariのズーム防止
     }
@@ -18,5 +18,13 @@ form {
         transform: scale(0.8);
         margin: -1.25em -12.5%;
         width: 125%;
+    }
+}
+
+form#search-box {
+    justify-content: center;
+
+    input[type=text] {
+        font-size: 16px;
     }
 }
