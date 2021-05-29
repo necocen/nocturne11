@@ -72,13 +72,16 @@ form {
 }
 
 form#search-box {
-
     display: flex;
-    align-items: center;
+    align-items: baseline;
     height: 3em;
 
     input[type=text] {
         width: 12em;
         margin-right: 1em;
+        border: none;
+        border-bottom: 1px solid colors.$border1;
+        font-family: inherit;
+        background-color: transparent;
     }
 }
