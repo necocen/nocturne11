@@ -74,7 +74,9 @@ form {
 form#search-box {
     display: flex;
     align-items: baseline;
-    height: 3em;
+    height: 2.5em;
+    transition: height 0.25s;
+    overflow: hidden;
 
     input[type=text] {
         width: 12em;
@@ -83,5 +85,9 @@ form#search-box {
         border-bottom: 1px solid colors.$border1;
         font-family: inherit;
         background-color: transparent;
+    }
+
+    &.search-box-hidden {
+        height: 0;
     }
 }
