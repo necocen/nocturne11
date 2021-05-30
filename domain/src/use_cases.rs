@@ -2,7 +2,7 @@ use crate::{
     entities::{
         config::Config,
         date::{DateCondition, Year, YearMonth},
-        AdjacentPage, NewPost, Page, Post, PostId,
+        AdjacentPage, KeywordsCondition, NewPost, Page, Post, PostId,
     },
     repositories::{
         config::ConfigRepository, google_auth_cert::GoogleAuthCertRepository,
@@ -37,6 +37,31 @@ pub fn get_posts(
             _ => AdjacentPage::Page(page - 1),
         },
         next_page,
+    })
+}
+
+pub async fn search_posts<'a>(
+    posts_repository: &impl PostsRepository,
+    search_repository: &impl SearchRepository,
+    keywords: &'a KeywordsCondition<'a>,
+    per_page: usize,
+    search_after: Option<(u64, u64)>,
+) -> Result<Page<'a, KeywordsCondition<'a>>> {
+    let search_result = search_repository
+        .search(&keywords.0, search_after, per_page)
+        .await?;
+    let posts = search_result
+        .posts
+        .iter()
+        .map(|p| Ok(posts_repository.get(p.id)?))
+        .collect::<Result<Vec<_>>>()?;
+    Ok(Page {
+        condition: keywords,
+        posts,
+        per_page,
+        page: search_after,
+        next_page: AdjacentPage::Page(search_result.search_after),
+        prev_page: AdjacentPage::None,
     })
 }
 

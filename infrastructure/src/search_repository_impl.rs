@@ -210,8 +210,9 @@ impl SearchRepositoryImpl {
 impl SearchRepository for SearchRepositoryImpl {
     async fn search(
         &self,
-        keywords: &[String],
+        keywords: &[&str],
         search_after: Option<(u64, u64)>,
+        limit: usize,
     ) -> Result<SearchResult> {
         // 本文とタイトルから検索。bigramのマッチはMUST、kuromojiのマッチはSHOULD。
         let must_queries = keywords
@@ -246,7 +247,7 @@ impl SearchRepository for SearchRepositoryImpl {
                     "id": "desc"
                 }
             ],
-            //"size" : 10,
+            "size" : limit,
             "track_total_hits": true,
             "query": {
                 "bool": {

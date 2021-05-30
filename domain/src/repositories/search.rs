@@ -11,8 +11,9 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub trait SearchRepository {
     async fn search(
         &self,
-        keywords: &[String],
+        keywords: &[&str],
         search_after: Option<(u64, u64)>,
+        limit: usize,
     ) -> Result<SearchResult>;
 
     async fn insert(&self, post: &Post) -> Result<()>;
