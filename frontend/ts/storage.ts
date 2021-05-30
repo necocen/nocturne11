@@ -27,7 +27,11 @@ function useWebStorage<T>(key: string, initialValue: T, storage: Storage): [T, (
             // Save state
             setStoredValue(valueToStore);
             // Save to local storage
-            storage.setItem(key, JSON.stringify(valueToStore));
+            if (valueToStore == undefined) {
+                storage.removeItem(key);
+            } else {
+                storage.setItem(key, JSON.stringify(valueToStore));
+            }
         } catch (error) {
             // A more advanced implementation would handle the error case
             console.error(error);
