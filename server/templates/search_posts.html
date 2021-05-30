@@ -1,0 +1,8 @@
+{% extends "posts.html" %}
+
+{% block search_box -%}
+    <form id="search-box" action="/" method="GET">
+        <input type="text" placeholder="keywords" name="keywords" value="{{ page.condition.keywords() }}" required/>
+        <button type="submit">go</button>
+    </form>
+{%- endblock %}

@@ -100,7 +100,7 @@ mod templates {
     }
 
     #[derive(Template)]
-    #[template(path = "all_posts.html")]
+    #[template(path = "search_posts.html")]
     pub struct SearchPostsTemplate<'a> {
         pub context: AppContext,
         pub page: Page<'a, KeywordsCondition<'a>>,
@@ -128,6 +128,16 @@ mod templates {
     impl PostExt for Post {
         fn converted_body(&self) -> String {
             Body::new(&self.body).to_html(true)
+        }
+    }
+
+    trait KeywordsConditionExt {
+        fn keywords(&self) -> String;
+    }
+
+    impl KeywordsConditionExt for KeywordsCondition<'_> {
+        fn keywords(&self) -> String {
+            self.0.join(" ")
         }
     }
 
