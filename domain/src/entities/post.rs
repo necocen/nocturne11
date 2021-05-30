@@ -53,12 +53,24 @@ impl NewPost {
     }
 }
 
+pub trait Condition {
+    type Page;
+}
+
+impl Condition for PostId {
+    type Page = usize;
+}
+
+impl Condition for () {
+    type Page = usize;
+}
+
 #[derive(Debug, Clone)]
-pub struct Page<'a, C> {
+pub struct Page<'a, C: Condition> {
     pub condition: &'a C,
     pub posts: Vec<Post>,
     pub per_page: usize,
-    pub page: usize,
+    pub page: C::Page,
     pub prev_page: AdjacentPage<C>,
     pub next_page: AdjacentPage<C>,
 }
@@ -70,11 +82,11 @@ impl<'a> Page<'a, PostId> {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum AdjacentPage<C> {
+pub enum AdjacentPage<C: Condition> {
     /// 次のページに該当するものはない
     None,
     /// 次のページ番号がある
-    Page(usize),
+    Page(C::Page),
     /// 次の条件がある
     Condition(C),
 }

@@ -1,3 +1,4 @@
+use super::Condition;
 use serde::Serialize;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -13,4 +14,8 @@ pub struct Year {
 pub struct DateCondition {
     pub ym: YearMonth,
     pub day: Option<u8>,
+}
+
+impl Condition for DateCondition {
+    type Page = usize;
 }
