@@ -48,7 +48,7 @@ pub async fn search_posts<'a>(
     search_after: Option<(u64, u64)>,
 ) -> Result<Page<'a, KeywordsCondition<'a>>> {
     let search_result = search_repository
-        .search(&keywords.0, search_after, per_page)
+        .search(&keywords.0, search_after, per_page + 1)
         .await?;
     let posts = search_result
         .posts
@@ -60,12 +60,17 @@ pub async fn search_posts<'a>(
         })
         .map(|r| Ok(r?))
         .collect::<Result<Vec<Post>>>()?;
+    let next_page = if posts.len() > per_page {
+        AdjacentPage::<KeywordsCondition<'_>>::Page(search_result.search_after)
+    } else {
+        AdjacentPage::None
+    };
     Ok(Page {
         condition: keywords,
-        posts,
+        posts: posts.into_iter().take(per_page).collect(),
         per_page,
         page: search_after,
-        next_page: AdjacentPage::Page(search_result.search_after),
+        next_page,
         prev_page: AdjacentPage::None,
     })
 }
