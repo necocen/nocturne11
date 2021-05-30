@@ -61,6 +61,7 @@ pub async fn post_with_id(
     let page = get_post_with_id(&service.posts_repository, &args.id)?;
     PostTemplate { context, page }.to_response()
 }
+
 pub async fn posts_with_date(
     context: AppContext,
     service: web::Data<Service>,
