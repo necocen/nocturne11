@@ -6,7 +6,7 @@ use crate::{
     },
     repositories::{
         config::ConfigRepository, google_auth_cert::GoogleAuthCertRepository,
-        posts::PostsRepository, search::SearchRepository,
+        posts::Error as PostsError, posts::PostsRepository, search::SearchRepository,
     },
     Error, Result,
 };
@@ -53,8 +53,13 @@ pub async fn search_posts<'a>(
     let posts = search_result
         .posts
         .iter()
-        .map(|p| Ok(posts_repository.get(p.id)?))
-        .collect::<Result<Vec<_>>>()?;
+        .filter_map(|p| match posts_repository.get(p.id) {
+            Ok(post) => Some(Ok(post)),
+            Err(PostsError::NotFound(_)) => None,
+            Err(e) => Some(Err(e)),
+        })
+        .map(|r| Ok(r?))
+        .collect::<Result<Vec<Post>>>()?;
     Ok(Page {
         condition: keywords,
         posts,
