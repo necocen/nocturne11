@@ -40,8 +40,8 @@
                             {%- endif %}
                         {% endblock %}
                     </ul>
-                    <form id="search-box" class="search-box-hidden">
-                        <input type="text" placeholder="keywords" disabled/>
+                    <form id="search-box" class="search-box-hidden" action="/" method="GET">
+                        <input type="text" placeholder="keywords" name="keywords" disabled/>
                         <button type="submit" disabled>go</button>
                     </form>
                 </nav>

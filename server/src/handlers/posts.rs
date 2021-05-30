@@ -1,22 +1,56 @@
-use super::args::{DateArguments, IdArguments, PageQuery};
+use super::args::{DateArguments, IdArguments, KeywordsQuery, PageQuery};
 use crate::{askama_helpers::TemplateToResponse, context::AppContext};
 use crate::{Error, Service};
 use actix_web::{web, HttpResponse};
-use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_date_condition};
-use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate};
+use domain::entities::KeywordsCondition;
+use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_date_condition, search_posts};
+use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate, SearchPostsTemplate};
 
 pub async fn all_posts(
     context: AppContext,
     service: web::Data<Service>,
-    query: web::Query<PageQuery>,
+    query: web::Query<KeywordsQuery>,
 ) -> Result<HttpResponse, Error> {
-    let page = get_posts(&service.posts_repository, 10, query.page.unwrap_or(1))?;
-    if page.posts.is_empty() {
-        return Err(Error::NoResult(
-            "このページには記事が存在しません。".to_owned(),
-        ));
+    if let Some(keywords) = &query.keywords {
+        let keywords = KeywordsCondition(keywords.split(' ').collect::<Vec<_>>());
+        let search_after = query.search_after.as_ref().and_then(|search_after| {
+            let mut search_after_iter = search_after
+                .split(',')
+                .map(str::parse::<u64>)
+                .flat_map(Result::ok);
+            let a = search_after_iter.next();
+            let b = search_after_iter.next();
+            a.and_then(|a| b.map(|b| (a, b)))
+        });
+        let page = search_posts(
+            &service.posts_repository,
+            &service.search_repository,
+            &keywords,
+            10,
+            search_after,
+        )
+        .await?;
+        if page.posts.is_empty() {
+            return if search_after.is_none() {
+                Err(Error::NoResult(
+                    "このページには記事が存在しません。".to_owned(),
+                ))
+            } else {
+                Err(Error::NoResult(
+                    "指定されたキーワードに一致する記事が存在しません。".to_owned(),
+                ))
+            };
+        }
+        SearchPostsTemplate { context, page }.to_response()
+    } else {
+        let page = get_posts(&service.posts_repository, 10, query.page.unwrap_or(1))?;
+        if page.posts.is_empty() {
+            return Err(Error::NoResult(
+                "このページには記事が存在しません。".to_owned(),
+            ));
+        }
+        AllPostsTemplate { context, page }.to_response()
     }
-    AllPostsTemplate { context, page }.to_response()
 }
 
 pub async fn post_with_id(
@@ -53,13 +87,23 @@ mod templates {
     use crate::{context::AppContext, presentation::body::Body};
     use askama::Template;
     use chrono::NaiveDate;
-    use domain::entities::{date::DateCondition, AdjacentPage, Page, Post, PostId};
+    use domain::entities::{
+        date::DateCondition, AdjacentPage, KeywordsCondition, Page, Post, PostId,
+    };
+    use urlencoding::encode;
 
     #[derive(Template)]
     #[template(path = "all_posts.html")]
     pub struct AllPostsTemplate<'a> {
         pub context: AppContext,
         pub page: Page<'a, ()>,
+    }
+
+    #[derive(Template)]
+    #[template(path = "all_posts.html")]
+    pub struct SearchPostsTemplate<'a> {
+        pub context: AppContext,
+        pub page: Page<'a, KeywordsCondition<'a>>,
     }
 
     #[derive(Template)]
@@ -107,9 +151,110 @@ mod templates {
         }
     }
 
+    impl<'a> ConditionToString for KeywordsCondition<'a> {
+        fn to_string(&self) -> String {
+            format!("keywords({})", &self.0.join(", "))
+        }
+    }
+
     impl ConditionToString for () {
         fn to_string(&self) -> String {
             "".to_owned()
+        }
+    }
+
+    trait ConditionToUrl {
+        fn next_href(&self) -> Option<String>;
+        fn prev_href(&self) -> Option<String>;
+    }
+
+    impl ConditionToUrl for Page<'_, DateCondition> {
+        fn next_href(&self) -> Option<String> {
+            match self.next_page {
+                AdjacentPage::Condition(ref condition) => {
+                    Some(format!("/{}", condition.to_string()))
+                }
+                AdjacentPage::Page(page) => {
+                    Some(format!("/{}?page={}", self.condition.to_string(), page))
+                }
+                _ => None,
+            }
+        }
+
+        fn prev_href(&self) -> Option<String> {
+            match self.prev_page {
+                AdjacentPage::Condition(ref condition) => {
+                    Some(format!("/{}", condition.to_string()))
+                }
+                AdjacentPage::Page(page) => {
+                    if page > 1 {
+                        Some(format!("/{}?page={}", self.condition.to_string(), page))
+                    } else {
+                        Some(format!("/{}", self.condition.to_string()))
+                    }
+                }
+                _ => None,
+            }
+        }
+    }
+
+    impl ConditionToUrl for Page<'_, ()> {
+        fn next_href(&self) -> Option<String> {
+            match self.next_page {
+                AdjacentPage::Page(page) => Some(format!("/?page={}", page)),
+                _ => None,
+            }
+        }
+
+        fn prev_href(&self) -> Option<String> {
+            match self.prev_page {
+                AdjacentPage::Page(page) => {
+                    if page > 1 {
+                        Some(format!("/?page={}", page))
+                    } else {
+                        Some("/".to_owned())
+                    }
+                }
+                _ => None,
+            }
+        }
+    }
+
+    impl ConditionToUrl for Page<'_, PostId> {
+        fn next_href(&self) -> Option<String> {
+            match self.next_page {
+                AdjacentPage::Condition(condition) => Some(format!("/{}", condition.to_string())),
+                _ => None,
+            }
+        }
+
+        fn prev_href(&self) -> Option<String> {
+            match self.prev_page {
+                AdjacentPage::Condition(condition) => Some(format!("/{}", condition.to_string())),
+                _ => None,
+            }
+        }
+    }
+
+    impl ConditionToUrl for Page<'_, KeywordsCondition<'_>> {
+        fn next_href(&self) -> Option<String> {
+            match self.next_page {
+                AdjacentPage::Page(Some((a, b))) => Some(format!(
+                    "/?keywords={}&search_after={}%2C{}",
+                    encode(&self.condition.0.join(" ")),
+                    a,
+                    b
+                )),
+                AdjacentPage::Page(None) => Some(format!(
+                    "/?keywords={}",
+                    encode(&self.condition.0.join(" "))
+                )),
+                _ => None,
+            }
+        }
+
+        fn prev_href(&self) -> Option<String> {
+            None
         }
     }
 

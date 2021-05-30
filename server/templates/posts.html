@@ -12,21 +12,17 @@
 {%- endblock -%}
 
 {%- block prev_page -%}
-    {%- match page.prev_page -%}
-        {%- when AdjacentPage::Condition with (prev_condition) -%}
-            <a href="/{{ prev_condition.to_string() }}" rel="prev">prev</a>
-        {%- when AdjacentPage::Page with (number) -%}
-            <a href="/{{ page.condition.to_string() }}?page={{ number }}" rel="prev">prev</a>
-        {%- when AdjacentPage::None -%}
+    {%- match page.prev_href() -%}
+        {%- when Some with (href) -%}
+            <a href="{{ href }}" rel="prev">prev</a>
+        {%- when None -%}
     {%- endmatch -%}
 {%- endblock -%}
 
 {%- block next_page -%}
-    {%- match page.next_page -%}
-        {%- when AdjacentPage::Condition with (next_condition) -%}
-            <a href="/{{ next_condition.to_string() }}" rel="next">next</a>
-        {%- when AdjacentPage::Page with (number) -%}
-            <a href="/{{ page.condition.to_string() }}?page={{ number }}" rel="next">next</a>
-        {%- when AdjacentPage::None -%}
+    {%- match page.next_href() -%}
+        {%- when Some with (href) -%}
+            <a href="{{ href }}" rel="next">next</a>
+        {%- when None -%}
     {%- endmatch -%}
 {%- endblock -%}

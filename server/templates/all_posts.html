@@ -1,22 +1,17 @@
 {% extends "posts.html" %}
 
 {%- block prev_page -%}
-    {%- match page.prev_page -%}
-        {%- when AdjacentPage::Condition with (_) -%}
-            <a href="/" rel="prev">newer</a>
-        {%- when AdjacentPage::Page with (number) -%}
-            <a href="/?page={{ number }}" rel="prev">newer</a>
-        {%- when AdjacentPage::None -%}
+    {%- match page.prev_href() -%}
+        {%- when Some with (href) -%}
+            <a href="{{ href }}" rel="prev">newer</a>
+        {%- when None -%}
     {%- endmatch -%}
 {%- endblock -%}
 
 {%- block next_page -%}
-    {%- match page.next_page -%}
-        {%- when AdjacentPage::Condition with (_) -%}
-            {# Unexpected path #}
-            <a href="/" rel="next">older</a>
-        {%- when AdjacentPage::Page with (number) -%}
-            <a href="/?page={{ number }}" rel="next">older</a>
-        {%- when AdjacentPage::None -%}
+    {%- match page.next_href() -%}
+        {%- when Some with (href) -%}
+            <a href="{{ href }}" rel="next">older</a>
+        {%- when None -%}
     {%- endmatch -%}
 {%- endblock -%}

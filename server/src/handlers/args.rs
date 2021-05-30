@@ -27,6 +27,13 @@ pub struct PageQuery {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+pub struct KeywordsQuery {
+    pub page: Option<usize>,
+    pub keywords: Option<String>,
+    pub search_after: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct CreateFormParams {
     pub title: String,
     pub body: String,

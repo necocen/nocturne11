@@ -8,6 +8,7 @@ pub struct SearchResult {
     pub search_after: Option<(u64, u64)>,
 }
 
+#[derive(Debug, Clone)]
 pub struct KeywordsCondition<'a>(pub Vec<&'a str>);
 
 impl<'a> Condition for KeywordsCondition<'a> {
