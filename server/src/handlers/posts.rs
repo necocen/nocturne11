@@ -12,7 +12,7 @@ pub async fn all_posts(
     query: web::Query<KeywordsQuery>,
 ) -> Result<HttpResponse, Error> {
     if let Some(keywords) = &query.keywords {
-        let keywords = KeywordsCondition(keywords.split(' ').collect::<Vec<_>>());
+        let keywords = KeywordsCondition(keywords.trim().split_whitespace().collect::<Vec<_>>());
         let search_after = query.search_after.as_ref().and_then(|search_after| {
             let mut search_after_iter = search_after
                 .split(',')
