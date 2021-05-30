@@ -1,4 +1,5 @@
 @use "_metrics.scss" as *;
+@use "../common/_colors.scss" as colors;
 @forward "../common/_form.scss" with (
     $new-post-textarea-height: 12em,
 );
@@ -27,5 +28,10 @@ form#search-box {
     input[type=text] {
         font-size: 16px;
         -webkit-appearance: none;
+
+        &:focus {
+            outline: none;
+            background-color: colors.$focused-input;
+        }
     }
 }
