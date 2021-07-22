@@ -138,10 +138,10 @@ pub fn get_posts_with_date_condition<'a>(
             posts: posts.into_iter().take(per_page).collect(),
             per_page,
             page,
-            prev_page: if page <= 1 {
-                AdjacentPage::None
-            } else {
-                AdjacentPage::Page(page - 1)
+            prev_page: match page {
+                1 => AdjacentPage::None,
+                2 => AdjacentPage::Condition(condition.clone()),
+                _ => AdjacentPage::Page(page - 1),
             },
             next_page: AdjacentPage::Page(page + 1),
         })

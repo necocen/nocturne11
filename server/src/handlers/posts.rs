@@ -198,11 +198,7 @@ mod templates {
                     Some(format!("/{}", condition.to_string()))
                 }
                 AdjacentPage::Page(page) => {
-                    if page > 1 {
-                        Some(format!("/{}?page={}", self.condition.to_string(), page))
-                    } else {
-                        Some(format!("/{}", self.condition.to_string()))
-                    }
+                    Some(format!("/{}?page={}", self.condition.to_string(), page))
                 }
                 _ => None,
             }

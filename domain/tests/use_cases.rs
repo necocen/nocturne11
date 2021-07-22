@@ -160,7 +160,13 @@ fn test_get_post_by_month_second_page() -> Result<()> {
         [207, 208, 209, 210, 211]
     );
     assert_eq!(next_page, AdjacentPage::Page(3));
-    assert_eq!(prev_page, AdjacentPage::Page(1));
+    assert_eq!(
+        prev_page,
+        AdjacentPage::Condition(DateCondition {
+            ym: YearMonth(2020, 2),
+            day: None
+        })
+    );
     Ok(())
 }
 
