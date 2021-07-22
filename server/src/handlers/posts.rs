@@ -219,13 +219,8 @@ mod templates {
 
         fn prev_href(&self) -> Option<String> {
             match self.prev_page {
-                AdjacentPage::Page(page) => {
-                    if page > 1 {
-                        Some(format!("/?page={}", page))
-                    } else {
-                        Some("/".to_owned())
-                    }
-                }
+                AdjacentPage::Page(page) => Some(format!("/?page={}", page)),
+                AdjacentPage::Condition(_) => Some("/".to_owned()),
                 _ => None,
             }
         }
