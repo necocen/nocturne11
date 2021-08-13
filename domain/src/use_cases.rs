@@ -292,7 +292,7 @@ pub async fn check_login(
         iss: String,
         sub: String,
     }
-    let data = decode::<Claims>(&jwt, &key, &validation)?;
+    let data = decode::<Claims>(jwt, &key, &validation)?;
 
     // issuerはこちらで判定
     if !ISSUERS.contains(&data.claims.iss.as_str()) {
