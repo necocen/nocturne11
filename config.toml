@@ -32,6 +32,11 @@ url = "https://bookmeter.com/u/27151"
 active = true
 
 [[site.links]]
+name = "coded"
+url = "https://github.com/necocen"
+active = true
+
+[[site.links]]
 name = "wrote"
 url = "http://sokkyo-shosetsu.com/author.php?id=14087520"
 active = false
