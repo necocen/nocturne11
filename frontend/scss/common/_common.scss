@@ -2,10 +2,10 @@
 @use "_metrics.scss" as *;
 
 @font-face {
-    // 三点リーダ対策
+    // 三点リーダ・米印対策
     font-family: "ellipsis";
     src: local("Hiragino Sans"), local("HiraginoSans-W3"), local("Yu Gothic Medium"), local("Meiryo"), local("Noto Sans CJK JP");
-    unicode-range: U+2026;
+    unicode-range: U+2026, U+203B;
 }
 
 :root {
