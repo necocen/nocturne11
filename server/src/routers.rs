@@ -7,11 +7,12 @@ use actix_cors::Cors;
 use actix_files::Files;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_session::CookieSession;
-use actix_web::middleware::ErrorHandlers;
 use actix_web::{
     cookie::SameSite,
     guard::fn_guard,
     http::StatusCode,
+    middleware::ErrorHandlers,
+    web::FormConfig,
     web::{get, post, resource, route, scope, ServiceConfig},
     HttpResponse,
 };
@@ -36,6 +37,7 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
         let static_path = service.static_path.clone();
 
         cfg.data(service)
+            .app_data(FormConfig::default().limit(1024 * 1024 * 20))
             .service(Files::new("/static", static_path))
             .service(scope("/api").wrap(cors).configure(api))
             .service(
