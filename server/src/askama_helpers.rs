@@ -1,5 +1,6 @@
 use crate::Error;
 use actix_web::HttpResponse;
+use askama::DynTemplate;
 use bytes::BytesMut;
 
 pub trait TemplateToResponse {

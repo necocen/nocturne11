@@ -1,4 +1,4 @@
-{%- let permalink = self.context.config.site.url.join(post.id.to_string()).unwrap() -%}
+{%- let permalink = self.context.config.site.url.join(post.id.to_string().as_str()).unwrap() -%}
 <entry>
     <title>{{ post.title }}</title>
     <link rel="alternate" href="{{ permalink }}" />

@@ -2,18 +2,18 @@
 name = "domain"
 version = "0.0.0"
 authors = ["necocen <necocen@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "^1.0.40"
-chrono = { version = "^0.4.19", features = ["serde"] }
-async-trait = "^0.1.42"
-serde = { version = "^1", features = ["derive"] }
-url = { version = "^2", features = ["serde"] }
-jsonwebtoken = "^7"
-thiserror = "^1.0.23"
+anyhow = "1.0.52"
+chrono = { version = "0.4.19", features = ["serde"] }
+async-trait = "0.1.52"
+serde = { version = "1.0.133", features = ["derive"] }
+url = { version = "2.2.2", features = ["serde"] }
+jsonwebtoken = "7.2.0"
+thiserror = "1.0.30"
 
 [dev-dependencies]
-pretty_assertions = "^0.7.2"
+pretty_assertions = "1.0.0"

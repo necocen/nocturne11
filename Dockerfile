@@ -1,4 +1,4 @@
-ARG RUST_VERSION=1.54
+ARG RUST_VERSION=1.57
 
 FROM rust:$RUST_VERSION AS planner
 WORKDIR /nocturne
@@ -23,7 +23,7 @@ FROM rust:$RUST_VERSION as diesel-cli
 WORKDIR /diesel
 RUN cargo install diesel_cli --no-default-features --features postgres --root .
 
-FROM node:16-alpine AS build-js
+FROM node:16-bullseye-slim AS build-js
 ARG SNOWPACK_PUBLIC_GOOGLE_CLIENT_ID
 WORKDIR /nocturne
 COPY ./frontend/package.json ./package.json
@@ -33,7 +33,7 @@ COPY ./frontend .
 RUN npm ci
 RUN npm run build
 
-FROM debian:buster-slim AS deps
+FROM --platform=linux/x86_64 debian:buster-slim AS deps
 RUN apt-get update -y && \
     apt-get install -y \
         libcom-err2 \
@@ -58,7 +58,7 @@ RUN apt-get update -y && \
         zlib1g
 
 # server
-FROM gcr.io/distroless/cc-debian10 AS base
+FROM --platform=linux/x86_64 gcr.io/distroless/cc-debian10 AS base
 COPY --from=deps /lib/x86_64-linux-gnu/libz.so.1 /lib/x86_64-linux-gnu/libz.so.1
 COPY --from=deps /lib/x86_64-linux-gnu/libcom_err.so.2 /lib/x86_64-linux-gnu/libcom_err.so.2
 COPY --from=deps /lib/x86_64-linux-gnu/libkeyutils.so.1 /lib/x86_64-linux-gnu/libkeyutils.so.1

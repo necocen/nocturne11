@@ -2,30 +2,30 @@
 name = "infrastructure"
 version = "0.0.0"
 authors = ["necocen <necocen@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-chrono = { version = "^0.4.19", features = ["serde"] }
-anyhow = "^1.0.40"
-diesel = { version = "^1.4.6", features = ["mysql", "postgres", "chrono", "r2d2"] }
-r2d2 = "^0.8.9"
+chrono = { version = "0.4.19", features = ["serde"] }
+anyhow = "1.0.52"
+diesel = { version = "1.4.8", features = ["mysql", "postgres", "chrono", "r2d2"] }
+r2d2 = "0.8.9"
 domain = { path = "../domain" }
-elasticsearch = "7.10.1-alpha.1"
-serde = { version = "^1", features = ["derive"] }
-serde_json = "^1"
-async-trait = "^0.1.42"
-url = "^2"
-log = "^0.4.14"
-env_logger = "^0.8.3"
-diesel_migrations = "^1"
-dotenv = "^0.15.0"
-tokio = { version = "^1.5.0", features = ["full"] }
-config = { version = "^0.11.0", default-features = false, features = ["toml"] }
-reqwest = { version = "^0.11.3", features = ["json", "rustls-tls"] }
+elasticsearch = "7.14.0-alpha.1"
+serde = { version = "1.0.133", features = ["derive"] }
+serde_json = "1.0.74"
+async-trait = "0.1.52"
+url = "2.2.2"
+log = "0.4.14"
+env_logger = "0.9.0"
+diesel_migrations = "1.4.0"
+dotenv = "0.15.0"
+tokio = { version = "1.15.0", features = ["full"] }
+config = { version = "0.11.0", default-features = false, features = ["toml"] }
+reqwest = { version = "0.11.8", features = ["json", "rustls-tls"] }
 
 [dev-dependencies]
-uuid = { version = "^0.8", features = ["v4"] }
-pretty_assertions = "^0.7.2"
-assert_matches = "^1.5.0"
+uuid = { version = "0.8.2", features = ["v4"] }
+pretty_assertions = "1.0.0"
+assert_matches = "1.5.0"

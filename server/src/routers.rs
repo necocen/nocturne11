@@ -1,5 +1,5 @@
 use crate::{
-    context::{AppContextService, RequestHeadContext},
+    context::{AppContext, AppContextService},
     handlers::{about, admin, api, atom, auth, errors, posts},
     Service,
 };
@@ -9,11 +9,11 @@ use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_session::CookieSession;
 use actix_web::{
     cookie::SameSite,
-    guard::fn_guard,
+    guard::{fn_guard, GuardContext},
     http::StatusCode,
     middleware::ErrorHandlers,
-    web::FormConfig,
     web::{get, post, resource, route, scope, ServiceConfig},
+    web::{Data, FormConfig},
     HttpResponse,
 };
 
@@ -36,7 +36,7 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
         };
         let static_path = service.static_path.clone();
 
-        cfg.data(service)
+        cfg.app_data(Data::new(service))
             .app_data(FormConfig::default().limit(1024 * 1024 * 20))
             .service(Files::new("/static", static_path))
             .service(scope("/api").wrap(cors).configure(api))
@@ -58,11 +58,7 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
                     .configure(about)
                     .service(
                         scope("/admin")
-                            .service(
-                                scope("")
-                                    .guard(fn_guard(RequestHeadContext::is_authorized))
-                                    .configure(admin),
-                            )
+                            .service(scope("").guard(fn_guard(admin_guard)).configure(admin))
                             .default_service(
                                 route().to(|| HttpResponse::Unauthorized().body("Unauthorized")),
                             ),
@@ -114,4 +110,10 @@ fn admin(cfg: &mut ServiceConfig) {
 
 fn about(cfg: &mut ServiceConfig) {
     cfg.service(resource("/about").route(get().to(about::about)));
+}
+
+fn admin_guard(ctx: &GuardContext) -> bool {
+    ctx.req_data()
+        .get::<AppContext>()
+        .map_or(false, |ctx| ctx.is_authorized)
 }

@@ -1,3 +1,4 @@
+use clap::Parser;
 use errors::Error;
 use service::Service;
 use std::path::PathBuf;
@@ -9,7 +10,7 @@ mod presentation;
 mod routers;
 mod service;
 
-#[derive(clap::Clap, Debug, Clone)]
+#[derive(Parser, Debug, Clone)]
 #[clap(version = "11.0.0", author = "@necocen <necocen@gmail.com>")]
 struct Opts {
     /// バインドするアドレス
@@ -29,7 +30,6 @@ struct Opts {
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
     use actix_web::{App, HttpServer};
-    use clap::Clap;
     env_logger::init();
     dotenv::dotenv().ok();
     let opts = Opts::parse();

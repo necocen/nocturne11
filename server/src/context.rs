@@ -1,9 +1,9 @@
 mod app_context_service;
-mod request_head;
-use actix_web::{dev::Payload, error::ErrorInternalServerError, Error, FromRequest, HttpRequest};
+use actix_web::{
+    dev::Payload, error::ErrorInternalServerError, Error, FromRequest, HttpMessage, HttpRequest,
+};
 pub use app_context_service::AppContextService;
 use domain::entities::config::Config;
-pub use request_head::RequestHeadContext;
 use std::future::{ready, Ready};
 
 #[derive(Clone, Debug)]
@@ -15,7 +15,6 @@ pub struct AppContext {
 }
 
 impl FromRequest for AppContext {
-    type Config = ();
     type Error = Error;
     type Future = Ready<Result<AppContext, Error>>;
 

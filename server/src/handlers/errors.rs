@@ -3,14 +3,14 @@ use self::templates::{
 };
 use crate::{askama_helpers::TemplateToResponse, context::AppContext, errors::Error};
 use actix_web::{
-    dev::{HttpResponseBuilder, ServiceResponse},
+    body::{BoxBody, MessageBody},
+    dev::ServiceResponse,
     http::{header, StatusCode},
     middleware::ErrorHandlerResponse,
-    HttpResponse, ResponseError, Result,
+    HttpMessage, HttpResponse, HttpResponseBuilder, ResponseError, Result,
 };
-use futures::{future::FutureExt, TryStreamExt};
 
-pub fn error_400(mut res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web::dev::Body>> {
+pub fn error_400(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<BoxBody>> {
     // AppContextが取得できればそれを使ってテンプレートを描画する
     // 取得できない場合は何もしない
     if let Some(context) = res
@@ -20,22 +20,28 @@ pub fn error_400(mut res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_
         .get::<AppContext>()
         .cloned()
     {
-        Ok(ErrorHandlerResponse::Future(Box::pin(
-            res.take_body().try_collect::<Vec<_>>().map(move |result| {
-                let req = res.request().clone();
-                let status = res.status();
-                let body = std::str::from_utf8(&result?.concat())?.to_owned();
-                let mut res = BadRequestTemplate { context, body }.to_response()?;
-                *res.status_mut() = status;
-                Ok(ServiceResponse::new(req, res))
-            }),
+        let (req, res) = res.into_parts();
+        let status = res.status();
+        // FIXME: resがStreamだと.try_into_bytes().unwrap()で落ちる
+        let result = res
+            .into_body()
+            .try_into_bytes()
+            .unwrap()
+            .into_iter()
+            .collect::<Vec<_>>();
+        let body = std::str::from_utf8(&result)?.to_owned();
+        let mut res = BadRequestTemplate { context, body }.to_response()?;
+        *res.status_mut() = status;
+        Ok(ErrorHandlerResponse::Response(ServiceResponse::new(
+            req,
+            res.map_into_left_body(),
         )))
     } else {
-        Ok(ErrorHandlerResponse::Response(res))
+        Ok(ErrorHandlerResponse::Response(res.map_into_left_body()))
     }
 }
 
-pub fn error_401(res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web::dev::Body>> {
+pub fn error_401(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<BoxBody>> {
     // AppContextが取得できればそれを使ってテンプレートを描画する
     // 取得できない場合は何もしない
     if let Some(context) = res
@@ -45,14 +51,16 @@ pub fn error_401(res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web:
         .get::<AppContext>()
         .cloned()
     {
-        let body = UnauthorizedTemplate { context }.to_response()?.take_body();
-        Ok(ErrorHandlerResponse::Response(res.map_body(|_, _| body)))
+        let body = UnauthorizedTemplate { context }.to_response()?.into_body();
+        Ok(ErrorHandlerResponse::Response(
+            res.map_body(|_, _| body).map_into_left_body(),
+        ))
     } else {
-        Ok(ErrorHandlerResponse::Response(res))
+        Ok(ErrorHandlerResponse::Response(res.map_into_left_body()))
     }
 }
 
-pub fn error_404(mut res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web::dev::Body>> {
+pub fn error_404(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<BoxBody>> {
     // AppContextが取得できればそれを使ってテンプレートを描画する
     // 取得できない場合は何もしない
     if let Some(context) = res
@@ -62,25 +70,31 @@ pub fn error_404(mut res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_
         .get::<AppContext>()
         .cloned()
     {
-        Ok(ErrorHandlerResponse::Future(Box::pin(
-            res.take_body().try_collect::<Vec<_>>().map(move |result| {
-                let req = res.request().clone();
-                let status = res.status();
-                let mut body = std::str::from_utf8(&result?.concat())?.to_owned();
-                if body.is_empty() {
-                    body = "指定されたファイルが見つかりませんでした。".to_owned();
-                }
-                let mut res = NotFoundTemplate { context, body }.to_response()?;
-                *res.status_mut() = status;
-                Ok(ServiceResponse::new(req, res))
-            }),
+        let (req, res) = res.into_parts();
+        let status = res.status();
+        // FIXME: resがStreamだと.try_into_bytes().unwrap()で落ちる
+        let result = res
+            .into_body()
+            .try_into_bytes()
+            .unwrap()
+            .into_iter()
+            .collect::<Vec<_>>();
+        let mut body = std::str::from_utf8(&result)?.to_owned();
+        if body.is_empty() {
+            body = "指定されたファイルが見つかりませんでした。".to_owned();
+        }
+        let mut res = NotFoundTemplate { context, body }.to_response()?;
+        *res.status_mut() = status;
+        Ok(ErrorHandlerResponse::Response(ServiceResponse::new(
+            req,
+            res.map_into_left_body(),
         )))
     } else {
-        Ok(ErrorHandlerResponse::Response(res))
+        Ok(ErrorHandlerResponse::Response(res.map_into_left_body()))
     }
 }
 
-pub fn error_500(mut res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_web::dev::Body>> {
+pub fn error_500(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<BoxBody>> {
     // AppContextが取得できればそれを使ってテンプレートを描画する
     // 取得できない場合は何もしない
     if let Some(context) = res
@@ -90,18 +104,24 @@ pub fn error_500(mut res: ServiceResponse) -> Result<ErrorHandlerResponse<actix_
         .get::<AppContext>()
         .cloned()
     {
-        Ok(ErrorHandlerResponse::Future(Box::pin(
-            res.take_body().try_collect::<Vec<_>>().map(move |result| {
-                let req = res.request().clone();
-                let status = res.status();
-                let body = std::str::from_utf8(&result?.concat())?.to_owned();
-                let mut res = InternalErrorTemplate { context, body }.to_response()?;
-                *res.status_mut() = status;
-                Ok(ServiceResponse::new(req, res))
-            }),
+        let (req, res) = res.into_parts();
+        let status = res.status();
+        // FIXME: resがStreamだと.try_into_bytes().unwrap()で落ちる
+        let result = res
+            .into_body()
+            .try_into_bytes()
+            .unwrap()
+            .into_iter()
+            .collect::<Vec<_>>();
+        let body = std::str::from_utf8(&result)?.to_owned();
+        let mut res = InternalErrorTemplate { context, body }.to_response()?;
+        *res.status_mut() = status;
+        Ok(ErrorHandlerResponse::Response(ServiceResponse::new(
+            req,
+            res.map_into_left_body(),
         )))
     } else {
-        Ok(ErrorHandlerResponse::Response(res))
+        Ok(ErrorHandlerResponse::Response(res.map_into_left_body()))
     }
 }
 
@@ -130,7 +150,7 @@ impl ResponseError for Error {
                 )),
             Self::NoResult(message) => HttpResponseBuilder::new(self.status_code())
                 .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
-                .body(message),
+                .body(message.clone()),
             Self::Domain(Jwt(error)) => HttpResponseBuilder::new(self.status_code())
                 .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
                 .body(format!("認証エラー: {}", error)),
