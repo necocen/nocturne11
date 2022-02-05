@@ -12,29 +12,29 @@ build = "build.rs"
 domain = { path = "../domain" }
 infrastructure = { path = "../infrastructure" }
 url = "2.2.2"
-tokio = { version = "1.15.0", features = ["full"] }
-actix-web = "4.0.0-beta.18"
-actix-files = "0.6.0-beta.12"
+tokio = { version = "1.16.1", features = ["full"] }
+actix-web = "4.0.0-rc.2"
+actix-files = "0.6.0-beta.16"
 actix-cors = "0.6.0-beta.8"
 askama = { version = "0.11.0", features = ["mime", "mime_guess"] }
 askama_escape = "0.10.2"
-anyhow = "1.0.52"
+anyhow = "1.0.53"
 bytes = "1.1.0"
 thiserror = "1.0.30"
 chrono = { version = "0.4.19", features = ["serde"] }
 regex = "1.5.4"
-serde = { version = "1.0.133", features = ["derive"] }
+serde = { version = "1.0.136", features = ["derive"] }
 env_logger = "0.9.0"
 dotenv = "0.15.0"
 actix-session = "0.5.0-beta.7"
-actix-identity = "0.4.0-beta.7"
+actix-identity = "0.4.0-beta.8"
 futures-util = "0.3.19"
 futures = "0.3.19"
-clap = { version = "3.0.0", features = ["derive"] }
+clap = { version = "3.0.14", features = ["derive"] }
 urlencoding = "2.1.0"
 
 [dev-dependencies]
-pretty_assertions = "1.0.0"
+pretty_assertions = "1.1.0"
 
 [build-dependencies]
-vergen = { version = "6.0.0", default-features = false, features = ["build"] }
+vergen = { version = "6.0.2", default-features = false, features = ["build"] }
