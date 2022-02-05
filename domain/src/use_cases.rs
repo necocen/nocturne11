@@ -8,7 +8,7 @@ use crate::{
         config::ConfigRepository, google_auth_cert::GoogleAuthCertRepository,
         posts::Error as PostsError, posts::PostsRepository, search::SearchRepository,
     },
-    Error, Result,
+    Result,
 };
 use anyhow::Context;
 use chrono::{DateTime, Datelike, Duration, Local, TimeZone, Utc};
@@ -278,26 +278,17 @@ pub async fn check_login(
         .context("JWT token does not contain 'kid' field.")?;
     let config = config_repository.get()?;
     let (n, e) = cert_repository.key(&kid).await?;
-    let key = DecodingKey::from_rsa_components(&n, &e);
-    let validation = Validation {
-        sub: Some(config.auth.admin_user_id),
-        aud: Some([config.auth.google_client_id].iter().cloned().collect()),
-        // 今のところRS256だが将来のことを考慮して
-        algorithms: vec![Algorithm::RS256, Algorithm::RS384, Algorithm::RS512],
-        // issも検証したいが現在のjsonwebtoken crateは複数のissuerに対応できないのであとで自前でやる
-        ..Validation::default()
-    };
+    let key = DecodingKey::from_rsa_components(&n, &e)?;
+    let mut validation = Validation::new(Algorithm::RS256);
+    validation.sub = Some(config.auth.admin_user_id);
+    validation.set_audience(&[config.auth.google_client_id].to_vec());
+    validation.set_issuer(&ISSUERS);
+
     #[derive(Debug, Deserialize)]
     struct Claims {
-        iss: String,
         sub: String,
     }
     let data = decode::<Claims>(jwt, &key, &validation)?;
-
-    // issuerはこちらで判定
-    if !ISSUERS.contains(&data.claims.iss.as_str()) {
-        return Err(Error::JwtIssuer(data.claims.iss));
-    }
 
     // IDを返す
     Ok(data.claims.sub)
