@@ -225,14 +225,14 @@ mod templates {
     impl ConditionToUrl for Page<'_, PostId> {
         fn next_href(&self) -> Option<String> {
             match self.next_page {
-                AdjacentPage::Condition(condition) => Some(format!("/{}", condition.to_string())),
+                AdjacentPage::Condition(condition) => Some(format!("/{}", condition)),
                 _ => None,
             }
         }
 
         fn prev_href(&self) -> Option<String> {
             match self.prev_page {
-                AdjacentPage::Condition(condition) => Some(format!("/{}", condition.to_string())),
+                AdjacentPage::Condition(condition) => Some(format!("/{}", condition)),
                 _ => None,
             }
         }

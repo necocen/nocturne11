@@ -82,7 +82,7 @@ impl<'a> LineFragment<'a> {
             Text(text) => {
                 let mut pos = 0;
                 let mut fragments: Vec<LineFragment> = vec![];
-                for (c_start, c) in text.char_indices().into_iter() {
+                for (c_start, c) in text.char_indices() {
                     let fragment: LineFragment;
                     let c_end = c_start + c.len_utf8();
                     if "「『（〈【｛［《〔“".contains(c) {
