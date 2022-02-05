@@ -1,4 +1,4 @@
-ARG RUST_VERSION=1.57
+ARG RUST_VERSION=1.58
 
 FROM rust:$RUST_VERSION AS planner
 WORKDIR /nocturne
@@ -36,26 +36,26 @@ RUN npm run build
 FROM --platform=linux/x86_64 debian:buster-slim AS deps
 RUN apt-get update -y && \
     apt-get install -y \
-        libcom-err2 \
-        libffi6 \
-        libgmp10 \
-        libgnutls30 \
-        libgssapi-krb5-2 \
-        libhogweed4 \
-        libidn2-0 \
-        libk5crypto3 \
-        libkeyutils1 \
-        libkrb5-3 \
-        libkrb5support0 \
-        libldap-2.4-2 \
-        libmariadb3 \
-        libnettle6 \
-        libp11-kit0 \
-        libpq5 \
-        libsasl2-2 \
-        libtasn1-6 \
-        libunistring2 \
-        zlib1g
+    libcom-err2 \
+    libffi6 \
+    libgmp10 \
+    libgnutls30 \
+    libgssapi-krb5-2 \
+    libhogweed4 \
+    libidn2-0 \
+    libk5crypto3 \
+    libkeyutils1 \
+    libkrb5-3 \
+    libkrb5support0 \
+    libldap-2.4-2 \
+    libmariadb3 \
+    libnettle6 \
+    libp11-kit0 \
+    libpq5 \
+    libsasl2-2 \
+    libtasn1-6 \
+    libunistring2 \
+    zlib1g
 
 # server
 FROM --platform=linux/x86_64 gcr.io/distroless/cc-debian10 AS base
