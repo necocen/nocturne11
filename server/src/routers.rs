@@ -59,9 +59,9 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
                     .service(
                         scope("/admin")
                             .service(scope("").guard(fn_guard(admin_guard)).configure(admin))
-                            .default_service(
-                                route().to(|| HttpResponse::Unauthorized().body("Unauthorized")),
-                            ),
+                            .default_service(route().to(|| async {
+                                HttpResponse::Unauthorized().body("Unauthorized")
+                            })),
                     ),
             );
     }
@@ -101,7 +101,7 @@ fn admin(cfg: &mut ServiceConfig) {
         .service(resource("/create").route(post().to(admin::create)))
         .service(resource("/update").route(post().to(admin::update)))
         .service(resource("/delete").route(post().to(admin::delete)))
-        .service(resource("").route(get().to(|| {
+        .service(resource("").route(get().to(|| async {
             HttpResponse::Found()
                 .append_header((header::LOCATION, "/admin/"))
                 .finish()

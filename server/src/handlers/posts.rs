@@ -68,7 +68,7 @@ pub async fn posts_with_date(
     args: web::Path<DateArguments>,
     query: web::Query<PageQuery>,
 ) -> Result<HttpResponse, Error> {
-    let condition = args.to_owned().into();
+    let condition = args.into_inner().into();
     let page = get_posts_with_date_condition(
         &service.posts_repository,
         &condition,
