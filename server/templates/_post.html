@@ -6,9 +6,9 @@
     {{ post.converted_body() | safe }}
     <aside>
         <div class="timestamps">
-            <time class="created-at" datetime="{{ post.created_at | iso8601 }}">{{ post.created_at | format_date }}</time>
+            <time class="created-at" datetime="{{ post.created_at|iso8601 }}">{{ post.created_at|format_date }}</time>
             {% if post.created_at != post.updated_at %}
-            <time class="updated-at" datetime="{{ post.updated_at | iso8601 }}">{{ post.updated_at | format_date }}</time>
+            <time class="updated-at" datetime="{{ post.updated_at|iso8601 }}">{{ post.updated_at|format_date }}</time>
             {% endif %}
         </div>
         <a class="permalink" href="{{ permalink }}">{{ permalink }}</a>

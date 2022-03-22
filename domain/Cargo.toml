@@ -7,7 +7,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.53"
+anyhow = "1.0.56"
 chrono = { version = "0.4.19", features = ["serde"] }
 async-trait = "0.1.52"
 serde = { version = "1.0.136", features = ["derive"] }
@@ -16,4 +16,4 @@ jsonwebtoken = "8.0.1"
 thiserror = "1.0.30"
 
 [dev-dependencies]
-pretty_assertions = "1.1.0"
+pretty_assertions = "1.2.0"

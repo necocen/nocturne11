@@ -6,9 +6,9 @@ use crate::{
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
-use actix_session::CookieSession;
+use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{
-    cookie::SameSite,
+    cookie::{Key, SameSite},
     guard::{fn_guard, GuardContext},
     http::StatusCode,
     middleware::ErrorHandlers,
@@ -25,10 +25,16 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
                 .same_site(SameSite::Lax)
                 .secure(!service.is_development),
         );
-        let session = CookieSession::signed(service.secret_key.as_bytes())
-            .name("nocturne-session")
-            .same_site(SameSite::Lax)
-            .secure(!service.is_development);
+
+        let session = SessionMiddleware::builder(
+            CookieSessionStore::default(),
+            Key::derive_from(service.secret_key.as_bytes()),
+        )
+        .cookie_name("nocturne-session".to_string())
+        .cookie_same_site(SameSite::Lax)
+        .cookie_secure(!service.is_development)
+        .build();
+
         let cors = if service.is_development {
             Cors::default().allowed_origin("http://localhost:8080")
         } else {

@@ -2,7 +2,7 @@ use super::AppContext;
 use crate::Error as AppError;
 use crate::Service;
 use actix_identity::RequestIdentity;
-use actix_session::UserSession;
+use actix_session::SessionExt;
 use actix_web::{
     dev::{Service as ActixService, ServiceRequest, ServiceResponse, Transform},
     error::ErrorInternalServerError,

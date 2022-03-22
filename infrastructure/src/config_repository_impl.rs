@@ -1,5 +1,5 @@
-use anyhow::Context;
-use config::{File, FileFormat};
+use anyhow::Context as _;
+use config::{builder::DefaultState, ConfigBuilder, File, FileFormat};
 use domain::{
     entities::config::Config, repositories::config::ConfigRepository, repositories::config::Result,
 };
@@ -13,44 +13,37 @@ pub struct ConfigRepositoryImpl {
 impl ConfigRepositoryImpl {
     pub fn new(config_toml: &str, version: &Version<'_>) -> Result<ConfigRepositoryImpl> {
         // FIXME: こいつはそもそもエラーハンドリングではなくpanicすべきでは？
-        let mut config = config::Config::default();
-        config
-            .merge(File::from_str(config_toml, FileFormat::Toml))
-            .context("Failed to read config.toml")?;
-        config
-            .set(
+        let config = ConfigBuilder::<DefaultState>::default()
+            .add_source(File::from_str(config_toml, FileFormat::Toml))
+            .set_override(
                 "site.generator",
                 format!("Nocturne v{} {}", version.version, version.timestamp),
             )
-            .context("Failed to set site.generator")?;
-        config
-            .set(
+            .context("Failed to set site.generator")?
+            .set_override(
                 "auth.google_client_id",
                 env::var("GOOGLE_OAUTH_CLIENT_ID")
                     .context("Failed to get GOOGLE_OAUTH_CLIENT_ID")?,
             )
-            .context("Failed to set auth.google_client_id")?;
-        config
-            .set(
+            .context("Failed to set auth.google_client_id")?
+            .set_override(
                 "auth.admin_user_id",
                 env::var("ADMIN_USER_ID").context("Failed to get ADMIN_USER_ID env")?,
             )
-            .context("Failed to set auth.admin_user_id")?;
-        config
-            .set(
+            .context("Failed to set auth.admin_user_id")?
+            .set_override(
                 "hatena_star_token",
                 env::var("HATENA_STAR_TOKEN").context("Failed to get HATENA_STAR_TOKEN")?,
             )
-            .context("Failed to set hatena_star_token")?;
-        config
-            .set(
+            .context("Failed to set hatena_star_token")?
+            .set_override(
                 "ga_code",
                 env::var("GA_TRACKING_CODE").context("Failed to get GA_TRACKING_CODE")?,
             )
-            .context("Failed to set ga_code")?;
-        let config = config
-            .try_into::<Config>()
-            .context("Failed to build Config")?;
+            .context("Failed to set ga_code")?
+            .build()
+            .context("Failed to read config.toml")?;
+        let config = config.try_deserialize().context("Failed to build Config")?;
         Ok(ConfigRepositoryImpl { config })
     }
 }

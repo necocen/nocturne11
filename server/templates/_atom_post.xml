@@ -3,14 +3,14 @@
     <title>{{ post.title }}</title>
     <link rel="alternate" href="{{ permalink }}" />
     <id>{{ permalink }}</id>
-    <updated>{{ post.updated_at | iso8601 }}</updated>
-    <published>{{ post.created_at | iso8601 }}</published>
+    <updated>{{ post.updated_at|iso8601 }}</updated>
+    <published>{{ post.created_at|iso8601 }}</published>
     <author>
         <name>{{ context.config.author.name }}</name>
     </author>
     <content type="xhtml" xml:lang="ja" xml:base="{{ context.config.site.url }}">
         <div xmlns="http://www.w3.org/1999/xhtml">
-            {{ post.converted_body() | safe }}
+            {{ post.converted_body()|safe }}
         </div>
     </content>
 </entry>

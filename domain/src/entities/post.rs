@@ -24,7 +24,7 @@ impl Post {
         Post {
             id,
             title: title.into(),
-            body: body.into().replace("\r\n", "\n").replace("\r", "\n"),
+            body: body.into().replace("\r\n", "\n").replace('\r', "\n"),
             created_at,
             updated_at,
         }
@@ -47,7 +47,7 @@ impl NewPost {
     ) -> NewPost {
         NewPost {
             title: title.into(),
-            body: body.into().replace("\r\n", "\n").replace("\r", "\n"),
+            body: body.into().replace("\r\n", "\n").replace('\r', "\n"),
             timestamp,
         }
     }
