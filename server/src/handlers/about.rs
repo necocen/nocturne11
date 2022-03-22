@@ -1,10 +1,11 @@
+use crate::context::AppContext;
 use crate::Error;
-use crate::{askama_helpers::TemplateToResponse, context::AppContext};
 use actix_web::HttpResponse;
+use askama_actix::TemplateToResponse;
 use templates::AboutTemplate;
 
 pub async fn about(context: AppContext) -> Result<HttpResponse, Error> {
-    AboutTemplate { context }.to_response()
+    Ok(AboutTemplate { context }.to_response())
 }
 
 mod templates {

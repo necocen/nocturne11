@@ -1,7 +1,8 @@
 use super::args::PageQuery;
-use crate::{askama_helpers::TemplateToResponse, context::AppContext};
+use crate::context::AppContext;
 use crate::{Error, Service};
 use actix_web::{web, HttpResponse};
+use askama_actix::TemplateToResponse;
 use domain::use_cases::{get_last_updated_date, get_posts};
 use templates::AtomTemplate;
 
@@ -12,16 +13,16 @@ pub async fn all_posts(
 ) -> Result<HttpResponse, Error> {
     let updated_at = get_last_updated_date(&service.posts_repository)?;
     let page = get_posts(&service.posts_repository, 20, query.page.unwrap_or(1))?;
-    AtomTemplate {
+    Ok(AtomTemplate {
         context,
         updated_at,
         page,
     }
-    .to_response()
+    .to_response())
 }
 
 mod templates {
-    pub use crate::askama_helpers::filters;
+    use crate::filters;
     use crate::{context::AppContext, presentation::body::Body};
     use askama::Template;
     use chrono::{DateTime, Utc};

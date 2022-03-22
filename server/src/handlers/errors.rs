@@ -1,7 +1,7 @@
 use self::templates::{
     BadRequestTemplate, InternalErrorTemplate, NotFoundTemplate, UnauthorizedTemplate,
 };
-use crate::{askama_helpers::TemplateToResponse, context::AppContext, errors::Error};
+use crate::{context::AppContext, errors::Error};
 use actix_web::{
     body::{BoxBody, MessageBody},
     dev::ServiceResponse,
@@ -9,6 +9,7 @@ use actix_web::{
     middleware::ErrorHandlerResponse,
     HttpMessage, HttpResponse, HttpResponseBuilder, ResponseError, Result,
 };
+use askama_actix::TemplateToResponse;
 
 pub fn error_400(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<BoxBody>> {
     // AppContextが取得できればそれを使ってテンプレートを描画する
@@ -30,7 +31,7 @@ pub fn error_400(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<B
             .into_iter()
             .collect::<Vec<_>>();
         let body = std::str::from_utf8(&result)?.to_owned();
-        let mut res = BadRequestTemplate { context, body }.to_response()?;
+        let mut res = BadRequestTemplate { context, body }.to_response();
         *res.status_mut() = status;
         Ok(ErrorHandlerResponse::Response(ServiceResponse::new(
             req,
@@ -51,7 +52,7 @@ pub fn error_401(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<B
         .get::<AppContext>()
         .cloned()
     {
-        let body = UnauthorizedTemplate { context }.to_response()?.into_body();
+        let body = UnauthorizedTemplate { context }.to_response().into_body();
         Ok(ErrorHandlerResponse::Response(
             res.map_body(|_, _| body).map_into_left_body(),
         ))
@@ -83,7 +84,7 @@ pub fn error_404(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<B
         if body.is_empty() {
             body = "指定されたファイルが見つかりませんでした。".to_owned();
         }
-        let mut res = NotFoundTemplate { context, body }.to_response()?;
+        let mut res = NotFoundTemplate { context, body }.to_response();
         *res.status_mut() = status;
         Ok(ErrorHandlerResponse::Response(ServiceResponse::new(
             req,
@@ -114,7 +115,7 @@ pub fn error_500(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<B
             .into_iter()
             .collect::<Vec<_>>();
         let body = std::str::from_utf8(&result)?.to_owned();
-        let mut res = InternalErrorTemplate { context, body }.to_response()?;
+        let mut res = InternalErrorTemplate { context, body }.to_response();
         *res.status_mut() = status;
         Ok(ErrorHandlerResponse::Response(ServiceResponse::new(
             req,

@@ -1,8 +1,9 @@
 use super::args::{CreateFormParams, DeleteFormParams, IdArguments, UpdateFormParams};
-use crate::{askama_helpers::TemplateToResponse, context::AppContext};
+use crate::context::AppContext;
 use crate::{Error, Service};
 use actix_session::Session;
 use actix_web::{http::header, web, HttpResponse};
+use askama_actix::TemplateToResponse;
 use chrono::Utc;
 use domain::{
     entities::NewPost,
@@ -11,11 +12,11 @@ use domain::{
 use templates::{AdminIndexTemplate, EditPostTemplate, NewPostTemplate};
 
 pub async fn index(context: AppContext) -> Result<HttpResponse, Error> {
-    AdminIndexTemplate { context }.to_response()
+    Ok(AdminIndexTemplate { context }.to_response())
 }
 
 pub async fn new_post_form(context: AppContext) -> Result<HttpResponse, Error> {
-    NewPostTemplate { context }.to_response()
+    Ok(NewPostTemplate { context }.to_response())
 }
 
 pub async fn edit_post_form(
@@ -25,7 +26,7 @@ pub async fn edit_post_form(
 ) -> Result<HttpResponse, Error> {
     let page = get_post_with_id(&service.posts_repository, &args.id)?;
     let post = page.post().unwrap();
-    EditPostTemplate { context, post }.to_response()
+    Ok(EditPostTemplate { context, post }.to_response())
 }
 
 pub async fn create(

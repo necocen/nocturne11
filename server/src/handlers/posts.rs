@@ -1,7 +1,8 @@
 use super::args::{DateArguments, IdArguments, KeywordsQuery, PageQuery};
-use crate::{askama_helpers::TemplateToResponse, context::AppContext};
+use crate::context::AppContext;
 use crate::{Error, Service};
 use actix_web::{web, HttpResponse};
+use askama_actix::TemplateToResponse;
 use domain::entities::KeywordsCondition;
 use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_date_condition, search_posts};
 use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate, SearchPostsTemplate};
@@ -41,7 +42,7 @@ pub async fn all_posts(
                 ))
             };
         }
-        SearchPostsTemplate { context, page }.to_response()
+        Ok(SearchPostsTemplate { context, page }.to_response())
     } else {
         let page = get_posts(&service.posts_repository, 10, query.page.unwrap_or(1))?;
         if page.posts.is_empty() {
@@ -49,7 +50,7 @@ pub async fn all_posts(
                 "このページには記事が存在しません。".to_owned(),
             ));
         }
-        AllPostsTemplate { context, page }.to_response()
+        Ok(AllPostsTemplate { context, page }.to_response())
     }
 }
 
@@ -59,7 +60,7 @@ pub async fn post_with_id(
     args: web::Path<IdArguments>,
 ) -> Result<HttpResponse, Error> {
     let page = get_post_with_id(&service.posts_repository, &args.id)?;
-    PostTemplate { context, page }.to_response()
+    Ok(PostTemplate { context, page }.to_response())
 }
 
 pub async fn posts_with_date(
@@ -80,11 +81,11 @@ pub async fn posts_with_date(
             "この日付には記事が存在しません。".to_owned(),
         ));
     }
-    PostsWithDateTemplate { context, page }.to_response()
+    Ok(PostsWithDateTemplate { context, page }.to_response())
 }
 
 mod templates {
-    pub use crate::askama_helpers::filters;
+    use crate::filters;
     use crate::{context::AppContext, presentation::body::Body};
     use askama::Template;
     use chrono::NaiveDate;
