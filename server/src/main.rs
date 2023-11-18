@@ -1,4 +1,4 @@
-use clap::{Parser, ArgAction};
+use clap::{ArgAction, Parser};
 use errors::Error;
 use service::Service;
 use std::path::PathBuf;

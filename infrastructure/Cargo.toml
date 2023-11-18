@@ -12,8 +12,8 @@ anyhow ={ workspace = true }
 async-trait = { workspace = true }
 chrono = { workspace = true }
 config = { version = "0.13.3", default-features = false, features = ["toml"] }
-diesel = { version = "1.4.8", features = ["postgres", "chrono", "r2d2"] }
-diesel_migrations = "1.4.0"
+diesel = { version = "2.1.4", features = ["postgres", "chrono", "r2d2"] }
+diesel_migrations = "2.1.0"
 dotenv = "0.15.0"
 elasticsearch = "7.14.0-alpha.1"
 env_logger = "0.10.1"

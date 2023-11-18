@@ -2,7 +2,7 @@ use super::args::LoginFormParams;
 use crate::{Error, Service};
 use actix_identity::Identity;
 use actix_session::Session;
-use actix_web::{http::header, web, HttpResponse, HttpRequest, HttpMessage};
+use actix_web::{http::header, web, HttpMessage, HttpRequest, HttpResponse};
 use domain::use_cases::check_login;
 
 pub async fn login(

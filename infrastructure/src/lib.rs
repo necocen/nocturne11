@@ -4,7 +4,6 @@ extern crate diesel;
 extern crate log;
 #[macro_use]
 extern crate diesel_migrations;
-embed_migrations!("migrations/");
 
 pub mod config_repository_impl;
 mod diesel_helpers;

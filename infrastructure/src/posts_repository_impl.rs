@@ -52,7 +52,7 @@ impl PostsRepository for PostsRepositoryImpl {
         use crate::schema::posts::dsl::posts;
         let post = posts
             .find(id)
-            .get_result::<PostModel>(&self.get_conn()?)
+            .get_result::<PostModel>(&mut self.get_conn()?)
             .optional()
             .context("Failed to get result")?;
         Ok(post.ok_or(Error::NotFound(id))?.into())
@@ -70,7 +70,7 @@ impl PostsRepository for PostsRepositoryImpl {
             .filter(created_at.ge(from))
             .offset(offset as i64)
             .limit(limit as i64)
-            .get_results::<PostModel>(&self.get_conn()?)
+            .get_results::<PostModel>(&mut self.get_conn()?)
             .context("Failed to get results")?;
         Ok(results.into_vec())
     }
@@ -87,7 +87,7 @@ impl PostsRepository for PostsRepositoryImpl {
             .filter(created_at.lt(until))
             .offset(offset as i64)
             .limit(limit as i64)
-            .get_results::<PostModel>(&self.get_conn()?)
+            .get_results::<PostModel>(&mut self.get_conn()?)
             .context("Failed to get results")?;
         Ok(results.into_vec())
     }
@@ -98,7 +98,7 @@ impl PostsRepository for PostsRepositoryImpl {
             .order_by(created_at.desc())
             .offset(offset as i64)
             .limit(limit as i64)
-            .get_results::<PostModel>(&self.get_conn()?)
+            .get_results::<PostModel>(&mut self.get_conn()?)
             .context("Failed to get results")?;
         Ok(results.into_vec())
     }
@@ -107,7 +107,7 @@ impl PostsRepository for PostsRepositoryImpl {
         use crate::schema::posts::dsl::{posts, updated_at};
         let post = posts
             .order_by(updated_at.desc())
-            .first::<PostModel>(&self.get_conn()?)
+            .first::<PostModel>(&mut self.get_conn()?)
             .optional()
             .context("Failed to get result")?;
         Ok(post.map(|p| p.updated_at))
@@ -121,7 +121,7 @@ impl PostsRepository for PostsRepositoryImpl {
                 extract(DatePart::Month, created_at),
             ))
             .distinct()
-            .get_results::<(i32, i32)>(&self.get_conn()?)
+            .get_results::<(i32, i32)>(&mut self.get_conn()?)
             .context("Failed to get results")?;
         Ok(results
             .into_iter()
@@ -146,7 +146,7 @@ impl PostsRepository for PostsRepositoryImpl {
             .filter(created_at.lt(created_before))
             .select(extract(DatePart::Day, created_at))
             .distinct()
-            .get_results::<i32>(&self.get_conn()?)
+            .get_results::<i32>(&mut self.get_conn()?)
             .context("Failed to get results")?;
         Ok(results.into_iter().map(|d| d as u8).collect())
     }
@@ -160,7 +160,7 @@ impl PostsRepository for PostsRepositoryImpl {
                 created_at.eq(new_post.timestamp),
                 updated_at.eq(new_post.timestamp),
             ))
-            .get_result::<PostModel>(&self.get_conn()?)
+            .get_result::<PostModel>(&mut self.get_conn()?)
             .context("Failed to get result")?;
         Ok(post.into())
     }
@@ -173,7 +173,7 @@ impl PostsRepository for PostsRepositoryImpl {
                 body.eq(new_post.body.clone()),
                 updated_at.eq(new_post.timestamp),
             ))
-            .get_result::<PostModel>(&self.get_conn()?)
+            .get_result::<PostModel>(&mut self.get_conn()?)
             .context("Failed to get result")?;
         Ok(post.into())
     }
@@ -181,7 +181,7 @@ impl PostsRepository for PostsRepositoryImpl {
     fn delete(&self, id: PostId) -> PostsResult<()> {
         use crate::schema::posts::dsl::posts;
         diesel::delete(posts.find(id))
-            .execute(&self.get_conn()?)
+            .execute(&mut self.get_conn()?)
             .context("Failed to delete")?;
         Ok(())
     }
@@ -204,14 +204,14 @@ impl ImportPostsRepository for PostsRepositoryImpl {
             .collect::<Vec<_>>();
         let post = diesel::insert_into(posts::table)
             .values(&records)
-            .get_results::<PostModel>(&self.get_conn()?)
+            .get_results::<PostModel>(&mut self.get_conn()?)
             .context("Failed to get results")?;
         Ok(post.into_iter().map(Into::into).collect())
     }
 
     fn reset_id_sequence(&self) -> ImportResult<()> {
         diesel::sql_query("SELECT reset_posts_id_sequence();")
-            .execute(&self.get_conn()?)
+            .execute(&mut self.get_conn()?)
             .context("Failed to reset id sequence")?;
         Ok(())
     }
