@@ -2,12 +2,12 @@ use super::args::LoginFormParams;
 use crate::{Error, Service};
 use actix_identity::Identity;
 use actix_session::Session;
-use actix_web::{http::header, web, HttpResponse};
+use actix_web::{http::header, web, HttpResponse, HttpRequest, HttpMessage};
 use domain::use_cases::check_login;
 
 pub async fn login(
     service: web::Data<Service>,
-    id: Identity,
+    request: HttpRequest,
     session: Session,
     form: web::Form<LoginFormParams>,
 ) -> Result<HttpResponse, Error> {
@@ -17,7 +17,7 @@ pub async fn login(
         &form.id_token,
     )
     .await?;
-    id.remember(user_id);
+    Identity::login(&request.extensions(), user_id).map_err(|e| Error::Other(e.into()))?;
     session.insert("message", "ログインに成功しました").ok();
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, "/admin/"))
@@ -25,7 +25,7 @@ pub async fn login(
 }
 
 pub async fn logout(id: Identity) -> Result<HttpResponse, Error> {
-    id.forget();
+    id.logout();
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, "/"))
         .finish())

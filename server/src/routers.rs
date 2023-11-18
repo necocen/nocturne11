@@ -5,7 +5,7 @@ use crate::{
 };
 use actix_cors::Cors;
 use actix_files::Files;
-use actix_identity::{CookieIdentityPolicy, IdentityService};
+use actix_identity::IdentityMiddleware;
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{
     cookie::{Key, SameSite},
@@ -19,13 +19,6 @@ use actix_web::{
 
 pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
     move |cfg: &mut ServiceConfig| {
-        let identity = IdentityService::new(
-            CookieIdentityPolicy::new(service.secret_key.as_bytes())
-                .name("nocturne-identity")
-                .same_site(SameSite::Lax)
-                .secure(!service.is_development),
-        );
-
         let session = SessionMiddleware::builder(
             CookieSessionStore::default(),
             Key::derive_from(service.secret_key.as_bytes()),
@@ -56,8 +49,8 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
                             .handler(StatusCode::INTERNAL_SERVER_ERROR, errors::error_500),
                     )
                     .wrap(AppContextService)
+                    .wrap(IdentityMiddleware::default())
                     .wrap(session)
-                    .wrap(identity)
                     .configure(posts)
                     .configure(atom)
                     .configure(auth)

@@ -1,7 +1,7 @@
 use super::AppContext;
 use crate::Error as AppError;
 use crate::Service;
-use actix_identity::RequestIdentity;
+use actix_identity::IdentityExt as _;
 use actix_session::SessionExt;
 use actix_web::{
     dev::{Service as ActixService, ServiceRequest, ServiceResponse, Transform},
@@ -58,7 +58,7 @@ where
                 .get_session()
                 .remove_as::<String>("message")
                 .and_then(Result::ok);
-            let is_authorized = matches!(req.get_identity(), Some(ref id) if app.authorize(id));
+            let is_authorized = matches!(req.get_identity().and_then(|id| id.id()), Ok(ref id) if app.authorize(id));
             let is_development = app.is_development;
             match get_config(&app.config_repository) {
                 Ok(config) => {
