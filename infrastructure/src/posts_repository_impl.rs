@@ -184,8 +184,13 @@ impl PostsRepository for PostsRepositoryImpl {
     }
 }
 
-impl PostsRepositoryImpl {
-    pub fn import(&self, posts: &[Post]) -> anyhow::Result<Vec<Post>> {
+pub trait PostsRepositoryImplTestHelper {
+    fn import(&self, posts: &[Post]) -> anyhow::Result<Vec<Post>>;
+    fn reset_id_sequence(&self) -> anyhow::Result<()>;
+}
+
+impl PostsRepositoryImplTestHelper for PostsRepositoryImpl {
+    fn import(&self, posts: &[Post]) -> anyhow::Result<Vec<Post>> {
         use crate::schema::posts::{self, body, created_at, id, title, updated_at};
         let records = posts
             .iter()
@@ -206,7 +211,7 @@ impl PostsRepositoryImpl {
         Ok(post.into_iter().map(Into::into).collect())
     }
 
-    pub fn reset_id_sequence(&self) -> anyhow::Result<()> {
+    fn reset_id_sequence(&self) -> anyhow::Result<()> {
         diesel::sql_query("SELECT reset_posts_id_sequence();")
             .execute(&mut self.get_conn()?)
             .context("Failed to reset id sequence")?;
