@@ -5,6 +5,6 @@ interface ImportMeta {
     };
     env: {
         MODE: string;
-        SNOWPACK_PUBLIC_GOOGLE_CLIENT_ID: string;
+        VITE_PUBLIC_GOOGLE_CLIENT_ID: string;
     };
 }

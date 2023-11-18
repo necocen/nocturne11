@@ -23,8 +23,8 @@ FROM --platform=linux/x86_64 rust:$RUST_VERSION-bookworm as diesel-cli
 WORKDIR /diesel
 RUN cargo install diesel_cli --no-default-features --features postgres --root .
 
-FROM node:16-bullseye-slim AS build-js
-ARG SNOWPACK_PUBLIC_GOOGLE_CLIENT_ID
+FROM node:20-bookworm-slim AS build-js
+ARG VITE_PUBLIC_GOOGLE_CLIENT_ID
 WORKDIR /nocturne
 COPY ./frontend/package.json ./package.json
 COPY ./frontend/package-lock.json ./package-lock.json
@@ -64,7 +64,7 @@ COPY --from=deps /usr/lib/x86_64-linux-gnu/* /usr/lib/x86_64-linux-gnu/
 FROM base AS server
 WORKDIR /nocturne
 COPY --from=build-rust /nocturne/target/release/server .
-COPY --from=build-js /nocturne/build/src ./static
+COPY --from=build-js /nocturne/dist/assets ./static
 ENTRYPOINT ["./server"]
 CMD ["--bind", "0.0.0.0", "--static", "./static", "--production"]
 

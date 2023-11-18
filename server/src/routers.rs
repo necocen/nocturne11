@@ -29,7 +29,7 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
         .build();
 
         let cors = if service.is_development {
-            Cors::default().allowed_origin("http://localhost:8080")
+            Cors::default().allowed_origin("http://localhost:5173")
         } else {
             Cors::default()
         };

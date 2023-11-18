@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 
 export function LoginButton() {
     const formRef = useRef<HTMLFormElement>(null);
@@ -8,7 +8,7 @@ export function LoginButton() {
     useEffect(() => {
         loadScript(() => {
             (window as any).google.accounts.id.initialize({
-                client_id: import.meta.env.SNOWPACK_PUBLIC_GOOGLE_CLIENT_ID,
+                client_id: import.meta.env.VITE_PUBLIC_GOOGLE_CLIENT_ID,
                 callback: (response: any) => {
                     inputRef.current?.setAttribute("value", response.credential);
                     formRef.current?.submit();

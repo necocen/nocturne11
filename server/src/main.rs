@@ -20,7 +20,7 @@ struct Opts {
     #[clap(short, long, default_value = "4000")]
     port: u16,
     /// 静的ファイルの配信元ディレクトリ
-    #[clap(long("static"), default_value = "./frontend/build/src")]
+    #[clap(long("static"), default_value = "./frontend/dist/assets")]
     static_path: PathBuf,
     /// 本番環境モード
     #[clap(long("production"), action = ArgAction::SetFalse)]

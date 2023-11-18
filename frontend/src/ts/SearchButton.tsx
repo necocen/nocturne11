@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 
 export function SearchButton() {
     const searchForm = document.getElementById("search-box");

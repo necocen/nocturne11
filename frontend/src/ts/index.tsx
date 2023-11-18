@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom";
 import { Nav } from "./Nav";
 import { LoginButton, LogoutButton } from "./Login";

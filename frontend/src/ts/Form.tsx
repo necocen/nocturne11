@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback } from "react";
 import { useSessionStorage } from "./storage";
 
 type Props = {

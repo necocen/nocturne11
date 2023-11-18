@@ -2,12 +2,16 @@
 <html lang="ja">
     <head>
         <title>andante</title>
-        <link rel="stylesheet" href="/src/main.css" media="(min-width:481px)" />
-        <link rel="stylesheet" href="/src/sp.css" media="only screen and (max-width:480px)" />
-        <link rel="icon" href="/src/favicon.png" />
-        <link rel="icon" href="/src/favicon.svg" />
-        <link rel="mask-icon" href="/src/mask-icon.svg" color="#333333" />
-        <link rel="apple-touch-icon" href="/src/apple-touch-icon.png" />
+        <!--
+            media属性があるとこのscssはbuild時に正しく置換されない（devは動く）が、build結果のindex.htmlには興味が無いので問題ない
+            cf. https://github.com/vitejs/vite/issues/9402
+        -->
+        <link rel="stylesheet" href="./scss/main.scss" media="(min-width:481px)" />
+        <link rel="stylesheet" href="./scss/sp.scss" media="only screen and (max-width:480px)" />
+        <link rel="icon" href="./images/favicon.png" />
+        <link rel="icon" href="./images/favicon.svg" />
+        <link rel="mask-icon" href="./images/mask-icon.svg" color="#333333" />
+        <link rel="apple-touch-icon" href="./images/apple-touch-icon.png" />
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     </head>
@@ -108,9 +112,9 @@
             </nav>
             <nav id="side-nav"></nav>
             <footer>
-                <address>Presented by κねこせん under <a rel="license external" title="CC0" href="http://creativecommons.org/publicdomain/zero/1.0/"><picture><source srcset="/src/cc-zero.svg" type="image/svg+xml" /><img src="/src/cc-zero.png" alt="CC0" width="80" height="15" /></picture></a>.</address>
+                <address>Presented by κねこせん under <a rel="license external" title="CC0" href="http://creativecommons.org/publicdomain/zero/1.0/"><picture><source srcset="/images/cc-zero.svg" type="image/svg+xml" /><img src="/images/cc-zero.png" alt="CC0" width="80" height="15" /></picture></a>.</address>
             </footer>
-            <script type="module" src="/src/index.js"></script>
+            <script type="module" src="/ts/index.tsx"></script>
         </div>
     </body>
 </html>
