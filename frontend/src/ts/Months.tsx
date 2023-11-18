@@ -3,14 +3,18 @@ import dayjs from "dayjs";
 import useAxios from "axios-hooks";
 import { useRouting } from "./routing";
 
-const API_HOST = import.meta.env.MODE == "production" ? "" : "http://localhost:4000";
+const API_HOST = import.meta.env.MODE === "production" ? "" : "http://localhost:4000";
 
 export function Months() {
     // 記事のある月の一覧を取得
     // デフォルトは2010年から現在まで（レイアウト崩れを防ぐためのものなので記事はない）
     const defaultYears = [...Array(dayjs().year() - 2010 + 1).keys()].map((y) => ({ year: y + 2010, months: undefined }));
     const { thisMonth } = useRouting();
-    const [{ data: { years } = { years: defaultYears } }] = useAxios<{ years: { year: number; months?: number[] }[] }>({
+    const [
+        {
+            data: { years } = { years: defaultYears },
+        },
+    ] = useAxios<{ years: { year: number; months?: number[] }[] }>({
         url: `${API_HOST}/api/months`,
     });
     const [expandedYear, setExpandedYear] = useState(thisMonth.year());
@@ -20,7 +24,7 @@ export function Months() {
             {years
                 .sort((y1, y2) => y1.year - y2.year)
                 .map((year) => (
-                    <Year key={year.year} {...year} expand={setExpandedYear} expanded={expandedYear == year.year} />
+                    <Year key={year.year} {...year} expand={setExpandedYear} expanded={expandedYear === year.year} />
                 ))}
         </>
     );
@@ -42,16 +46,16 @@ function Year({ year, months, expand, expanded }: YearProps) {
     return (
         <table className="year-month">
             <caption>
-                <button onClick={() => expand(year)}>{year}</button>
+                <button type="button" onClick={() => expand(year)}>
+                    {year}
+                </button>
             </caption>
             <tbody className={expanded ? "expanded" : undefined}>
-                {monthRows.map((monthRow, index) => (
-                    <tr key={index}>
+                {monthRows.map((monthRow) => (
+                    <tr key={monthRow[0].month()}>
                         {monthRow.map((month) => (
                             <td key={month.format("YYYY-MM")}>
-                                <a
-                                    href={months && months.includes(month.month() + 1) ? dayjsToPath(month, true) : undefined}
-                                    onFocus={() => expand(year)}>
+                                <a href={months?.includes(month.month() + 1) ? dayjsToPath(month, true) : undefined} onFocus={() => expand(year)}>
                                     {month.format("MM")}
                                 </a>
                             </td>

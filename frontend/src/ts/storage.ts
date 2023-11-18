@@ -27,7 +27,7 @@ function useWebStorage<T>(key: string, initialValue: T, storage: Storage): [T, (
             // Save state
             setStoredValue(valueToStore);
             // Save to local storage
-            if (valueToStore == undefined) {
+            if (valueToStore === undefined) {
                 storage.removeItem(key);
             } else {
                 storage.setItem(key, JSON.stringify(valueToStore));

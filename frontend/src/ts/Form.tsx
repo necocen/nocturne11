@@ -20,14 +20,14 @@ export function Form(props: Props) {
             rawSetTitle(title);
             setSessionStorageTitle(title);
         },
-        [rawSetTitle, setSessionStorageTitle]
+        [setSessionStorageTitle],
     );
     const setBody = useCallback(
         (body: string) => {
             rawSetBody(body);
             setSessionStorageBody(body);
         },
-        [rawSetBody, setSessionStorageBody]
+        [setSessionStorageBody],
     );
 
     const submit = useCallback(() => {
@@ -36,12 +36,12 @@ export function Form(props: Props) {
             setSessionStorageTitle(undefined);
             setSessionStorageBody(undefined);
         }
-    }, [formRef, setSessionStorageTitle, setSessionStorageBody]);
+    }, [setSessionStorageTitle, setSessionStorageBody]);
     const submitDelete = useCallback(() => {
         deleteFormRef.current?.submit();
         setSessionStorageTitle(undefined);
         setSessionStorageBody(undefined);
-    }, [deleteFormRef, setSessionStorageTitle, setSessionStorageBody]);
+    }, [setSessionStorageTitle, setSessionStorageBody]);
 
     return (
         <>

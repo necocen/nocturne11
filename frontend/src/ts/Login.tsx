@@ -7,16 +7,19 @@ export function LoginButton() {
 
     useEffect(() => {
         loadScript(() => {
-            (window as any).google.accounts.id.initialize({
+            window.google.accounts.id.initialize({
                 client_id: import.meta.env.VITE_PUBLIC_GOOGLE_CLIENT_ID,
-                callback: (response: any) => {
+                callback: (response) => {
                     inputRef.current?.setAttribute("value", response.credential);
                     formRef.current?.submit();
                 },
             });
-            (window as any).google.accounts.id.renderButton(loginButtonDivRef.current!, {
-                theme: "outline",
-            });
+            if (loginButtonDivRef.current) {
+                window.google.accounts.id.renderButton(loginButtonDivRef.current, {
+                    type: "standard",
+                    theme: "outline",
+                });
+            }
         });
     }, []);
 
@@ -34,7 +37,11 @@ export function LogoutButton() {
     const signOut = () => {
         window.location.href = "/logout";
     };
-    return <button onClick={signOut}>logout</button>;
+    return (
+        <button type="button" onClick={signOut}>
+            logout
+        </button>
+    );
 }
 
 function loadScript(callback: () => void) {

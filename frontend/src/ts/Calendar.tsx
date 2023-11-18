@@ -3,17 +3,25 @@ import useAxios from "axios-hooks";
 import { useRouting } from "./routing";
 import dayjs from "dayjs";
 
-const API_HOST = import.meta.env.MODE == "production" ? "" : "http://localhost:4000";
+const API_HOST = import.meta.env.MODE === "production" ? "" : "http://localhost:4000";
 
 export function Calendar() {
     const { thisMonth, dayjsToPath } = useRouting();
     const [currentMonth, setCurrentMonth] = useState(thisMonth);
 
     // 記事のある日付一覧を取得
-    const [{ data: { days } = { days: undefined } }] = useAxios<{ days?: number[] }>({
+    const [
+        {
+            data: { days } = { days: undefined },
+        },
+    ] = useAxios<{ days?: number[] }>({
         url: `${API_HOST}/api/days/${currentMonth.format("YYYY-MM")}`,
     });
-    const [{ data: { years } = { years: [] } }] = useAxios<{ years: { year: number; months?: number[] }[] }>({
+    const [
+        {
+            data: { years } = { years: [] },
+        },
+    ] = useAxios<{ years: { year: number; months?: number[] }[] }>({
         url: `${API_HOST}/api/months`,
     });
     const months = years
@@ -36,11 +44,11 @@ export function Calendar() {
     return (
         <table id="calendar" summary="calendar">
             <caption>
-                <button id="calendar-prev-month" onClick={moveToPrevMonth} disabled={!hasPrevMonth}>
+                <button id="calendar-prev-month" type="button" onClick={moveToPrevMonth} disabled={!hasPrevMonth}>
                     <span>┗</span>
                 </button>
                 <a href={days && days.length > 0 ? dayjsToPath(currentMonth, true) : undefined}>{currentMonth.format("YYYY-MM")}</a>
-                <button id="calendar-next-month" onClick={moveToNextMonth} disabled={!hasNextMonth}>
+                <button id="calendar-next-month" type="button" onClick={moveToNextMonth} disabled={!hasNextMonth}>
                     <span>┓</span>
                 </button>
             </caption>
@@ -63,11 +71,11 @@ export function Calendar() {
                             if (day.isSame(currentMonth, "month")) {
                                 return (
                                     <td key={day.format("YYYY-MM-DD")}>
-                                        <a href={days && days.includes(day.date()) ? dayjsToPath(day) : undefined}>{day.format("D")}</a>
+                                        <a href={days?.includes(day.date()) ? dayjsToPath(day) : undefined}>{day.format("D")}</a>
                                     </td>
                                 );
                             } else {
-                                return <td key={day.format("YYYY-MM-DD")}></td>;
+                                return <td key={day.format("YYYY-MM-DD")} />;
                             }
                         })}
                     </tr>

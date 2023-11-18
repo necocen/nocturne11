@@ -25,5 +25,9 @@ export function SearchButton() {
         }
     }, [searchForm]);
 
-    return <button onClick={toggle}>search</button>;
+    return (
+        <button type="button" onClick={toggle}>
+            search
+        </button>
+    );
 }
