@@ -3,7 +3,7 @@
     <header>
         <h3><a href="/{{ post.id }}">{{ post.title }}</a></h3>
     </header>
-    {{ post.converted_body() | safe }}
+    {{ post.converted_body()|safe }}
     <aside>
         <div class="timestamps">
             <time class="created-at" datetime="{{ post.created_at|iso8601 }}">{{ post.created_at|format_date }}</time>
