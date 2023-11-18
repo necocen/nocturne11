@@ -23,14 +23,11 @@ FROM --platform=linux/x86_64 rust:$RUST_VERSION-bookworm as diesel-cli
 WORKDIR /diesel
 RUN cargo install diesel_cli --no-default-features --features postgres --root .
 
-FROM node:20-bookworm-slim AS build-js
+FROM oven/bun:1.0.13-slim AS build-js
 ARG VITE_PUBLIC_GOOGLE_CLIENT_ID
 WORKDIR /nocturne
-COPY ./frontend/package.json ./package.json
-COPY ./frontend/package-lock.json ./package-lock.json
-RUN npm ci
 COPY ./frontend .
-RUN npm ci && npm run build
+RUN bun install --frozen-lockfile && bun run build
 
 FROM --platform=linux/x86_64 debian:bookworm-slim AS deps
 RUN apt-get update -y && \
