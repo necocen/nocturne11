@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, ArgAction};
 use errors::Error;
 use service::Service;
 use std::path::PathBuf;
@@ -22,8 +22,8 @@ struct Opts {
     /// 静的ファイルの配信元ディレクトリ
     #[clap(long("static"), default_value = "./frontend/build/src")]
     static_path: PathBuf,
-    /// 開発モード
-    #[clap(long("production"), parse(from_flag = std::ops::Not::not))]
+    /// 本番環境モード
+    #[clap(long("production"), action = ArgAction::SetFalse)]
     is_development: bool,
 }
 
