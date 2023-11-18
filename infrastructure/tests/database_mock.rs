@@ -56,6 +56,6 @@ impl Drop for DatabaseMock {
 
 pub fn mock_db() -> Result<DatabaseMock> {
     dotenv().ok();
-    let db_name = Uuid::new_v4().to_simple().to_string();
+    let db_name = Uuid::new_v4().simple().to_string();
     DatabaseMock::new(url::Url::parse(&env::var("POSTGRES_URL")?)?, db_name)
 }
