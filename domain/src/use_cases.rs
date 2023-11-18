@@ -281,7 +281,7 @@ pub async fn check_login(
     let key = DecodingKey::from_rsa_components(&n, &e)?;
     let mut validation = Validation::new(Algorithm::RS256);
     validation.sub = Some(config.auth.admin_user_id);
-    validation.set_audience(&[config.auth.google_client_id].to_vec());
+    validation.set_audience([config.auth.google_client_id].as_ref());
     validation.set_issuer(&ISSUERS);
 
     #[derive(Debug, Deserialize)]

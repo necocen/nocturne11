@@ -45,7 +45,7 @@ impl Drop for DatabaseMock {
             r#"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{}';"#,
             self.db_name
         );
-        diesel::sql_query(&disconnect_users).execute(&conn).unwrap();
+        diesel::sql_query(disconnect_users).execute(&conn).unwrap();
 
         let query = diesel::sql_query(format!(r#"DROP DATABASE "{}""#, self.db_name).as_str());
         query
