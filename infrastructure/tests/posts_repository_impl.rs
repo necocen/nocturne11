@@ -3,7 +3,7 @@ use assert_matches::assert_matches;
 use chrono::{Local, TimeZone, Utc};
 use domain::{
     entities::*,
-    repositories::{import_posts::*, posts::Error, posts::*},
+    repositories::{posts::Error, posts::*},
 };
 use infrastructure::posts_repository_impl::*;
 use pretty_assertions::assert_eq;

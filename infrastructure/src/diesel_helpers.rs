@@ -1,10 +1,11 @@
 use chrono::FixedOffset;
 use diesel::{
     backend::Backend,
-    expression::{AppearsOnTable, AsExpression, SelectableExpression, ValidGrouping, is_aggregate},
+    expression::{is_aggregate, AppearsOnTable, AsExpression, SelectableExpression, ValidGrouping},
     query_builder::{AstPass, QueryFragment},
+    sql_query,
     sql_types::*,
-    Connection, Expression, QueryResult, RunQueryDsl, sql_query, PgConnection,
+    Connection, Expression, PgConnection, QueryResult, RunQueryDsl,
 };
 use r2d2::CustomizeConnection;
 
@@ -16,8 +17,12 @@ pub(crate) struct TimezoneCustomizer {
 
 impl CustomizeConnection<PgConnection, diesel::r2d2::Error> for TimezoneCustomizer {
     fn on_acquire(&self, conn: &mut PgConnection) -> std::result::Result<(), diesel::r2d2::Error> {
-        sql_query(format!("SET TIME ZONE INTERVAL '{}' HOUR TO MINUTE;", &self.offset)).execute(conn)
-            .map_err(diesel::r2d2::Error::QueryError)?;
+        sql_query(format!(
+            "SET TIME ZONE INTERVAL '{}' HOUR TO MINUTE;",
+            &self.offset
+        ))
+        .execute(conn)
+        .map_err(diesel::r2d2::Error::QueryError)?;
         Ok(())
     }
 }

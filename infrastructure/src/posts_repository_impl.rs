@@ -7,10 +7,7 @@ use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use domain::{
     entities::{date::YearMonth, NewPost, Post, PostId},
-    repositories::{
-        import_posts::{ImportPostsRepository, Result as ImportResult},
-        posts::{Error, PostsRepository, Result as PostsResult},
-    },
+    repositories::posts::{Error, PostsRepository, Result as PostsResult},
 };
 use r2d2::{Pool, PooledConnection};
 
@@ -187,8 +184,8 @@ impl PostsRepository for PostsRepositoryImpl {
     }
 }
 
-impl ImportPostsRepository for PostsRepositoryImpl {
-    fn import(&self, posts: &[Post]) -> ImportResult<Vec<Post>> {
+impl PostsRepositoryImpl {
+    pub fn import(&self, posts: &[Post]) -> anyhow::Result<Vec<Post>> {
         use crate::schema::posts::{self, body, created_at, id, title, updated_at};
         let records = posts
             .iter()
@@ -209,7 +206,7 @@ impl ImportPostsRepository for PostsRepositoryImpl {
         Ok(post.into_iter().map(Into::into).collect())
     }
 
-    fn reset_id_sequence(&self) -> ImportResult<()> {
+    pub fn reset_id_sequence(&self) -> anyhow::Result<()> {
         diesel::sql_query("SELECT reset_posts_id_sequence();")
             .execute(&mut self.get_conn()?)
             .context("Failed to reset id sequence")?;

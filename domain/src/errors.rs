@@ -1,7 +1,6 @@
 use crate::repositories::config::Error as ConfigError;
 use crate::repositories::export_posts::Error as ExportError;
 use crate::repositories::google_auth_cert::Error as CertError;
-use crate::repositories::import_posts::Error as ImportError;
 use crate::repositories::posts::Error as PostsError;
 use crate::repositories::search::Error as SearchError;
 use jsonwebtoken::errors::Error as JwtError;
@@ -19,8 +18,6 @@ pub enum Error {
     Config(#[from] ConfigError),
     #[error(transparent)]
     Export(#[from] ExportError),
-    #[error(transparent)]
-    Import(#[from] ImportError),
     #[error(transparent)]
     Jwt(#[from] JwtError),
     #[error("Unexpected JWT issuer: {0}")]
