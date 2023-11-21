@@ -48,7 +48,10 @@ fn test_get_post_with_id_which_has_prev_only() -> Result<()> {
         next_page,
         ..
     } = get_post_with_id(&repo, &PostId(1229))?;
-    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [PostId(1229)]);
+    assert_eq!(
+        posts.into_iter().map(|p| p.id).collect::<Vec<_>>(),
+        [PostId(1229)]
+    );
     assert_eq!(prev_page, AdjacentPage::Condition(PostId(1228)));
     assert_eq!(next_page, AdjacentPage::None);
     Ok(())
@@ -63,7 +66,10 @@ fn test_get_post_with_id_which_has_next_only() -> Result<()> {
         next_page,
         ..
     } = get_post_with_id(&repo, &PostId(202))?;
-    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [PostId(202)]);
+    assert_eq!(
+        posts.into_iter().map(|p| p.id).collect::<Vec<_>>(),
+        [PostId(202)]
+    );
     assert_eq!(prev_page, AdjacentPage::None);
     assert_eq!(next_page, AdjacentPage::Condition(PostId(203)));
     Ok(())
@@ -78,7 +84,10 @@ fn test_get_post_with_id_which_has_prev_and_next() -> Result<()> {
         next_page,
         ..
     } = get_post_with_id(&repo, &PostId(228))?;
-    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [PostId(228)]);
+    assert_eq!(
+        posts.into_iter().map(|p| p.id).collect::<Vec<_>>(),
+        [PostId(228)]
+    );
     assert_eq!(prev_page, AdjacentPage::Condition(PostId(227)));
     assert_eq!(next_page, AdjacentPage::Condition(PostId(229)));
     Ok(())
@@ -93,7 +102,10 @@ fn test_get_post_with_id_which_has_prev() -> Result<()> {
         next_page,
         ..
     } = get_post_with_id(&repo, &PostId(228))?;
-    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [PostId(228)]);
+    assert_eq!(
+        posts.into_iter().map(|p| p.id).collect::<Vec<_>>(),
+        [PostId(228)]
+    );
     assert_eq!(prev_page, AdjacentPage::Condition(PostId(227)));
     assert_eq!(next_page, AdjacentPage::Condition(PostId(229)));
     Ok(())
@@ -135,7 +147,13 @@ fn test_get_post_by_month_first_page() -> Result<()> {
     } = get_posts_with_date_condition(&repo, &cond, 5, 1)?;
     assert_eq!(
         posts.into_iter().map(|p| p.id).collect::<Vec<_>>(),
-        [PostId(202), PostId(203), PostId(204), PostId(205), PostId(206)]
+        [
+            PostId(202),
+            PostId(203),
+            PostId(204),
+            PostId(205),
+            PostId(206)
+        ]
     );
     assert_eq!(next_page, AdjacentPage::Page(2));
     assert_eq!(prev_page, AdjacentPage::None);
@@ -157,7 +175,13 @@ fn test_get_post_by_month_second_page() -> Result<()> {
     } = get_posts_with_date_condition(&repo, &cond, 5, 2)?;
     assert_eq!(
         posts.into_iter().map(|p| p.id).collect::<Vec<_>>(),
-        [PostId(207), PostId(208), PostId(209), PostId(210), PostId(211)]
+        [
+            PostId(207),
+            PostId(208),
+            PostId(209),
+            PostId(210),
+            PostId(211)
+        ]
     );
     assert_eq!(next_page, AdjacentPage::Page(3));
     assert_eq!(
@@ -228,7 +252,10 @@ fn test_get_post_by_day_first_page() -> Result<()> {
         prev_page,
         ..
     } = get_posts_with_date_condition(&repo, &cond, 1, 1)?;
-    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [PostId(202)]);
+    assert_eq!(
+        posts.into_iter().map(|p| p.id).collect::<Vec<_>>(),
+        [PostId(202)]
+    );
     assert_eq!(next_page, AdjacentPage::Page(2));
     assert_eq!(prev_page, AdjacentPage::None);
     Ok(())
@@ -247,7 +274,10 @@ fn test_get_post_by_day_last_page() -> Result<()> {
         prev_page,
         ..
     } = get_posts_with_date_condition(&repo, &cond, 1, 2)?;
-    assert_eq!(posts.into_iter().map(|p| p.id).collect::<Vec<_>>(), [PostId(203)]);
+    assert_eq!(
+        posts.into_iter().map(|p| p.id).collect::<Vec<_>>(),
+        [PostId(203)]
+    );
     assert_eq!(prev_page, AdjacentPage::Page(1));
     assert_eq!(
         next_page,

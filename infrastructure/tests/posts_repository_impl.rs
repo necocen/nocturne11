@@ -14,9 +14,9 @@ use database_mock::*;
 fn import_and_find() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
-    repo.import(&[Post::new(1, "1", "1111", Utc::now(), Utc::now())])?;
-    let post = repo.get(1)?;
-    assert_eq!(post.id, 1);
+    repo.import(&[Post::new(PostId(1), "1", "1111", Utc::now(), Utc::now())])?;
+    let post = repo.get(PostId(1))?;
+    assert_eq!(post.id.0, 1);
     assert_eq!(post.title, "1");
     assert_eq!(post.body, "1111");
     Ok(())
@@ -26,7 +26,7 @@ fn import_and_find() -> Result<()> {
 fn id_not_found() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
-    let post = repo.get(1);
+    let post = repo.get(PostId(1));
     assert_matches!(post, Err(Error::NotFound(_)));
     Ok(())
 }
@@ -35,8 +35,8 @@ fn id_not_found() -> Result<()> {
 fn import_duplicated_id() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
-    repo.import(&[Post::new(1, "1", "1111", Utc::now(), Utc::now())])?;
-    let result = repo.import(&[Post::new(1, "1", "1111", Utc::now(), Utc::now())]);
+    repo.import(&[Post::new(PostId(1), "1", "1111", Utc::now(), Utc::now())])?;
+    let result = repo.import(&[Post::new(PostId(1), "1", "1111", Utc::now(), Utc::now())]);
     assert_matches!(result, Err(_));
     Ok(())
 }
@@ -48,7 +48,7 @@ fn import_update_sequence() -> Result<()> {
     repo.import(&mock_data())?;
     repo.reset_id_sequence()?;
     let post = repo.create(&NewPost::new("1230", "1230", Utc::now()))?;
-    assert_eq!(post.id, 1230);
+    assert_eq!(post.id.0, 1230);
     Ok(())
 }
 
@@ -57,8 +57,8 @@ fn create_and_find() -> Result<()> {
     let DatabaseMock { ref pg_url, .. } = mock_db()?;
     let repo = PostsRepositoryImpl::new(pg_url)?;
     repo.create(&NewPost::new("1", "1111", Utc::now()))?;
-    let post = repo.get(1)?;
-    assert_eq!(post.id, 1);
+    let post = repo.get(PostId(1))?;
+    assert_eq!(post.id.0, 1);
     assert_eq!(post.title, "1");
     assert_eq!(post.body, "1111");
     Ok(())
@@ -70,8 +70,8 @@ fn create_and_increment_id() -> Result<()> {
     let repo = PostsRepositoryImpl::new(pg_url)?;
     repo.create(&NewPost::new("1", "1111", Utc::now()))?;
     repo.create(&NewPost::new("2", "2222", Utc::now()))?;
-    let post = repo.get(2)?;
-    assert_eq!(post.id, 2);
+    let post = repo.get(PostId(2))?;
+    assert_eq!(post.id.0, 2);
     assert_eq!(post.title, "2");
     assert_eq!(post.body, "2222");
     Ok(())
@@ -85,7 +85,7 @@ fn create_and_update() -> Result<()> {
     let post = repo.create(&NewPost::new("1", "1111", created_at))?;
     let updated_at = Local.ymd(2021, 5, 2).and_hms(2, 11, 24).with_timezone(&Utc);
     let post = repo.update(post.id, &NewPost::new("1'", "1111'", updated_at))?;
-    assert_eq!(post.id, 1);
+    assert_eq!(post.id.0, 1);
     assert_eq!(post.title, "1'");
     assert_eq!(post.body, "1111'");
     assert_eq!(post.created_at, created_at);
@@ -100,8 +100,8 @@ fn create_and_delete() -> Result<()> {
     let created_at = Local.ymd(2021, 5, 2).and_hms(2, 10, 28).with_timezone(&Utc);
     let post = repo.create(&NewPost::new("1", "1111", created_at))?;
     let post = repo.get(post.id)?;
-    assert_eq!(post.id, 1);
-    repo.delete(1)?;
+    assert_eq!(post.id.0, 1);
+    repo.delete(PostId(1))?;
     let result = repo.get(post.id);
     assert_matches!(result, Err(Error::NotFound(_)));
     Ok(())
@@ -118,9 +118,9 @@ fn find_all() -> Result<()> {
     let expected_ids = (1..=6)
         .rev()
         .flat_map(|m| {
-            (1..=14)
-                .rev()
-                .flat_map(move |d| vec![m * 2 * 100 + d * 2 + 1, m * 2 * 100 + d * 2])
+            (1..=14).rev().flat_map(move |d| {
+                vec![PostId(m * 2 * 100 + d * 2 + 1), PostId(m * 2 * 100 + d * 2)]
+            })
         })
         .collect::<Vec<_>>();
     assert_eq!(ids, expected_ids);
@@ -135,8 +135,20 @@ fn mock_data() -> Vec<Post> {
                 let date_time00 = date.and_hms(0, 0, 0).with_timezone(&Utc);
                 let date_time12 = date.and_hms(12, 0, 0).with_timezone(&Utc);
                 vec![
-                    Post::new(m * 2 * 100 + d * 2, "", "", date_time00, date_time00),
-                    Post::new(m * 2 * 100 + d * 2 + 1, "", "", date_time12, date_time12),
+                    Post::new(
+                        PostId(m * 2 * 100 + d * 2),
+                        "",
+                        "",
+                        date_time00,
+                        date_time00,
+                    ),
+                    Post::new(
+                        PostId(m * 2 * 100 + d * 2 + 1),
+                        "",
+                        "",
+                        date_time12,
+                        date_time12,
+                    ),
                 ]
             })
         })

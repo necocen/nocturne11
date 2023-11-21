@@ -6,7 +6,7 @@ use actix_web::{http::header, web, HttpResponse};
 use askama_actix::TemplateToResponse;
 use chrono::Utc;
 use domain::{
-    entities::{NewPost,PostId},
+    entities::{NewPost, PostId},
     use_cases::{create_post, delete_post, get_post_with_id, update_post},
 };
 use templates::{AdminIndexTemplate, EditPostTemplate, NewPostTemplate};

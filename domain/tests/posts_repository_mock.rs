@@ -18,8 +18,20 @@ impl PostsRepositoryMock {
                     let date_time00 = date.and_hms(0, 0, 0).with_timezone(&Utc);
                     let date_time12 = date.and_hms(12, 0, 0).with_timezone(&Utc);
                     vec![
-                        Post::new(PostId(m * 2 * 100 + d * 2), "", "", date_time00, date_time00),
-                        Post::new(PostId(m * 2 * 100 + d * 2 + 1), "", "", date_time12, date_time12),
+                        Post::new(
+                            PostId(m * 2 * 100 + d * 2),
+                            "",
+                            "",
+                            date_time00,
+                            date_time00,
+                        ),
+                        Post::new(
+                            PostId(m * 2 * 100 + d * 2 + 1),
+                            "",
+                            "",
+                            date_time12,
+                            date_time12,
+                        ),
                     ]
                 })
             })
