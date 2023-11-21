@@ -23,7 +23,7 @@ pub async fn all_posts(
 
 mod templates {
     use crate::filters;
-    use crate::{context::AppContext, presentation::body::Body};
+    use crate::{context::AppContext, presentation::posts::Body};
     use askama::Template;
     use chrono::{DateTime, Utc};
     use domain::entities::{Page, Post};

@@ -9,7 +9,7 @@ pub async fn about(context: AppContext) -> Result<HttpResponse, Error> {
 }
 
 mod templates {
-    use crate::{context::AppContext, presentation::body::Body};
+    use crate::{context::AppContext, presentation::posts::Body};
     use askama::Template;
 
     #[derive(Template)]

@@ -87,7 +87,7 @@ pub async fn posts_with_date(
 
 mod templates {
     use crate::filters;
-    use crate::{context::AppContext, presentation::body::Body};
+    use crate::{context::AppContext, presentation::posts::Body};
     use askama::Template;
     use chrono::NaiveDate;
     use domain::entities::{
