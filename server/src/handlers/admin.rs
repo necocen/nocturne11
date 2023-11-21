@@ -6,7 +6,7 @@ use actix_web::{http::header, web, HttpResponse};
 use askama_actix::TemplateToResponse;
 use chrono::Utc;
 use domain::{
-    entities::NewPost,
+    entities::{NewPost,PostId},
     use_cases::{create_post, delete_post, get_post_with_id, update_post},
 };
 use templates::{AdminIndexTemplate, EditPostTemplate, NewPostTemplate};
@@ -24,7 +24,8 @@ pub async fn edit_post_form(
     service: web::Data<Service>,
     args: web::Query<IdArguments>,
 ) -> Result<HttpResponse, Error> {
-    let page = get_post_with_id(&service.posts_repository, &args.id)?;
+    let post_id = PostId(args.id);
+    let page = get_post_with_id(&service.posts_repository, &post_id)?;
     let post = page.post().unwrap();
     Ok(EditPostTemplate { context, post }.to_response())
 }
@@ -56,7 +57,7 @@ pub async fn update(
     update_post(
         &service.posts_repository,
         &service.search_repository,
-        form.id,
+        PostId(form.id),
         &new_post,
     )
     .await?;
@@ -74,7 +75,7 @@ pub async fn delete(
     delete_post(
         &service.posts_repository,
         &service.search_repository,
-        form.id,
+        PostId(form.id),
     )
     .await?;
     session.insert("message", "記事の削除に成功しました").ok();

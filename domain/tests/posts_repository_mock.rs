@@ -6,7 +6,7 @@ use std::cell::{Cell, RefCell};
 #[derive(Debug, Clone, Default)]
 pub struct PostsRepositoryMock {
     posts: RefCell<Vec<Post>>,
-    sequence: Cell<i32>,
+    sequence: Cell<PostId>,
 }
 
 impl PostsRepositoryMock {
@@ -18,8 +18,8 @@ impl PostsRepositoryMock {
                     let date_time00 = date.and_hms(0, 0, 0).with_timezone(&Utc);
                     let date_time12 = date.and_hms(12, 0, 0).with_timezone(&Utc);
                     vec![
-                        Post::new(m * 2 * 100 + d * 2, "", "", date_time00, date_time00),
-                        Post::new(m * 2 * 100 + d * 2 + 1, "", "", date_time12, date_time12),
+                        Post::new(PostId(m * 2 * 100 + d * 2), "", "", date_time00, date_time00),
+                        Post::new(PostId(m * 2 * 100 + d * 2 + 1), "", "", date_time12, date_time12),
                     ]
                 })
             })
@@ -104,7 +104,7 @@ impl PostsRepository for PostsRepositoryMock {
             timestamp: created_at,
             ..
         } = new_post.clone();
-        self.sequence.set(self.sequence.get() + 1);
+        self.sequence.set(PostId(self.sequence.get().0 + 1));
         let post = Post::new(self.sequence.get(), title, body, created_at, created_at);
         self.posts.borrow_mut().push(post.clone());
         Ok(post)

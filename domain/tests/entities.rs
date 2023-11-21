@@ -4,7 +4,7 @@ use domain::entities::*;
 #[test]
 fn post_replace_linebreaks() {
     let post = Post::new(
-        1,
+        PostId(1),
         "TITLE",
         "LINE\r\nLINE\rLINE\nLINE\r\r\nLINE\n\r\nLINE",
         Utc::now(),

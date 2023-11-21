@@ -48,7 +48,7 @@ impl PostsRepository for PostsRepositoryImpl {
     fn get(&self, id: PostId) -> PostsResult<Post> {
         use crate::schema::posts::dsl::posts;
         let post = posts
-            .find(id)
+            .find(id.0)
             .get_result::<PostModel>(&mut self.get_conn()?)
             .optional()
             .context("Failed to get result")?;
@@ -164,7 +164,7 @@ impl PostsRepository for PostsRepositoryImpl {
 
     fn update(&self, id: PostId, new_post: &NewPost) -> PostsResult<Post> {
         use crate::schema::posts::dsl::{body, posts, title, updated_at};
-        let post = diesel::update(posts.find(id))
+        let post = diesel::update(posts.find(id.0))
             .set((
                 title.eq(new_post.title.clone()),
                 body.eq(new_post.body.clone()),
@@ -177,7 +177,7 @@ impl PostsRepository for PostsRepositoryImpl {
 
     fn delete(&self, id: PostId) -> PostsResult<()> {
         use crate::schema::posts::dsl::posts;
-        diesel::delete(posts.find(id))
+        diesel::delete(posts.find(id.0))
             .execute(&mut self.get_conn()?)
             .context("Failed to delete")?;
         Ok(())
@@ -196,7 +196,7 @@ impl PostsRepositoryImplTestHelper for PostsRepositoryImpl {
             .iter()
             .map(|post| {
                 (
-                    id.eq(post.id),
+                    id.eq(post.id.0),
                     title.eq(post.title.clone()),
                     body.eq(post.body.clone()),
                     created_at.eq(post.created_at),

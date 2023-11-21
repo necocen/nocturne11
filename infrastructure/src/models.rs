@@ -6,7 +6,7 @@
 use super::schema::posts;
 use chrono::{offset::Utc, TimeZone};
 use chrono::{DateTime, NaiveDateTime};
-use domain::entities::Post as PostEntity;
+use domain::entities::{Post as PostEntity, PostId};
 
 #[derive(Queryable, Insertable, Debug, Clone)]
 pub(crate) struct Post {
@@ -20,7 +20,7 @@ pub(crate) struct Post {
 impl From<Post> for PostEntity {
     fn from(post: Post) -> PostEntity {
         PostEntity::new(
-            post.id,
+            PostId(post.id),
             post.title,
             post.body,
             post.created_at,

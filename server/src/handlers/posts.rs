@@ -3,7 +3,7 @@ use crate::context::AppContext;
 use crate::{Error, Service};
 use actix_web::{web, HttpResponse};
 use askama_actix::TemplateToResponse;
-use domain::entities::KeywordsCondition;
+use domain::entities::{KeywordsCondition, PostId};
 use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_date_condition, search_posts};
 use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate, SearchPostsTemplate};
 
@@ -59,7 +59,8 @@ pub async fn post_with_id(
     service: web::Data<Service>,
     args: web::Path<IdArguments>,
 ) -> Result<HttpResponse, Error> {
-    let page = get_post_with_id(&service.posts_repository, &args.id)?;
+    let post_id = PostId(args.id);
+    let page = get_post_with_id(&service.posts_repository, &post_id)?;
     Ok(PostTemplate { context, page }.to_response())
 }
 

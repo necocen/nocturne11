@@ -1,7 +1,16 @@
+use core::fmt;
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-pub type PostId = i32;
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord, Default)]
+pub struct PostId(pub i32);
+
+impl fmt::Display for PostId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[non_exhaustive]
