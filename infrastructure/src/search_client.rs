@@ -278,13 +278,13 @@ impl application::adapters::SearchClient for SearchClient {
         limit: usize,
     ) -> anyhow::Result<SearchResult> {
         use crate::schema::posts::dsl::{created_at, id, posts};
-        let (next_year, next_month) = if year_month.1 == 12 {
-            (year_month.0 + 1, 1)
+        let (next_year, next_month) = if year_month.month == 12 {
+            (year_month.year + 1, 1)
         } else {
-            (year_month.0, year_month.1 + 1)
+            (year_month.year, year_month.month + 1)
         };
         let created_after = Local
-            .with_ymd_and_hms(year_month.0 as i32, year_month.1 as u32, 1, 0, 0, 0)
+            .with_ymd_and_hms(year_month.year as i32, year_month.month as u32, 1, 0, 0, 0)
             .unwrap();
         let created_before = Local
             .with_ymd_and_hms(next_year as i32, next_month as u32, 1, 0, 0, 0)
@@ -361,13 +361,13 @@ impl application::adapters::SearchClient for SearchClient {
             .context("Failed to get results")?;
         Ok(results
             .into_iter()
-            .map(|(y, m)| YearMonth(y as u16, m as u8))
+            .map(|(y, m)| YearMonth::new(y as u16, m as u8).unwrap())
             .collect())
     }
 
     async fn get_days_in_year_month(
         &self,
-        YearMonth(year, month): &YearMonth,
+        YearMonth { year, month, .. }: &YearMonth,
     ) -> anyhow::Result<Vec<u8>> {
         use crate::schema::posts::dsl::{created_at, posts};
         let (next_year, next_month) = if *month == 12 {

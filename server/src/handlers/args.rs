@@ -1,5 +1,5 @@
 use anyhow::anyhow;
-use application::models::YearMonth;
+use application::{errors::ApplicationError, models::YearMonth};
 use chrono::NaiveDate;
 use serde::Deserialize;
 
@@ -29,10 +29,10 @@ pub struct YearMonthArguments {
     month: u8,
 }
 
-impl From<YearMonthArguments> for YearMonth {
-    fn from(args: YearMonthArguments) -> YearMonth {
-        // TODO: たぶん本当はYearMonthにコンストラクタがあって、そこでバリデーションするべき
-        YearMonth(args.year, args.month)
+impl TryFrom<YearMonthArguments> for YearMonth {
+    type Error = ApplicationError;
+    fn try_from(args: YearMonthArguments) -> Result<YearMonth, Self::Error> {
+        YearMonth::new(args.year, args.month)
     }
 }
 

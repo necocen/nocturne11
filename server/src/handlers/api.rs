@@ -23,7 +23,7 @@ pub async fn days_in_year_month(
     args: web::Path<YearMonthArguments>,
 ) -> Result<HttpResponse, Error> {
     let days =
-        GetDaysInYearMonthUseCase::execute(&service.search_client, &args.into_inner().into())
+        GetDaysInYearMonthUseCase::execute(&service.search_client, &args.into_inner().try_into()?)
             .await?;
     Ok(HttpResponse::Ok().json(DaysResponse { days }))
 }

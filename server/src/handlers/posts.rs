@@ -91,7 +91,7 @@ pub async fn posts_with_year_month(
     args: web::Path<YearMonthArguments>,
     query: web::Query<PageQuery>,
 ) -> Result<HttpResponse, Error> {
-    let year_month: YearMonth = args.into_inner().into();
+    let year_month: YearMonth = args.into_inner().try_into()?;
     let page = GetPostsByYearMonthUseCase::execute(
         &service.posts_repository,
         &service.search_client,
@@ -177,7 +177,7 @@ mod templates {
 
     impl ConditionToString for YearMonth {
         fn to_string(&self) -> String {
-            format!("{:04}-{:02}", self.0, self.1)
+            format!("{:04}-{:02}", self.year, self.month)
         }
     }
 
@@ -313,7 +313,7 @@ mod templates {
 
         #[test]
         fn year_month_to_string() {
-            let condition = YearMonth(1989, 9);
+            let condition = YearMonth::new(1989, 9).unwrap();
             assert_eq!(condition.to_string(), "1989-09");
         }
     }
