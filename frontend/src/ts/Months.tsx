@@ -15,15 +15,15 @@ export function Months() {
     const { thisMonth } = useRouting();
     const [
         {
-            data: { year_months } = { year_months: undefined },
+            data: { yearMonths } = { yearMonths: undefined },
         },
-    ] = useAxios<{ year_months: { year: number; month: number }[] }>({
+    ] = useAxios<{ yearMonths: { year: number; month: number }[] }>({
         url: `${API_HOST}/api/year_months`,
     });
     const [expandedYear, setExpandedYear] = useState(thisMonth.year());
 
-    const years = year_months
-        ? year_months
+    const years = yearMonths
+        ? yearMonths
               .reduce((acc, { year, month }) => {
                   const yearData = acc.find((y) => y.year === year);
                   if (yearData) {

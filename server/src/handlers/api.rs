@@ -1,22 +1,11 @@
 use crate::{Error, Service};
 use actix_web::{web, HttpResponse};
-use application::{
-    models::YearMonth,
-    use_cases::{GetDaysInYearMonthUseCase, GetYearMonthsUseCase},
+use application::use_cases::{GetDaysInYearMonthUseCase, GetYearMonthsUseCase};
+
+use super::{
+    args::YearMonthArguments,
+    responses::{DaysResponse, YearMonthsResponse},
 };
-use serde::Serialize;
-
-use super::args::YearMonthArguments;
-
-#[derive(Debug, Clone, Serialize)]
-struct DaysResponse {
-    days: Vec<u8>,
-}
-
-#[derive(Debug, Clone, Serialize)]
-struct YearMonthsResponse {
-    year_months: Vec<YearMonth>,
-}
 
 pub async fn days_in_year_month(
     service: web::Data<Service>,

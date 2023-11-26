@@ -6,3 +6,4 @@ pub mod atom;
 pub mod auth;
 pub mod errors;
 pub mod posts;
+mod responses;
