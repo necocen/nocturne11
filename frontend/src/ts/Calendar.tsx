@@ -19,14 +19,12 @@ export function Calendar() {
     });
     const [
         {
-            data: { years } = { years: [] },
+            data: { year_months } = { year_months: [] },
         },
-    ] = useAxios<{ years: { year: number; months?: number[] }[] }>({
-        url: `${API_HOST}/api/months`,
+    ] = useAxios<{ year_months: { year: number; month: number }[] }>({
+        url: `${API_HOST}/api/year_months`,
     });
-    const months = years
-        .flatMap(({ year, months }) => months?.map((month) => dayjs(`${year}-${month}-01`)) ?? [])
-        .sort((a, b) => a.unix() - b.unix());
+    const months = year_months.map(({ year, month }) => dayjs(`${year}-${month}-01`)).sort((a, b) => a.unix() - b.unix());
     const hasPrevMonth = months.length > 0 && months[0].isBefore(currentMonth);
     const hasNextMonth = months.length > 0 && months[months.length - 1].isAfter(currentMonth);
 

@@ -8,24 +8,43 @@ const API_HOST = import.meta.env.MODE === "production" ? "" : "http://localhost:
 export function Months() {
     // 記事のある月の一覧を取得
     // デフォルトは2010年から現在まで（レイアウト崩れを防ぐためのものなので記事はない）
-    const defaultYears = [...Array(dayjs().year() - 2010 + 1).keys()].map((y) => ({ year: y + 2010, months: undefined }));
+    const defaultYears = [...Array(dayjs().year() - 2010 + 1).keys()].map((y) => ({
+        year: y + 2010,
+        months: undefined,
+    }));
     const { thisMonth } = useRouting();
     const [
         {
-            data: { years } = { years: defaultYears },
+            data: { year_months } = { year_months: undefined },
         },
-    ] = useAxios<{ years: { year: number; months?: number[] }[] }>({
-        url: `${API_HOST}/api/months`,
+    ] = useAxios<{ year_months: { year: number; month: number }[] }>({
+        url: `${API_HOST}/api/year_months`,
     });
     const [expandedYear, setExpandedYear] = useState(thisMonth.year());
 
+    const years = year_months
+        ? year_months
+              .reduce((acc, { year, month }) => {
+                  const yearData = acc.find((y) => y.year === year);
+                  if (yearData) {
+                      yearData.months.push(month);
+                  } else {
+                      acc.push({ year, months: [month] });
+                  }
+                  return acc;
+              }, [] as { year: number; months: number[] }[])
+              .map((yearData) => ({
+                  ...yearData,
+                  months: yearData.months.sort((m1, m2) => m1 - m2),
+              }))
+              .sort((y1, y2) => y1.year - y2.year)
+        : defaultYears;
+
     return (
         <>
-            {years
-                .sort((y1, y2) => y1.year - y2.year)
-                .map((year) => (
-                    <Year key={year.year} {...year} expand={setExpandedYear} expanded={expandedYear === year.year} />
-                ))}
+            {years.map((year) => (
+                <Year key={year.year} {...year} expand={setExpandedYear} expanded={expandedYear === year.year} />
+            ))}
         </>
     );
 }
