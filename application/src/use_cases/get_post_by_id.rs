@@ -48,9 +48,10 @@ mod tests {
     use chrono::Utc;
     use domain::entities::Post;
     use mockall::predicate::*;
+    use pretty_assertions::assert_eq;
 
     #[tokio::test]
-    async fn test_get_post_by_id_2() {
+    async fn test_get_post_by_id() {
         let mut mock_posts = MockPostsRepository::new();
         let mut mock_search = MockSearchClient::new();
         let now = Utc::now();
@@ -90,6 +91,126 @@ mod tests {
             page.prev_page.as_ref().unwrap(),
             AdjacentPageInfo::Condition(PostId(628))
         );
+        assert_eq!(page.post().unwrap().id, post_id);
+    }
+
+    #[tokio::test]
+    async fn test_get_post_by_id_first_post() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let now = Utc::now();
+        let post_id = PostId(1);
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(post_id))
+            .returning(move |_| {
+                Ok(Some(Post::new(
+                    post_id,
+                    "test title",
+                    "test body",
+                    now,
+                    now,
+                )))
+            });
+        mock_search
+            .expect_get_from_date()
+            .with(eq(now), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(2)]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(now), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+
+        let page = GetPostByIdUseCase::execute(&mock_posts, &mock_search, &post_id)
+            .await
+            .unwrap();
+
+        assert_eq!(page.condition, &post_id);
+        assert_eq!(page.posts.len(), 1);
+        assert_matches!(
+            page.next_page.as_ref().unwrap(),
+            AdjacentPageInfo::Condition(PostId(2))
+        );
+        assert!(page.prev_page.is_none());
+        assert_eq!(page.post().unwrap().id, post_id);
+    }
+
+    #[tokio::test]
+    async fn test_get_post_by_id_last_post() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let now = Utc::now();
+        let post_id = PostId(629);
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(post_id))
+            .returning(move |_| {
+                Ok(Some(Post::new(
+                    post_id,
+                    "test title",
+                    "test body",
+                    now,
+                    now,
+                )))
+            });
+        mock_search
+            .expect_get_from_date()
+            .with(eq(now), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(now), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(628)]));
+
+        let page = GetPostByIdUseCase::execute(&mock_posts, &mock_search, &post_id)
+            .await
+            .unwrap();
+
+        assert_eq!(page.condition, &post_id);
+        assert_eq!(page.posts.len(), 1);
+        assert!(page.next_page.is_none());
+        assert_matches!(
+            page.prev_page.as_ref().unwrap(),
+            AdjacentPageInfo::Condition(PostId(628))
+        );
+        assert_eq!(page.post().unwrap().id, post_id);
+    }
+
+    #[tokio::test]
+    async fn test_get_post_by_id_only_one() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let now = Utc::now();
+        let post_id = PostId(629);
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(post_id))
+            .returning(move |_| {
+                Ok(Some(Post::new(
+                    post_id,
+                    "test title",
+                    "test body",
+                    now,
+                    now,
+                )))
+            });
+        mock_search
+            .expect_get_from_date()
+            .with(eq(now), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(now), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+
+        let page = GetPostByIdUseCase::execute(&mock_posts, &mock_search, &post_id)
+            .await
+            .unwrap();
+
+        assert_eq!(page.condition, &post_id);
+        assert_eq!(page.posts.len(), 1);
+        assert!(page.next_page.is_none());
+        assert!(page.prev_page.is_none());
         assert_eq!(page.post().unwrap().id, post_id);
     }
 

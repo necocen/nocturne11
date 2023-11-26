@@ -20,7 +20,7 @@ impl Page<'_, PostId, ()> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum AdjacentPageInfo<C, I> {
     Condition(C),
     PageIndex(I),

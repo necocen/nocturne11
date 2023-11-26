@@ -1,5 +1,5 @@
 use anyhow::Context as _;
-use chrono::{NaiveDate, TimeZone as _, Utc};
+use chrono::{NaiveDate, TimeZone as _, Utc, Local};
 
 use crate::{
     adapters::{PostsRepository, SearchClient},
@@ -43,7 +43,7 @@ impl GetPostsByDateUseCase {
                     .await?
                     .context("post of next month not found")?;
                 Some(AdjacentPageInfo::Condition(
-                    post.created_at.naive_local().date(),
+                    post.created_at.with_timezone(&Local).date_naive(),
                 ))
             } else {
                 None
@@ -73,7 +73,7 @@ impl GetPostsByDateUseCase {
                     .await?
                     .context("post of prev month not found")?;
                 Some(AdjacentPageInfo::Condition(
-                    post.created_at.naive_local().date(),
+                    post.created_at.with_timezone(&Local).date_naive(),
                 ))
             } else {
                 None
@@ -87,5 +87,91 @@ impl GetPostsByDateUseCase {
             next_page,
             prev_page,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{adapters::*, models::SearchResult};
+    use chrono::{Duration, Local, Utc};
+    use domain::entities::{Post, PostId};
+    use mockall::predicate::*;
+    use pretty_assertions::assert_eq;
+
+    #[tokio::test]
+    async fn test_get_posts_by_date() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let date = NaiveDate::from_ymd_opt(1989, 9, 1).unwrap();
+        let date1 = date
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_local_timezone(Local)
+            .unwrap()
+            .with_timezone(&Utc);
+        let date2 = date1 + Duration::hours(12);
+        let next_date = date1 + Duration::days(3);
+        let prev_date = date1 - Duration::days(3);
+        let posts = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+        ];
+        let next_post = Post::new(
+            PostId(631),
+            "test title3",
+            "test body3",
+            next_date,
+            next_date,
+        );
+        let prev_post = Post::new(
+            PostId(628),
+            "test title4",
+            "test body4",
+            prev_date,
+            prev_date,
+        );
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+        mock_search
+            .expect_find_by_date()
+            .withf(move |d, o, l| d == &date && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: 1,
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date2), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(631)]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(628)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(next_post.id))
+            .returning(move |_| Ok(Some(next_post.clone())));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(prev_post.id))
+            .returning(move |_| Ok(Some(prev_post.clone())));
+
+        let page = GetPostsByDateUseCase::execute(&mock_posts, &mock_search, &date, 1)
+            .await
+            .unwrap();
+        assert_eq!(page.condition, &date);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 2);
+        assert_eq!(page.posts[0].id, PostId(629));
+        assert_eq!(page.posts[1].id, PostId(630));
+        assert_eq!(page.next_page, Some(AdjacentPageInfo::Condition(NaiveDate::from_ymd_opt(1989, 9, 4).unwrap())));
+        assert_eq!(page.prev_page, Some(AdjacentPageInfo::Condition(NaiveDate::from_ymd_opt(1989, 8, 29).unwrap())));
     }
 }
