@@ -1,14 +1,10 @@
 use crate::{Error, Service};
 use actix_web::{web, HttpResponse};
-use domain::entities::date::{Year, YearMonth};
-use domain::use_cases::{get_days, get_years};
-use serde::{Deserialize, Serialize};
+use application::use_cases::{GetDaysInYearMonthUseCase, GetYearMonthsUseCase};
+use domain::entities::date::YearMonth;
+use serde::Serialize;
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct YearMonthArguments {
-    year: u16,
-    month: u8,
-}
+use super::args::YearMonthArguments;
 
 #[derive(Debug, Clone, Serialize)]
 struct DaysResponse {
@@ -16,21 +12,21 @@ struct DaysResponse {
 }
 
 #[derive(Debug, Clone, Serialize)]
-struct MonthsResponse {
-    years: Vec<Year>,
+struct YearMonthsResponse {
+    year_months: Vec<YearMonth>,
 }
 
 pub async fn days_in_year_month(
     service: web::Data<Service>,
     args: web::Path<YearMonthArguments>,
 ) -> Result<HttpResponse, Error> {
-    Ok(HttpResponse::Ok().json(DaysResponse {
-        days: get_days(&service.posts_repository, YearMonth(args.year, args.month))?,
-    }))
+    let days =
+        GetDaysInYearMonthUseCase::execute(&service.search_client, &args.into_inner().into())
+            .await?;
+    Ok(HttpResponse::Ok().json(DaysResponse { days }))
 }
 
-pub async fn months(service: web::Data<Service>) -> Result<HttpResponse, Error> {
-    Ok(HttpResponse::Ok().json(MonthsResponse {
-        years: get_years(&service.posts_repository)?,
-    }))
+pub async fn year_months(service: web::Data<Service>) -> Result<HttpResponse, Error> {
+    let year_months = GetYearMonthsUseCase::execute(&service.search_client).await?;
+    Ok(HttpResponse::Ok().json(YearMonthsResponse { year_months }))
 }

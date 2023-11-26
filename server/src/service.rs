@@ -4,6 +4,7 @@ use infrastructure::{
     config_repository_impl::{ConfigRepositoryImpl, Version},
     google_auth_cert_repository_impl::GoogleAuthCertRepositoryImpl,
     posts_repository_impl::PostsRepositoryImpl,
+    search_client::SearchClient,
     search_repository_impl::SearchRepositoryImpl,
 };
 use std::{env, path::PathBuf};
@@ -14,6 +15,7 @@ pub struct Service {
     pub posts_repository: PostsRepositoryImpl,
     pub config_repository: ConfigRepositoryImpl,
     pub cert_repository: GoogleAuthCertRepositoryImpl,
+    pub search_client: SearchClient,
     pub admin_user_id: String,
     pub secret_key: String,
     pub static_path: PathBuf,
@@ -39,12 +41,14 @@ impl Service {
         let posts_repository = PostsRepositoryImpl::new(&pg_url)?;
         let config_repository = ConfigRepositoryImpl::new(config_toml, &version)?;
         let cert_repository = GoogleAuthCertRepositoryImpl::default();
+        let search_client = SearchClient::new(&es_url, &pg_url)?;
 
         Ok(Service {
             search_repository,
             posts_repository,
             config_repository,
             cert_repository,
+            search_client,
             admin_user_id,
             secret_key,
             static_path,

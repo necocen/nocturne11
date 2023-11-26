@@ -20,7 +20,9 @@ impl AuthenticateUseCase {
         let kid = header
             .kid
             .context("JWT token does not contain 'kid' field.")?;
-        let (n, e) = certs.get_by_key(&kid).await?;
+        let Some((n, e)) = certs.get_by_key(&kid).await? else {
+            Err(anyhow::anyhow!("cert not found"))?
+        };
         let key = DecodingKey::from_rsa_components(&n, &e)?;
         let mut validation = Validation::new(Algorithm::RS256);
         let auth_settings = app_config

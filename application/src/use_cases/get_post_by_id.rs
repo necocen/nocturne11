@@ -39,3 +39,41 @@ impl GetPostByIdUseCase {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::adapters::mocks::{PostsRepositoryMock, SearchClientMock};
+    use chrono::Utc;
+    use domain::entities::Post;
+
+    #[tokio::test]
+    async fn test_get_post_by_id() {
+        let post = Post::new(
+            PostId(629),
+            "test title",
+            "test body",
+            Utc::now(),
+            Utc::now(),
+        );
+        let posts = PostsRepositoryMock::new(vec![post.clone()]);
+        let search_client = SearchClientMock::new(vec![post.clone()]);
+        let post_id = PostId(629);
+        let page = GetPostByIdUseCase::execute(&posts, &search_client, &post_id)
+            .await
+            .unwrap();
+        assert_eq!(page.condition, &post_id);
+        assert_eq!(page.posts.len(), 1);
+        assert!(page.next_page.is_none());
+        assert!(page.prev_page.is_none());
+        assert_eq!(page.post().unwrap().id, post.id);
+    }
+
+    #[tokio::test]
+    async fn test_get_post_by_id_not_found() {
+        let posts = PostsRepositoryMock::new(vec![]);
+        let search_client = SearchClientMock::new(vec![]);
+        let page = GetPostByIdUseCase::execute(&posts, &search_client, &PostId(1)).await;
+        assert!(page.is_err());
+    }
+}

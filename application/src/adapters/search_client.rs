@@ -1,8 +1,11 @@
 use chrono::{DateTime, NaiveDate, Utc};
 use domain::entities::{date::YearMonth, Post, PostId};
+#[cfg(test)]
+use mockall::{automock, mock, predicate::*};
 
 use crate::models::SearchResult;
 
+#[cfg_attr(test, automock)]
 #[async_trait::async_trait]
 pub trait SearchClient {
     async fn find_by_keywords<'a>(

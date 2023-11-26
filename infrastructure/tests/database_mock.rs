@@ -1,5 +1,7 @@
 use anyhow::Result;
+use chrono::{Local, NaiveDate, Utc};
 use diesel::prelude::*;
+use domain::entities::{Post, PostId};
 use dotenv::dotenv;
 use infrastructure::migration::*;
 use std::env;
@@ -60,4 +62,43 @@ pub fn mock_db() -> Result<DatabaseMock> {
     dotenv().ok();
     let db_name = Uuid::new_v4().simple().to_string();
     DatabaseMock::new(url::Url::parse(&env::var("POSTGRES_URL")?)?, db_name)
+}
+
+pub fn mock_data() -> Vec<Post> {
+    (1..=6)
+        .flat_map(|m| {
+            (1..=14).flat_map(move |d| {
+                let date = NaiveDate::from_ymd_opt(2020i32, (m * 2) as u32, (d * 2 - m % 2) as u32)
+                    .unwrap();
+                let date_time00 = date
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap()
+                    .and_local_timezone(Local)
+                    .unwrap()
+                    .with_timezone(&Utc);
+                let date_time12 = date
+                    .and_hms_opt(12, 0, 0)
+                    .unwrap()
+                    .and_local_timezone(Local)
+                    .unwrap()
+                    .with_timezone(&Utc);
+                vec![
+                    Post::new(
+                        PostId(m * 2 * 100 + d * 2),
+                        "",
+                        "",
+                        date_time00,
+                        date_time00,
+                    ),
+                    Post::new(
+                        PostId(m * 2 * 100 + d * 2 + 1),
+                        "",
+                        "",
+                        date_time12,
+                        date_time12,
+                    ),
+                ]
+            })
+        })
+        .collect()
 }

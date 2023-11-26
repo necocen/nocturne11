@@ -1,4 +1,6 @@
-use domain::entities::date::{DateCondition, YearMonth};
+use anyhow::anyhow;
+use chrono::NaiveDate;
+use domain::entities::date::YearMonth;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
@@ -9,15 +11,28 @@ pub struct IdArguments {
 pub struct DateArguments {
     year: u16,
     month: u8,
-    day: Option<u8>,
+    day: u8,
 }
 
-impl From<DateArguments> for DateCondition {
-    fn from(args: DateArguments) -> DateCondition {
-        DateCondition {
-            ym: YearMonth(args.year, args.month),
-            day: args.day,
-        }
+impl TryFrom<DateArguments> for NaiveDate {
+    type Error = anyhow::Error;
+
+    fn try_from(args: DateArguments) -> Result<NaiveDate, Self::Error> {
+        NaiveDate::from_ymd_opt(args.year as i32, args.month as u32, args.day as u32)
+            .ok_or(anyhow!("invalid date"))
+    }
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct YearMonthArguments {
+    year: u16,
+    month: u8,
+}
+
+impl From<YearMonthArguments> for YearMonth {
+    fn from(args: YearMonthArguments) -> YearMonth {
+        // TODO: たぶん本当はYearMonthにコンストラクタがあって、そこでバリデーションするべき
+        YearMonth(args.year, args.month)
     }
 }
 
@@ -30,7 +45,6 @@ pub struct PageQuery {
 pub struct KeywordsQuery {
     pub page: Option<usize>,
     pub keywords: Option<String>,
-    pub search_after: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

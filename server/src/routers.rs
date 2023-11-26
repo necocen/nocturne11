@@ -69,7 +69,9 @@ pub fn routing(service: Service) -> impl FnOnce(&mut ServiceConfig) {
 fn posts(cfg: &mut ServiceConfig) {
     cfg.service(resource("/").route(get().to(posts::all_posts)))
         .service(resource(r"/{id:\d+}").route(get().to(posts::post_with_id)))
-        .service(resource(r"/{year:\d{4}}-{month:\d{2}}").route(get().to(posts::posts_with_date)))
+        .service(
+            resource(r"/{year:\d{4}}-{month:\d{2}}").route(get().to(posts::posts_with_year_month)),
+        )
         .service(
             resource(r"/{year:\d{4}}-{month:\d{2}}-{day:\d{2}}")
                 .route(get().to(posts::posts_with_date)),
@@ -84,7 +86,7 @@ fn api(cfg: &mut ServiceConfig) {
     cfg.service(
         resource(r"/days/{year:\d{4}}-{month:\d{2}}").route(get().to(api::days_in_year_month)),
     )
-    .service(resource("/months").route(get().to(api::months)));
+    .service(resource("/year_months").route(get().to(api::year_months)));
 }
 
 fn auth(cfg: &mut ServiceConfig) {

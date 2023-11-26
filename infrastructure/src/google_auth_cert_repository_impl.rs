@@ -1,5 +1,5 @@
 use anyhow::Context;
-use domain::repositories::google_auth_cert::{Error, GoogleAuthCertRepository, Result};
+use application::adapters::GoogleCertsProvider;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Default)]
@@ -18,8 +18,8 @@ struct Keys {
 }
 
 #[async_trait::async_trait]
-impl GoogleAuthCertRepository for GoogleAuthCertRepositoryImpl {
-    async fn key(&self, kid: &str) -> Result<(String, String)> {
+impl GoogleCertsProvider for GoogleAuthCertRepositoryImpl {
+    async fn get_by_key(&self, kid: &str) -> anyhow::Result<Option<(String, String)>> {
         const URL: &str = "https://www.googleapis.com/oauth2/v3/certs";
         let url = url::Url::parse(URL).with_context(|| format!("URL parse error: '{}'", URL))?;
         let keys = reqwest::get(url)
@@ -32,7 +32,7 @@ impl GoogleAuthCertRepository for GoogleAuthCertRepositoryImpl {
             .keys
             .into_iter()
             .find(|key| key.kid == kid)
-            .ok_or_else(|| Error::NotFound(kid.to_owned()))?;
-        Ok((key.n, key.e))
+            .map(|key| (key.n, key.e));
+        Ok(key)
     }
 }

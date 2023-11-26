@@ -8,6 +8,7 @@ use std::future::{ready, Ready};
 
 #[derive(Clone, Debug)]
 pub struct AppContext {
+    // TODO: AppContextProvider traitを定義して、UseCaseから参照するようにする
     pub is_authorized: bool,
     pub is_development: bool,
     pub config: Config,

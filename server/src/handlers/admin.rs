@@ -3,12 +3,12 @@ use crate::context::AppContext;
 use crate::{Error, Service};
 use actix_session::Session;
 use actix_web::{http::header, web, HttpResponse};
+use application::use_cases::{
+    CreateNewPostUseCase, DeletePostUseCase, GetPostByIdUseCase, UpdatePostUseCase,
+};
 use askama_actix::TemplateToResponse;
 use chrono::Utc;
-use domain::{
-    entities::{NewPost, PostId},
-    use_cases::{create_post, delete_post, get_post_with_id, update_post},
-};
+use domain::entities::{NewPost, PostId};
 use templates::{AdminIndexTemplate, EditPostTemplate, NewPostTemplate};
 
 pub async fn index(context: AppContext) -> Result<HttpResponse, Error> {
@@ -25,8 +25,10 @@ pub async fn edit_post_form(
     args: web::Query<IdArguments>,
 ) -> Result<HttpResponse, Error> {
     let post_id = PostId(args.id);
-    let page = get_post_with_id(&service.posts_repository, &post_id)?;
-    let post = page.post().unwrap();
+    let post =
+        GetPostByIdUseCase::execute(&service.posts_repository, &service.search_client, &post_id)
+            .await?
+            .post()?;
     Ok(EditPostTemplate { context, post }.to_response())
 }
 
@@ -36,12 +38,8 @@ pub async fn create(
     session: Session,
 ) -> Result<HttpResponse, Error> {
     let new_post = NewPost::new(&form.title, &form.body, Utc::now());
-    create_post(
-        &service.posts_repository,
-        &service.search_repository,
-        &new_post,
-    )
-    .await?;
+    CreateNewPostUseCase::execute(&service.posts_repository, &service.search_client, new_post)
+        .await?;
     session.insert("message", "記事の投稿に成功しました").ok();
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, "/"))
@@ -53,14 +51,14 @@ pub async fn update(
     form: web::Form<UpdateFormParams>,
     session: Session,
 ) -> Result<HttpResponse, Error> {
-    let new_post = NewPost::new(&form.title, &form.body, Utc::now());
-    update_post(
-        &service.posts_repository,
-        &service.search_repository,
-        PostId(form.id),
-        &new_post,
-    )
-    .await?;
+    let post_id = PostId(form.id);
+    let mut post =
+        GetPostByIdUseCase::execute(&service.posts_repository, &service.search_client, &post_id)
+            .await?
+            .post()?;
+    post.title = form.title.clone();
+    post.body = form.body.clone();
+    UpdatePostUseCase::execute(&service.posts_repository, &service.search_client, &post).await?;
     session.insert("message", "記事の編集に成功しました").ok();
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, format!("/{}", form.id)))
@@ -72,12 +70,8 @@ pub async fn delete(
     form: web::Form<DeleteFormParams>,
     session: Session,
 ) -> Result<HttpResponse, Error> {
-    delete_post(
-        &service.posts_repository,
-        &service.search_repository,
-        PostId(form.id),
-    )
-    .await?;
+    let post_id = PostId(form.id);
+    DeletePostUseCase::execute(&service.posts_repository, &service.search_client, &post_id).await?;
     session.insert("message", "記事の削除に成功しました").ok();
     Ok(HttpResponse::SeeOther()
         .append_header((header::LOCATION, "/"))
@@ -103,8 +97,8 @@ mod templates {
 
     #[derive(Template)]
     #[template(path = "admin/edit.html")]
-    pub struct EditPostTemplate<'a> {
+    pub struct EditPostTemplate {
         pub context: AppContext,
-        pub post: &'a Post,
+        pub post: Post,
     }
 }

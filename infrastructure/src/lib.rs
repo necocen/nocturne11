@@ -12,4 +12,5 @@ pub mod migration;
 mod models;
 pub mod posts_repository_impl;
 mod schema;
+pub mod search_client;
 pub mod search_repository_impl;

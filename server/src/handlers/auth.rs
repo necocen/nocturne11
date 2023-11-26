@@ -3,7 +3,7 @@ use crate::{Error, Service};
 use actix_identity::Identity;
 use actix_session::Session;
 use actix_web::{http::header, web, HttpMessage, HttpRequest, HttpResponse};
-use domain::use_cases::check_login;
+use application::use_cases::AuthenticateUseCase;
 
 pub async fn login(
     service: web::Data<Service>,
@@ -11,7 +11,7 @@ pub async fn login(
     session: Session,
     form: web::Form<LoginFormParams>,
 ) -> Result<HttpResponse, Error> {
-    let user_id = check_login(
+    let user_id = AuthenticateUseCase::execute(
         &service.config_repository,
         &service.cert_repository,
         &form.id_token,

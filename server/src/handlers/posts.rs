@@ -1,11 +1,19 @@
-use super::args::{DateArguments, IdArguments, KeywordsQuery, PageQuery};
+use super::args::{DateArguments, IdArguments, KeywordsQuery, PageQuery, YearMonthArguments};
 use crate::context::AppContext;
 use crate::{Error, Service};
 use actix_web::{web, HttpResponse};
+use application::use_cases::{
+    GetLatestPostsUseCase, GetPostByIdUseCase, GetPostsByDateUseCase, GetPostsByYearMonthUseCase,
+    SearchPostsUseCase,
+};
 use askama_actix::TemplateToResponse;
-use domain::entities::{KeywordsCondition, PostId};
-use domain::use_cases::{get_post_with_id, get_posts, get_posts_with_date_condition, search_posts};
-use templates::{AllPostsTemplate, PostTemplate, PostsWithDateTemplate, SearchPostsTemplate};
+use chrono::NaiveDate;
+use domain::entities::date::YearMonth;
+use domain::entities::PostId;
+use templates::{
+    AllPostsTemplate, PostTemplate, PostsWithDateTemplate, PostsWithYearMonthTemplate,
+    SearchPostsTemplate,
+};
 
 pub async fn all_posts(
     context: AppContext,
@@ -13,38 +21,27 @@ pub async fn all_posts(
     query: web::Query<KeywordsQuery>,
 ) -> Result<HttpResponse, Error> {
     if let Some(keywords) = &query.keywords {
-        let keywords = KeywordsCondition(keywords.split_whitespace().collect::<Vec<_>>());
-        let search_after = query.search_after.as_ref().and_then(|search_after| {
-            let mut search_after_iter = search_after
-                .split(',')
-                .map(str::parse::<u64>)
-                .flat_map(Result::ok);
-            let a = search_after_iter.next();
-            let b = search_after_iter.next();
-            a.and_then(|a| b.map(|b| (a, b)))
-        });
-        let page = search_posts(
+        let keywords = keywords.split_whitespace().collect::<Vec<_>>();
+        let page = SearchPostsUseCase::execute(
+            &service.search_client,
             &service.posts_repository,
-            &service.search_repository,
             &keywords,
-            10,
-            search_after,
+            query.page.unwrap_or(1),
         )
         .await?;
         if page.posts.is_empty() {
-            return if search_after.is_none() {
-                Err(Error::NoResult(
-                    "このページには記事が存在しません。".to_owned(),
-                ))
-            } else {
-                Err(Error::NoResult(
-                    "指定されたキーワードに一致する記事が存在しません。".to_owned(),
-                ))
-            };
+            return Err(Error::NoResult(
+                "このページには記事が存在しません。".to_owned(),
+            ));
         }
         Ok(SearchPostsTemplate { context, page }.to_response())
     } else {
-        let page = get_posts(&service.posts_repository, 10, query.page.unwrap_or(1))?;
+        let page = GetLatestPostsUseCase::execute(
+            &service.posts_repository,
+            &service.search_client,
+            query.page.unwrap_or(1),
+        )
+        .await?;
         if page.posts.is_empty() {
             return Err(Error::NoResult(
                 "このページには記事が存在しません。".to_owned(),
@@ -60,7 +57,9 @@ pub async fn post_with_id(
     args: web::Path<IdArguments>,
 ) -> Result<HttpResponse, Error> {
     let post_id = PostId(args.id);
-    let page = get_post_with_id(&service.posts_repository, &post_id)?;
+    let page =
+        GetPostByIdUseCase::execute(&service.posts_repository, &service.search_client, &post_id)
+            .await?;
     Ok(PostTemplate { context, page }.to_response())
 }
 
@@ -70,13 +69,14 @@ pub async fn posts_with_date(
     args: web::Path<DateArguments>,
     query: web::Query<PageQuery>,
 ) -> Result<HttpResponse, Error> {
-    let condition = args.into_inner().into();
-    let page = get_posts_with_date_condition(
+    let date: NaiveDate = args.into_inner().try_into()?; // TODO: map to 404
+    let page = GetPostsByDateUseCase::execute(
         &service.posts_repository,
-        &condition,
-        10,
+        &service.search_client,
+        &date,
         query.page.unwrap_or(1),
-    )?;
+    )
+    .await?;
     if page.posts.is_empty() {
         return Err(Error::NoResult(
             "この日付には記事が存在しません。".to_owned(),
@@ -85,42 +85,69 @@ pub async fn posts_with_date(
     Ok(PostsWithDateTemplate { context, page }.to_response())
 }
 
+pub async fn posts_with_year_month(
+    context: AppContext,
+    service: web::Data<Service>,
+    args: web::Path<YearMonthArguments>,
+    query: web::Query<PageQuery>,
+) -> Result<HttpResponse, Error> {
+    let year_month: YearMonth = args.into_inner().into();
+    let page = GetPostsByYearMonthUseCase::execute(
+        &service.posts_repository,
+        &service.search_client,
+        &year_month,
+        query.page.unwrap_or(1),
+    )
+    .await?;
+    if page.posts.is_empty() {
+        return Err(Error::NoResult(
+            "この日付には記事が存在しません。".to_owned(),
+        ));
+    }
+    Ok(PostsWithYearMonthTemplate { context, page }.to_response())
+}
+
 mod templates {
     use crate::filters;
     use crate::{context::AppContext, presentation::posts::Body};
+    use application::models::{AdjacentPageInfo, Page};
     use askama::Template;
     use chrono::NaiveDate;
-    use domain::entities::{
-        date::DateCondition, AdjacentPage, KeywordsCondition, Page, Post, PostId,
-    };
+    use domain::entities::{date::YearMonth, Post, PostId};
     use urlencoding::encode;
 
     #[derive(Template)]
     #[template(path = "all_posts.html")]
     pub struct AllPostsTemplate<'a> {
         pub context: AppContext,
-        pub page: Page<'a, ()>,
+        pub page: Page<'a, (), usize>,
     }
 
     #[derive(Template)]
     #[template(path = "search_posts.html")]
     pub struct SearchPostsTemplate<'a> {
         pub context: AppContext,
-        pub page: Page<'a, KeywordsCondition<'a>>,
+        pub page: Page<'a, Vec<&'a str>, usize>,
     }
 
     #[derive(Template)]
     #[template(path = "posts.html")]
+    pub struct PostsWithYearMonthTemplate<'a> {
+        pub context: AppContext,
+        pub page: Page<'a, YearMonth, usize>,
+    }
+    #[derive(Template)]
+    #[template(path = "posts.html")]
     pub struct PostsWithDateTemplate<'a> {
         pub context: AppContext,
-        pub page: Page<'a, DateCondition>,
+        pub page: Page<'a, NaiveDate, usize>,
     }
 
     #[derive(Template)]
     #[template(path = "posts.html")]
     pub struct PostTemplate<'a> {
         pub context: AppContext,
-        pub page: Page<'a, PostId>,
+        pub page: Page<'a, PostId, ()>,
     }
 
     trait PostExt {
@@ -138,9 +165,9 @@ mod templates {
         fn keywords(&self) -> String;
     }
 
-    impl KeywordsConditionExt for KeywordsCondition<'_> {
+    impl KeywordsConditionExt for Vec<&str> {
         fn keywords(&self) -> String {
-            self.0.join(" ")
+            self.join(" ")
         }
     }
 
@@ -148,25 +175,15 @@ mod templates {
         fn to_string(&self) -> String;
     }
 
-    impl ConditionToString for DateCondition {
+    impl ConditionToString for YearMonth {
         fn to_string(&self) -> String {
-            NaiveDate::from_ymd(
-                self.ym.0.into(),
-                self.ym.1.into(),
-                self.day.unwrap_or(1).into(),
-            )
-            .format(if self.day.is_some() {
-                "%Y-%m-%d"
-            } else {
-                "%Y-%m"
-            })
-            .to_string()
+            format!("{:04}-{:02}", self.0, self.1)
         }
     }
 
-    impl<'a> ConditionToString for KeywordsCondition<'a> {
+    impl ConditionToString for Vec<&str> {
         fn to_string(&self) -> String {
-            format!("keywords({})", &self.0.join(", "))
+            format!("keywords({})", self.join(", "))
         }
     }
 
@@ -181,13 +198,97 @@ mod templates {
         fn prev_href(&self) -> Option<String>;
     }
 
-    impl ConditionToUrl for Page<'_, DateCondition> {
+    impl ConditionToUrl for Page<'_, (), usize> {
         fn next_href(&self) -> Option<String> {
             match self.next_page {
-                AdjacentPage::Condition(ref condition) => {
-                    Some(format!("/{}", condition.to_string()))
+                Some(AdjacentPageInfo::PageIndex(page)) => Some(format!("/?page={}", page)),
+                _ => None,
+            }
+        }
+
+        fn prev_href(&self) -> Option<String> {
+            match self.prev_page {
+                Some(AdjacentPageInfo::PageIndex(page)) => Some(format!("/?page={}", page)),
+                _ => None,
+            }
+        }
+    }
+
+    impl ConditionToUrl for Page<'_, PostId, ()> {
+        fn next_href(&self) -> Option<String> {
+            match self.next_page {
+                Some(AdjacentPageInfo::Condition(post_id)) => Some(format!("/{post_id}")),
+                _ => None,
+            }
+        }
+
+        fn prev_href(&self) -> Option<String> {
+            match self.prev_page {
+                Some(AdjacentPageInfo::Condition(post_id)) => Some(format!("/{post_id}")),
+                _ => None,
+            }
+        }
+    }
+
+    impl ConditionToUrl for Page<'_, Vec<&str>, usize> {
+        fn next_href(&self) -> Option<String> {
+            match self.next_page {
+                Some(AdjacentPageInfo::PageIndex(page)) => Some(format!(
+                    "/?keywords={}&page={}",
+                    encode(&self.condition.join(" ")),
+                    page
+                )),
+                _ => None,
+            }
+        }
+
+        fn prev_href(&self) -> Option<String> {
+            match self.prev_page {
+                Some(AdjacentPageInfo::PageIndex(page)) => Some(format!(
+                    "/?keywords={}&page={}",
+                    encode(&self.condition.join(" ")),
+                    page
+                )),
+                _ => None,
+            }
+        }
+    }
+
+    impl ConditionToUrl for Page<'_, NaiveDate, usize> {
+        fn next_href(&self) -> Option<String> {
+            match self.next_page {
+                Some(AdjacentPageInfo::Condition(ref date)) => {
+                    Some(format!("/{}?page={}", date.format("%Y-%m-%d"), self.index))
                 }
-                AdjacentPage::Page(page) => {
+                Some(AdjacentPageInfo::PageIndex(page)) => Some(format!(
+                    "/{}?page={}",
+                    self.condition.format("%Y-%m-%d"),
+                    page
+                )),
+                _ => None,
+            }
+        }
+
+        fn prev_href(&self) -> Option<String> {
+            match self.prev_page {
+                Some(AdjacentPageInfo::Condition(ref date)) => {
+                    Some(format!("/{}", date.format("%Y-%m-%d")))
+                }
+                Some(AdjacentPageInfo::PageIndex(page)) => Some(format!(
+                    "/{}?page={}",
+                    self.condition.format("%Y-%m-%d"),
+                    page
+                )),
+                _ => None,
+            }
+        }
+    }
+
+    impl ConditionToUrl for Page<'_, YearMonth, usize> {
+        fn next_href(&self) -> Option<String> {
+            match self.next_page {
+                Some(AdjacentPageInfo::Condition(ym)) => Some(format!("/{}", ym.to_string())),
+                Some(AdjacentPageInfo::PageIndex(page)) => {
                     Some(format!("/{}?page={}", self.condition.to_string(), page))
                 }
                 _ => None,
@@ -196,94 +297,24 @@ mod templates {
 
         fn prev_href(&self) -> Option<String> {
             match self.prev_page {
-                AdjacentPage::Condition(ref condition) => {
-                    Some(format!("/{}", condition.to_string()))
-                }
-                AdjacentPage::Page(page) => {
+                Some(AdjacentPageInfo::Condition(ym)) => Some(format!("/{}", ym.to_string())),
+                Some(AdjacentPageInfo::PageIndex(page)) => {
                     Some(format!("/{}?page={}", self.condition.to_string(), page))
                 }
                 _ => None,
             }
-        }
-    }
-
-    impl ConditionToUrl for Page<'_, ()> {
-        fn next_href(&self) -> Option<String> {
-            match self.next_page {
-                AdjacentPage::Page(page) => Some(format!("/?page={}", page)),
-                _ => None,
-            }
-        }
-
-        fn prev_href(&self) -> Option<String> {
-            match self.prev_page {
-                AdjacentPage::Page(page) => Some(format!("/?page={}", page)),
-                AdjacentPage::Condition(_) => Some("/".to_owned()),
-                _ => None,
-            }
-        }
-    }
-
-    impl ConditionToUrl for Page<'_, PostId> {
-        fn next_href(&self) -> Option<String> {
-            match self.next_page {
-                AdjacentPage::Condition(condition) => Some(format!("/{}", condition)),
-                _ => None,
-            }
-        }
-
-        fn prev_href(&self) -> Option<String> {
-            match self.prev_page {
-                AdjacentPage::Condition(condition) => Some(format!("/{}", condition)),
-                _ => None,
-            }
-        }
-    }
-
-    impl ConditionToUrl for Page<'_, KeywordsCondition<'_>> {
-        fn next_href(&self) -> Option<String> {
-            match self.next_page {
-                AdjacentPage::Page(Some((a, b))) => Some(format!(
-                    "/?keywords={}&search_after={}%2C{}",
-                    encode(&self.condition.0.join(" ")),
-                    a,
-                    b
-                )),
-                AdjacentPage::Page(None) => Some(format!(
-                    "/?keywords={}",
-                    encode(&self.condition.0.join(" "))
-                )),
-                _ => None,
-            }
-        }
-
-        fn prev_href(&self) -> Option<String> {
-            None
         }
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
-        use domain::entities::date::*;
         use pretty_assertions::assert_eq;
 
         #[test]
         fn year_month_to_string() {
-            let condition = DateCondition {
-                ym: YearMonth(1989, 9),
-                day: None,
-            };
+            let condition = YearMonth(1989, 9);
             assert_eq!(condition.to_string(), "1989-09");
-        }
-
-        #[test]
-        fn year_month_day_to_string() {
-            let condition = DateCondition {
-                ym: YearMonth(1989, 9),
-                day: Some(30),
-            };
-            assert_eq!(condition.to_string(), "1989-09-30");
         }
     }
 }

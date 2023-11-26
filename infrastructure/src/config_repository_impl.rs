@@ -1,7 +1,10 @@
 use anyhow::Context as _;
+use application::adapters::AppConfigProvider;
 use config::{builder::DefaultState, ConfigBuilder, File, FileFormat};
 use domain::{
-    entities::config::Config, repositories::config::ConfigRepository, repositories::config::Result,
+    entities::config::{AuthenticationSettings, Config},
+    repositories::config::ConfigRepository,
+    repositories::config::Result,
 };
 use std::env;
 
@@ -51,6 +54,16 @@ impl ConfigRepositoryImpl {
 impl ConfigRepository for ConfigRepositoryImpl {
     fn get(&self) -> Result<Config> {
         Ok(self.config.clone())
+    }
+}
+
+impl AppConfigProvider for ConfigRepositoryImpl {
+    fn get_all(&self) -> anyhow::Result<Config> {
+        Ok(self.config.clone())
+    }
+
+    fn get_auth_settings(&self) -> anyhow::Result<AuthenticationSettings> {
+        Ok(self.config.auth.clone())
     }
 }
 

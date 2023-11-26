@@ -16,4 +16,4 @@ thiserror = { workspace = true }
 url ={ workspace = true }
 
 [dev-dependencies]
-pretty_assertions = "1.2.0"
+pretty_assertions = { workspace = true }

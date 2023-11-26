@@ -1,5 +1,8 @@
 use domain::entities::{NewPost, Post, PostId};
+#[cfg(test)]
+use mockall::{automock, mock, predicate::*};
 
+#[cfg_attr(test, automock)]
 #[async_trait::async_trait]
 pub trait PostsRepository {
     async fn get_by_id(&self, id: &PostId) -> anyhow::Result<Option<Post>>;

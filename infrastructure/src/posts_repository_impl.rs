@@ -1,13 +1,15 @@
-use crate::diesel_helpers::{extract, DatePart, TimezoneCustomizer};
+use std::collections::HashMap;
+
+use crate::diesel_helpers::TimezoneCustomizer;
 use crate::models::Post as PostModel;
 use anyhow::{Context, Result as AnyhowResult};
-use chrono::{offset::Local, Utc};
-use chrono::{DateTime, TimeZone};
+use application::adapters::PostsRepository;
+use chrono::offset::Local;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use domain::{
-    entities::{date::YearMonth, NewPost, Post, PostId},
-    repositories::posts::{Error, PostsRepository, Result as PostsResult},
+    entities::{NewPost, Post, PostId},
+    repositories::posts::Result as PostsResult,
 };
 use r2d2::{Pool, PooledConnection};
 
@@ -31,156 +33,6 @@ impl PostsRepositoryImpl {
 
     fn get_conn(&self) -> AnyhowResult<PooledConnection<ConnectionManager<PgConnection>>> {
         self.conn_pool.get().context("Failed to get connection")
-    }
-}
-
-trait IntoVec<U> {
-    fn into_vec(self) -> Vec<U>;
-}
-
-impl<T, U: From<T>> IntoVec<U> for Vec<T> {
-    fn into_vec(self) -> Vec<U> {
-        self.into_iter().map(|e| e.into()).collect()
-    }
-}
-
-impl PostsRepository for PostsRepositoryImpl {
-    fn get(&self, id: PostId) -> PostsResult<Post> {
-        use crate::schema::posts::dsl::posts;
-        let post = posts
-            .find(id.0)
-            .get_result::<PostModel>(&mut self.get_conn()?)
-            .optional()
-            .context("Failed to get result")?;
-        Ok(post.ok_or(Error::NotFound(id))?.into())
-    }
-
-    fn get_from_date<Tz: TimeZone>(
-        &self,
-        from: DateTime<Tz>,
-        offset: usize,
-        limit: usize,
-    ) -> PostsResult<Vec<Post>> {
-        use crate::schema::posts::dsl::{created_at, posts};
-        let results = posts
-            .order_by(created_at.asc())
-            .filter(created_at.ge(from))
-            .offset(offset as i64)
-            .limit(limit as i64)
-            .get_results::<PostModel>(&mut self.get_conn()?)
-            .context("Failed to get results")?;
-        Ok(results.into_vec())
-    }
-
-    fn get_until_date<Tz: TimeZone>(
-        &self,
-        until: DateTime<Tz>,
-        offset: usize,
-        limit: usize,
-    ) -> PostsResult<Vec<Post>> {
-        use crate::schema::posts::dsl::{created_at, posts};
-        let results = posts
-            .order_by(created_at.desc())
-            .filter(created_at.lt(until))
-            .offset(offset as i64)
-            .limit(limit as i64)
-            .get_results::<PostModel>(&mut self.get_conn()?)
-            .context("Failed to get results")?;
-        Ok(results.into_vec())
-    }
-
-    fn get_all(&self, offset: usize, limit: usize) -> PostsResult<Vec<Post>> {
-        use crate::schema::posts::dsl::{created_at, posts};
-        let results = posts
-            .order_by(created_at.desc())
-            .offset(offset as i64)
-            .limit(limit as i64)
-            .get_results::<PostModel>(&mut self.get_conn()?)
-            .context("Failed to get results")?;
-        Ok(results.into_vec())
-    }
-
-    fn get_last_updated(&self) -> PostsResult<Option<DateTime<Utc>>> {
-        use crate::schema::posts::dsl::{posts, updated_at};
-        let post = posts
-            .order_by(updated_at.desc())
-            .first::<PostModel>(&mut self.get_conn()?)
-            .optional()
-            .context("Failed to get result")?;
-        Ok(post.map(|p| p.updated_at))
-    }
-
-    fn get_year_months(&self) -> PostsResult<Vec<YearMonth>> {
-        use crate::schema::posts::dsl::{created_at, posts};
-        let results = posts
-            .select((
-                extract(DatePart::Year, created_at),
-                extract(DatePart::Month, created_at),
-            ))
-            .distinct()
-            .get_results::<(i32, i32)>(&mut self.get_conn()?)
-            .context("Failed to get results")?;
-        Ok(results
-            .into_iter()
-            .map(|(y, m)| YearMonth(y as u16, m as u8))
-            .collect())
-    }
-
-    fn get_days(&self, YearMonth(year, month): YearMonth) -> PostsResult<Vec<u8>> {
-        use crate::schema::posts::dsl::{created_at, posts};
-        let (next_year, next_month) = if month == 12 {
-            (year + 1, 1)
-        } else {
-            (year, month + 1)
-        };
-        let created_after = Local.ymd(year.into(), month.into(), 1).and_hms(0, 0, 0);
-        let created_before = Local
-            .ymd(next_year.into(), next_month.into(), 1)
-            .and_hms(0, 0, 0);
-
-        let results = posts
-            .filter(created_at.ge(created_after))
-            .filter(created_at.lt(created_before))
-            .select(extract(DatePart::Day, created_at))
-            .distinct()
-            .get_results::<i32>(&mut self.get_conn()?)
-            .context("Failed to get results")?;
-        Ok(results.into_iter().map(|d| d as u8).collect())
-    }
-
-    fn create(&self, new_post: &NewPost) -> PostsResult<Post> {
-        use crate::schema::posts::{self, body, created_at, title, updated_at};
-        let post = diesel::insert_into(posts::table)
-            .values((
-                title.eq(new_post.title.clone()),
-                body.eq(new_post.body.clone()),
-                created_at.eq(new_post.timestamp),
-                updated_at.eq(new_post.timestamp),
-            ))
-            .get_result::<PostModel>(&mut self.get_conn()?)
-            .context("Failed to get result")?;
-        Ok(post.into())
-    }
-
-    fn update(&self, id: PostId, new_post: &NewPost) -> PostsResult<Post> {
-        use crate::schema::posts::dsl::{body, posts, title, updated_at};
-        let post = diesel::update(posts.find(id.0))
-            .set((
-                title.eq(new_post.title.clone()),
-                body.eq(new_post.body.clone()),
-                updated_at.eq(new_post.timestamp),
-            ))
-            .get_result::<PostModel>(&mut self.get_conn()?)
-            .context("Failed to get result")?;
-        Ok(post.into())
-    }
-
-    fn delete(&self, id: PostId) -> PostsResult<()> {
-        use crate::schema::posts::dsl::posts;
-        diesel::delete(posts.find(id.0))
-            .execute(&mut self.get_conn()?)
-            .context("Failed to delete")?;
-        Ok(())
     }
 }
 
@@ -218,3 +70,67 @@ impl PostsRepositoryImplTestHelper for PostsRepositoryImpl {
         Ok(())
     }
 }
+
+#[async_trait::async_trait]
+impl PostsRepository for PostsRepositoryImpl {
+    async fn get_by_id(&self, id: &PostId) -> anyhow::Result<Option<Post>> {
+        use crate::schema::posts::dsl::posts;
+        let post = posts
+            .find(id.0)
+            .get_result::<PostModel>(&mut self.get_conn()?)
+            .optional()
+            .context("Failed to get result")?;
+        Ok(post.map(Post::from))
+    }
+
+    async fn get_by_ids(&self, ids: &[PostId]) -> anyhow::Result<Vec<Post>> {
+        use crate::schema::posts::{dsl::posts, id};
+        let post_ids = ids.iter().map(|post_id| post_id.0).collect::<Vec<_>>();
+        let posts_map: HashMap<_, _> = posts
+            .filter(id.eq_any(&post_ids))
+            .get_results::<PostModel>(&mut self.get_conn()?)
+            .context("Failed to get results")?
+            .into_iter()
+            .map(|post| (post.id, Post::from(post)))
+            .collect();
+
+        Ok(post_ids
+            .iter()
+            .filter_map(|&post_id| posts_map.get(&post_id).cloned())
+            .collect())
+    }
+
+    async fn add(&self, new_post: NewPost) -> anyhow::Result<Post> {
+        use crate::schema::posts::{self, body, created_at, title, updated_at};
+        let post = diesel::insert_into(posts::table)
+            .values((
+                title.eq(new_post.title),
+                body.eq(new_post.body),
+                created_at.eq(new_post.timestamp),
+                updated_at.eq(new_post.timestamp),
+            ))
+            .get_result::<PostModel>(&mut self.get_conn()?)?;
+        Ok(post.into())
+    }
+
+    async fn save(&self, post: &Post) -> anyhow::Result<Post> {
+        use crate::schema::posts::dsl::{body, posts, title, updated_at};
+        let post = diesel::update(posts.find(post.id.0))
+            .set((
+                title.eq(post.title.clone()),
+                body.eq(post.body.clone()),
+                updated_at.eq(post.updated_at),
+            ))
+            .get_result::<PostModel>(&mut self.get_conn()?)?;
+        Ok(post.into())
+    }
+
+    async fn remove(&self, id: &PostId) -> anyhow::Result<()> {
+        use crate::schema::posts::dsl::posts;
+        diesel::delete(posts.find(id.0)).execute(&mut self.get_conn()?)?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {}

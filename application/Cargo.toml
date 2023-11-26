@@ -14,3 +14,9 @@ jsonwebtoken = "9.1.0"
 log = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
+
+[dev-dependencies]
+assert_matches = { workspace = true }
+mockall = { workspace = true }
+pretty_assertions = { workspace = true }
+tokio = { workspace = true }

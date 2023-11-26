@@ -2,8 +2,8 @@ use super::args::PageQuery;
 use crate::context::AppContext;
 use crate::{Error, Service};
 use actix_web::{web, HttpResponse};
+use application::use_cases::{GetLastUpdatedDateUseCase, GetLatestPostsUseCase};
 use askama_actix::TemplateToResponse;
-use domain::use_cases::{get_last_updated_date, get_posts};
 use templates::AtomTemplate;
 
 pub async fn all_posts(
@@ -11,8 +11,13 @@ pub async fn all_posts(
     service: web::Data<Service>,
     query: web::Query<PageQuery>,
 ) -> Result<HttpResponse, Error> {
-    let updated_at = get_last_updated_date(&service.posts_repository)?;
-    let page = get_posts(&service.posts_repository, 20, query.page.unwrap_or(1))?;
+    let updated_at = GetLastUpdatedDateUseCase::execute(&service.search_client).await?;
+    let page = GetLatestPostsUseCase::execute(
+        &service.posts_repository,
+        &service.search_client,
+        query.page.unwrap_or(1),
+    )
+    .await?;
     Ok(AtomTemplate {
         context,
         updated_at,
@@ -24,16 +29,17 @@ pub async fn all_posts(
 mod templates {
     use crate::filters;
     use crate::{context::AppContext, presentation::posts::Body};
+    use application::models::Page;
     use askama::Template;
     use chrono::{DateTime, Utc};
-    use domain::entities::{Page, Post};
+    use domain::entities::Post;
 
     #[derive(Template)]
     #[template(path = "atom.xml")]
     pub struct AtomTemplate<'a> {
         pub context: AppContext,
         pub updated_at: Option<DateTime<Utc>>,
-        pub page: Page<'a, ()>,
+        pub page: Page<'a, (), usize>,
     }
 
     trait PostExt {
