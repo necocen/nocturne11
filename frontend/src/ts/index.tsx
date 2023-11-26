@@ -1,28 +1,28 @@
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 import { Nav } from "./Nav";
 import { LoginButton, LogoutButton } from "./Login";
 import { Form } from "./Form";
 import { SearchButton } from "./SearchButton";
 
-ReactDOM.render(<Nav />, document.getElementById("side-nav"));
+createRoot(document.getElementById("side-nav")!).render(<Nav />);
 const button = document.getElementById("google-login");
 if (button) {
-    ReactDOM.render(<LoginButton />, button);
+    createRoot(button).render(<LoginButton />);
 }
 
 const logout = document.getElementsByClassName("logout-button");
 for (const el of logout) {
-    ReactDOM.render(<LogoutButton />, el);
+    createRoot(el).render(<LogoutButton />);
 }
 
 const diaryForm = document.getElementById("diary-form-slot");
 if (diaryForm) {
-    ReactDOM.render(<Form id={diaryForm.dataset.id} title={diaryForm.dataset.title} body={diaryForm.dataset.body} />, diaryForm);
+    createRoot(diaryForm).render(<Form id={diaryForm.dataset.id} title={diaryForm.dataset.title} body={diaryForm.dataset.body} />);
 }
 
 const search = document.getElementById("search-button");
 if (search) {
-    ReactDOM.render(<SearchButton />, search);
+    createRoot(search).render(<SearchButton />);
 }
 
 // rel="external"のついたリンクは別タブで開く
