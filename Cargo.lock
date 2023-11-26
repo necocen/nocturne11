@@ -409,6 +409,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
 
 [[package]]
+name = "application"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "domain",
+ "jsonwebtoken",
+ "log",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "askama"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1412,6 +1426,7 @@ name = "infrastructure"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "application",
  "assert_matches",
  "async-trait",
  "chrono",
@@ -2306,6 +2321,7 @@ dependencies = [
  "actix-session",
  "actix-web",
  "anyhow",
+ "application",
  "askama",
  "askama_actix",
  "askama_escape",

@@ -1,0 +1,16 @@
+[package]
+name = "application"
+version = "0.0.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+domain = { path = "../domain" }
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+chrono = { workspace = true }
+jsonwebtoken = "9.1.0"
+log = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
