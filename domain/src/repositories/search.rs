@@ -1,4 +1,4 @@
-use crate::entities::{Post, PostId, SearchResult};
+use crate::entities::{Post, PostId};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -9,13 +9,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[async_trait::async_trait]
 pub trait SearchRepository {
-    async fn search(
-        &self,
-        keywords: &[&str],
-        search_after: Option<(u64, u64)>,
-        limit: usize,
-    ) -> Result<SearchResult>;
-
     async fn insert(&self, post: &Post) -> Result<()>;
 
     async fn insert_bulk(&self, posts: &[Post]) -> Result<()>;

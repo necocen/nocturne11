@@ -1,9 +1,9 @@
 use anyhow::Context as _;
-use application::models::SearchResult;
+use application::models::{SearchResult, YearMonth};
 use chrono::{DateTime, Local, NaiveDate, TimeZone as _, Utc};
 use diesel::prelude::*;
 use diesel::{r2d2::ConnectionManager, PgConnection};
-use domain::entities::{date::YearMonth, Post, PostId};
+use domain::entities::{Post, PostId};
 use elasticsearch::http::transport::{SingleNodeConnectionPool, TransportBuilder};
 use elasticsearch::{
     indices::{IndicesCreateParts, IndicesGetParts},

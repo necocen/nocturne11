@@ -1,6 +1,6 @@
 use anyhow::anyhow;
+use application::models::YearMonth;
 use chrono::NaiveDate;
-use domain::entities::date::YearMonth;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]

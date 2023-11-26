@@ -1,7 +1,7 @@
 use chrono::{DateTime, NaiveDate, Utc};
-use domain::entities::{date::YearMonth, Post, PostId};
+use domain::entities::{Post, PostId};
 
-use crate::models::SearchResult;
+use crate::models::{SearchResult, YearMonth};
 
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]

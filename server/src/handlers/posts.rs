@@ -2,13 +2,13 @@ use super::args::{DateArguments, IdArguments, KeywordsQuery, PageQuery, YearMont
 use crate::context::AppContext;
 use crate::{Error, Service};
 use actix_web::{web, HttpResponse};
+use application::models::YearMonth;
 use application::use_cases::{
     GetLatestPostsUseCase, GetPostByIdUseCase, GetPostsByDateUseCase, GetPostsByYearMonthUseCase,
     SearchPostsUseCase,
 };
 use askama_actix::TemplateToResponse;
 use chrono::NaiveDate;
-use domain::entities::date::YearMonth;
 use domain::entities::PostId;
 use templates::{
     AllPostsTemplate, PostTemplate, PostsWithDateTemplate, PostsWithYearMonthTemplate,
@@ -110,10 +110,10 @@ pub async fn posts_with_year_month(
 mod templates {
     use crate::filters;
     use crate::{context::AppContext, presentation::posts::Body};
-    use application::models::{AdjacentPageInfo, Page};
+    use application::models::{AdjacentPageInfo, Page, YearMonth};
     use askama::Template;
     use chrono::NaiveDate;
-    use domain::entities::{date::YearMonth, Post, PostId};
+    use domain::entities::{Post, PostId};
     use urlencoding::encode;
 
     #[derive(Template)]

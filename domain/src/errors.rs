@@ -1,7 +1,6 @@
 use crate::repositories::config::Error as ConfigError;
 use crate::repositories::export_posts::Error as ExportError;
 use crate::repositories::google_auth_cert::Error as CertError;
-use crate::repositories::posts::Error as PostsError;
 use crate::repositories::search::Error as SearchError;
 use jsonwebtoken::errors::Error as JwtError;
 use thiserror::Error;
@@ -10,8 +9,6 @@ use thiserror::Error;
 pub enum Error {
     #[error("Not Found")]
     NotFound,
-    #[error(transparent)]
-    Posts(#[from] PostsError),
     #[error(transparent)]
     Search(#[from] SearchError),
     #[error(transparent)]

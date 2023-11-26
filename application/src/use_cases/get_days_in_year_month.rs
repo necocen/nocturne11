@@ -1,6 +1,4 @@
-use domain::entities::date::YearMonth;
-
-use crate::{adapters::SearchClient, ApplicationResult};
+use crate::{adapters::SearchClient, models::YearMonth, ApplicationResult};
 
 pub struct GetDaysInYearMonthUseCase;
 

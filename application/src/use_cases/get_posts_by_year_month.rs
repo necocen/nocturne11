@@ -1,10 +1,9 @@
 use anyhow::Context as _;
 use chrono::{DateTime, Utc};
-use domain::entities::date::YearMonth;
 
 use crate::{
     adapters::{PostsRepository, SearchClient},
-    models::{AdjacentPageInfo, Page},
+    models::{AdjacentPageInfo, Page, YearMonth},
     ApplicationResult,
 };
 

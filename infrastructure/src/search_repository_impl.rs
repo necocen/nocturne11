@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Context};
 use chrono::prelude::*;
-use domain::entities::{Post, PostId, SearchResult};
+use domain::entities::{Post, PostId};
 use domain::repositories::search::{Result, SearchRepository};
 use elasticsearch::{
     http::transport::{SingleNodeConnectionPool, TransportBuilder},
@@ -10,7 +10,7 @@ use elasticsearch::{
         SnapshotCreateParts, SnapshotCreateRepositoryParts, SnapshotGetParts,
         SnapshotGetRepositoryParts, SnapshotRestoreParts,
     },
-    BulkOperation, BulkParts, CreateParts, DeleteParts, Elasticsearch, SearchParts, UpdateParts,
+    BulkOperation, BulkParts, CreateParts, DeleteParts, Elasticsearch, UpdateParts,
 };
 use serde_json::{json, Value};
 
@@ -208,103 +208,6 @@ impl SearchRepositoryImpl {
 
 #[async_trait::async_trait]
 impl SearchRepository for SearchRepositoryImpl {
-    async fn search(
-        &self,
-        keywords: &[&str],
-        search_after: Option<(u64, u64)>,
-        limit: usize,
-    ) -> Result<SearchResult> {
-        // 本文とタイトルから検索。bigramのマッチはMUST、kuromojiのマッチはSHOULD。
-        let must_queries = keywords
-            .iter()
-            .map(|keyword| {
-                json!({
-                    "multi_match": {
-                        "query": keyword,
-                        "fields": ["body.bigram", "title.bigram"],
-                        "type": "phrase",
-                    },
-                })
-            })
-            .collect::<Vec<_>>();
-        let should_queries = keywords
-            .iter()
-            .map(|keyword| {
-                json!({
-                    "multi_match": {
-                        "query": keyword,
-                        "fields": ["body", "title"],
-                        "type": "phrase",
-                    },
-                })
-            })
-            .collect::<Vec<_>>();
-
-        let mut body = json!({
-            "sort": [
-                {
-                    "created_at": "desc",
-                    "id": "desc"
-                }
-            ],
-            "size" : limit,
-            "track_total_hits": true,
-            "query": {
-                "bool": {
-                    "must": must_queries,
-                    "should": should_queries,
-                }
-            },
-        });
-
-        if let Some(search_after) = search_after {
-            body["search_after"] = json!([search_after.0, search_after.1]);
-        }
-
-        let response = self
-            .client
-            .search(SearchParts::Index(&[Self::INDEX_NAME]))
-            .body(body)
-            .allow_no_indices(true)
-            .send()
-            .await
-            .context("Search failed")?;
-
-        let body = response
-            .json::<Value>()
-            .await
-            .context("Failed to parse search result")?;
-        let posts = body["hits"]["hits"]
-            .as_array()
-            .context("`hits` was not an array")?
-            .iter()
-            .map(|v| -> Result<Post> {
-                Ok(serde_json::from_value(v["_source"].clone()).context("Failed to parse Post")?)
-            })
-            .collect::<Result<Vec<_>>>()?;
-        let total_count = body["hits"]["total"]["value"]
-            .as_u64()
-            .context("Returned result does not contain `total`.")? as u64;
-
-        let search_after = body["hits"]["hits"]
-            .as_array()
-            .context("Returned result was not an array.")?
-            .last()
-            .and_then(|last_post| {
-                let mut iter = last_post["sort"]
-                    .as_array()?
-                    .iter()
-                    .flat_map(|v| v.as_u64());
-                Some((iter.next()?, iter.next()?))
-            });
-
-        Ok(SearchResult {
-            posts,
-            total_count,
-            search_after,
-        })
-    }
-
     async fn insert(&self, post: &Post) -> Result<()> {
         self.create_index().await?;
         self.client

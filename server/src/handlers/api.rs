@@ -1,7 +1,9 @@
 use crate::{Error, Service};
 use actix_web::{web, HttpResponse};
-use application::use_cases::{GetDaysInYearMonthUseCase, GetYearMonthsUseCase};
-use domain::entities::date::YearMonth;
+use application::{
+    models::YearMonth,
+    use_cases::{GetDaysInYearMonthUseCase, GetYearMonthsUseCase},
+};
 use serde::Serialize;
 
 use super::args::YearMonthArguments;

@@ -7,10 +7,7 @@ use application::adapters::PostsRepository;
 use chrono::offset::Local;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
-use domain::{
-    entities::{NewPost, Post, PostId},
-    repositories::posts::Result as PostsResult,
-};
+use domain::entities::{NewPost, Post, PostId};
 use r2d2::{Pool, PooledConnection};
 
 #[derive(Clone)]
@@ -19,7 +16,7 @@ pub struct PostsRepositoryImpl {
 }
 
 impl PostsRepositoryImpl {
-    pub fn new(pg_url: &url::Url) -> PostsResult<PostsRepositoryImpl> {
+    pub fn new(pg_url: &url::Url) -> anyhow::Result<PostsRepositoryImpl> {
         let conn_manager = ConnectionManager::<PgConnection>::new(pg_url.as_str());
         let customizer = TimezoneCustomizer {
             offset: *Local::now().offset(),

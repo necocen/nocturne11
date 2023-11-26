@@ -128,27 +128,24 @@ pub fn error_500(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<B
 
 impl ResponseError for Error {
     fn status_code(&self) -> StatusCode {
-        use domain::repositories::posts::Error::NotFound;
-        use domain::Error::{Jwt, JwtIssuer, Posts};
+        use application::errors::ApplicationError::PostNotFound;
+        use domain::Error::{Jwt, JwtIssuer};
         match self {
-            Self::Domain(Posts(NotFound(_))) => StatusCode::NOT_FOUND,
             Self::NoResult(_) => StatusCode::NOT_FOUND,
             Self::Domain(Jwt(_)) => StatusCode::BAD_REQUEST,
             Self::Domain(JwtIssuer(_)) => StatusCode::BAD_REQUEST,
+            Self::Application(PostNotFound) => StatusCode::NOT_FOUND,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
     fn error_response(&self) -> HttpResponse {
-        use domain::repositories::posts::Error::NotFound;
-        use domain::Error::{Jwt, JwtIssuer, Posts};
+        use application::errors::ApplicationError::PostNotFound;
+        use domain::Error::{Jwt, JwtIssuer};
         match self {
-            Self::Domain(Posts(NotFound(id))) => HttpResponseBuilder::new(self.status_code())
+            Self::Application(PostNotFound) => HttpResponseBuilder::new(self.status_code())
                 .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
-                .body(format!(
-                    "指定されたID({})の記事が見つかりませんでした。",
-                    id
-                )),
+                .body("指定されたIDの記事が見つかりませんでした。"),
             Self::NoResult(message) => HttpResponseBuilder::new(self.status_code())
                 .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
                 .body(message.clone()),
