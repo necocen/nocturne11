@@ -128,20 +128,17 @@ pub fn error_500(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<B
 
 impl ResponseError for Error {
     fn status_code(&self) -> StatusCode {
-        use application::errors::ApplicationError::PostNotFound;
-        use domain::Error::{Jwt, JwtIssuer};
+        use application::errors::ApplicationError::{JwtError, PostNotFound};
         match self {
             Self::NoResult(_) => StatusCode::NOT_FOUND,
-            Self::Domain(Jwt(_)) => StatusCode::BAD_REQUEST,
-            Self::Domain(JwtIssuer(_)) => StatusCode::BAD_REQUEST,
             Self::Application(PostNotFound) => StatusCode::NOT_FOUND,
+            Self::Application(JwtError(_)) => StatusCode::BAD_REQUEST,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
     fn error_response(&self) -> HttpResponse {
-        use application::errors::ApplicationError::PostNotFound;
-        use domain::Error::{Jwt, JwtIssuer};
+        use application::errors::ApplicationError::{JwtError, PostNotFound};
         match self {
             Self::Application(PostNotFound) => HttpResponseBuilder::new(self.status_code())
                 .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
@@ -149,12 +146,9 @@ impl ResponseError for Error {
             Self::NoResult(message) => HttpResponseBuilder::new(self.status_code())
                 .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
                 .body(message.clone()),
-            Self::Domain(Jwt(error)) => HttpResponseBuilder::new(self.status_code())
+            Self::Application(JwtError(error)) => HttpResponseBuilder::new(self.status_code())
                 .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
                 .body(format!("認証エラー: {}", error)),
-            Self::Domain(JwtIssuer(issuer)) => HttpResponseBuilder::new(self.status_code())
-                .insert_header((header::CONTENT_TYPE, "text/html; charset=utf-8"))
-                .body(format!("予期しないJWT issuer: {}", issuer)),
             _ => {
                 use std::error::Error;
                 let msg = if let Some(source) = self.source() {
