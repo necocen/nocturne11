@@ -81,3 +81,511 @@ impl GetPostsByYearMonthUseCase {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{adapters::*, models::SearchResult};
+    use chrono::Duration;
+    use domain::entities::{Post, PostId};
+    use mockall::predicate::*;
+    use pretty_assertions::assert_eq;
+
+    #[tokio::test]
+    async fn get_posts_by_year_month() -> anyhow::Result<()> {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let year_month = YearMonth::new(1989, 9).unwrap();
+
+        let date1 = DateTime::<Utc>::from(year_month);
+        let date2 = date1 + Duration::hours(12);
+        let next_date = date1 + Duration::days(80);
+        let prev_date = date1 - Duration::days(3);
+        let posts = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+        ];
+        let next_post = Post::new(
+            PostId(631),
+            "test title3",
+            "test body3",
+            next_date,
+            next_date,
+        );
+        let prev_post = Post::new(
+            PostId(628),
+            "test title4",
+            "test body4",
+            prev_date,
+            prev_date,
+        );
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+
+        mock_search
+            .expect_find_by_year_month()
+            .withf(move |ym, o, l| ym == &year_month && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: post_ids_clone.len(),
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date2), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(631)]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(628)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(next_post.id))
+            .returning(move |_| Ok(Some(next_post.clone())));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(prev_post.id))
+            .returning(move |_| Ok(Some(prev_post.clone())));
+
+        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
+            .await
+            .unwrap();
+        assert_eq!(page.condition, &year_month);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 2);
+        assert_eq!(page.posts[0].id, PostId(629));
+        assert_eq!(page.posts[1].id, PostId(630));
+        assert_eq!(
+            page.next_page,
+            Some(AdjacentPageInfo::Condition(
+                YearMonth::new(1989, 11).unwrap()
+            ))
+        );
+        assert_eq!(
+            page.prev_page,
+            Some(AdjacentPageInfo::Condition(
+                YearMonth::new(1989, 8).unwrap()
+            ))
+        );
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn get_posts_by_year_month_in_first_year_month() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let year_month = YearMonth::new(1989, 9).unwrap();
+        let date1 = DateTime::<Utc>::from(year_month);
+        let date2 = date1 + Duration::hours(12);
+        let next_date = date1 + Duration::days(80);
+        let posts = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+        ];
+        let next_post = Post::new(
+            PostId(631),
+            "test title3",
+            "test body3",
+            next_date,
+            next_date,
+        );
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+
+        mock_search
+            .expect_find_by_year_month()
+            .withf(move |ym, o, l| ym == &year_month && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: post_ids_clone.len(),
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date2), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(631)]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(next_post.id))
+            .returning(move |_| Ok(Some(next_post.clone())));
+
+        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
+            .await
+            .unwrap();
+
+        assert_eq!(page.condition, &year_month);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 2);
+        assert_eq!(page.posts[0].id, PostId(629));
+        assert_eq!(page.posts[1].id, PostId(630));
+        assert_eq!(
+            page.next_page,
+            Some(AdjacentPageInfo::Condition(
+                YearMonth::new(1989, 11).unwrap()
+            ))
+        );
+        assert_eq!(page.prev_page, None);
+    }
+
+    #[tokio::test]
+    async fn get_posts_by_year_month_in_last_year_month() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let year_month = YearMonth::new(1989, 9).unwrap();
+        let date1 = DateTime::<Utc>::from(year_month);
+        let date2 = date1 + Duration::hours(12);
+        let prev_date = date1 - Duration::days(3);
+        let posts = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+        ];
+        let prev_post = Post::new(
+            PostId(628),
+            "test title4",
+            "test body4",
+            prev_date,
+            prev_date,
+        );
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+
+        mock_search
+            .expect_find_by_year_month()
+            .withf(move |ym, o, l| ym == &year_month && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: post_ids_clone.len(),
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date2), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(628)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(prev_post.id))
+            .returning(move |_| Ok(Some(prev_post.clone())));
+
+        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
+            .await
+            .unwrap();
+
+        assert_eq!(page.condition, &year_month);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 2);
+        assert_eq!(page.posts[0].id, PostId(629));
+        assert_eq!(page.posts[1].id, PostId(630));
+        assert_eq!(page.next_page, None);
+        assert_eq!(
+            page.prev_page,
+            Some(AdjacentPageInfo::Condition(
+                YearMonth::new(1989, 8).unwrap()
+            ))
+        );
+    }
+
+    #[tokio::test]
+    async fn get_posts_by_year_month_with_many_pages() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let year_month = YearMonth::new(1989, 9).unwrap();
+        let date1 = DateTime::<Utc>::from(year_month);
+        let date2 = date1 + Duration::hours(12);
+        let prev_date = date1 - Duration::days(3);
+        let posts = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+            Post::new(PostId(631), "test title2", "test body2", date2, date2),
+            Post::new(PostId(632), "test title2", "test body2", date2, date2),
+            Post::new(PostId(633), "test title2", "test body2", date2, date2),
+            Post::new(PostId(634), "test title2", "test body2", date2, date2),
+            Post::new(PostId(635), "test title2", "test body2", date2, date2),
+            Post::new(PostId(636), "test title2", "test body2", date2, date2),
+            Post::new(PostId(637), "test title2", "test body2", date2, date2),
+            Post::new(PostId(638), "test title2", "test body2", date2, date2),
+        ];
+        let posts_in_next_page = vec![
+            Post::new(PostId(639), "test title2", "test body2", date2, date2),
+            Post::new(PostId(640), "test title2", "test body2", date2, date2),
+            Post::new(PostId(641), "test title2", "test body2", date2, date2),
+        ];
+        let prev_post = Post::new(
+            PostId(628),
+            "test title4",
+            "test body4",
+            prev_date,
+            prev_date,
+        );
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+
+        mock_search
+            .expect_find_by_year_month()
+            .withf(move |ym, o, l| ym == &year_month && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: post_ids_clone.len() + posts_in_next_page.len(),
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(628)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(prev_post.id))
+            .returning(move |_| Ok(Some(prev_post.clone())));
+
+        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
+            .await
+            .unwrap();
+
+        assert_eq!(page.condition, &year_month);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 10);
+        assert_eq!(page.posts[0].id, PostId(629));
+        assert_eq!(page.posts[1].id, PostId(630));
+        assert_eq!(page.posts[2].id, PostId(631));
+        assert_eq!(page.posts[3].id, PostId(632));
+        assert_eq!(page.posts[4].id, PostId(633));
+        assert_eq!(page.posts[5].id, PostId(634));
+        assert_eq!(page.posts[6].id, PostId(635));
+        assert_eq!(page.posts[7].id, PostId(636));
+        assert_eq!(page.posts[8].id, PostId(637));
+        assert_eq!(page.posts[9].id, PostId(638));
+        assert_eq!(page.next_page, Some(AdjacentPageInfo::PageIndex(2)));
+        assert_eq!(
+            page.prev_page,
+            Some(AdjacentPageInfo::Condition(
+                YearMonth::new(1989, 8).unwrap()
+            ))
+        );
+    }
+
+    #[tokio::test]
+    async fn get_posts_by_year_month_with_many_pages_in_last_page() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let year_month = YearMonth::new(1989, 9).unwrap();
+        let date1 = DateTime::<Utc>::from(year_month);
+        let date2 = date1 + Duration::hours(12);
+        let next_date = date1 + Duration::days(80);
+        let posts_in_prev_page = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+            Post::new(PostId(631), "test title2", "test body2", date2, date2),
+            Post::new(PostId(632), "test title2", "test body2", date2, date2),
+            Post::new(PostId(633), "test title2", "test body2", date2, date2),
+            Post::new(PostId(634), "test title2", "test body2", date2, date2),
+            Post::new(PostId(635), "test title2", "test body2", date2, date2),
+            Post::new(PostId(636), "test title2", "test body2", date2, date2),
+            Post::new(PostId(637), "test title2", "test body2", date2, date2),
+            Post::new(PostId(638), "test title2", "test body2", date2, date2),
+        ];
+        let posts = vec![
+            Post::new(PostId(639), "test title2", "test body2", date2, date2),
+            Post::new(PostId(640), "test title2", "test body2", date2, date2),
+            Post::new(PostId(641), "test title2", "test body2", date2, date2),
+        ];
+        let next_post = Post::new(
+            PostId(642),
+            "test title3",
+            "test body3",
+            next_date,
+            next_date,
+        );
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+
+        mock_search
+            .expect_find_by_year_month()
+            .withf(move |ym, o, l| ym == &year_month && o == &10 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: post_ids_clone.len() + posts_in_prev_page.len(),
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date2), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(642)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(PostId(642)))
+            .returning(move |_| Ok(Some(next_post.clone())));
+
+        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 2)
+            .await
+            .unwrap();
+
+        assert_eq!(page.condition, &year_month);
+        assert_eq!(page.index, 2);
+        assert_eq!(page.posts.len(), 3);
+        assert_eq!(page.posts[0].id, PostId(639));
+        assert_eq!(page.posts[1].id, PostId(640));
+        assert_eq!(page.posts[2].id, PostId(641));
+        assert_eq!(
+            page.next_page,
+            Some(AdjacentPageInfo::Condition(
+                YearMonth::new(1989, 11).unwrap()
+            ))
+        );
+        assert_eq!(page.prev_page, Some(AdjacentPageInfo::PageIndex(1)));
+    }
+
+    #[tokio::test]
+    async fn test_get_posts_by_year_month_on_empty_month() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let year_month = YearMonth::new(1989, 9).unwrap();
+        let date1 = DateTime::<Utc>::from(year_month);
+        let next_date = date1 + Duration::days(80);
+        let prev_date = date1 - Duration::days(3);
+        let next_post = Post::new(
+            PostId(631),
+            "test title3",
+            "test body3",
+            next_date,
+            next_date,
+        );
+        let prev_post = Post::new(
+            PostId(628),
+            "test title4",
+            "test body4",
+            prev_date,
+            prev_date,
+        );
+
+        mock_search
+            .expect_find_by_year_month()
+            .withf(move |ym, o, l| ym == &year_month && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: 0,
+                    post_ids: vec![],
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == vec![])
+            .returning(move |_| Ok(vec![]));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(631)]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(628)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(next_post.id))
+            .returning(move |_| Ok(Some(next_post.clone())));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(prev_post.id))
+            .returning(move |_| Ok(Some(prev_post.clone())));
+
+        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
+            .await
+            .unwrap();
+
+        assert_eq!(page.condition, &year_month);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 0);
+        assert_eq!(
+            page.next_page,
+            Some(AdjacentPageInfo::Condition(
+                YearMonth::new(1989, 11).unwrap()
+            ))
+        );
+        assert_eq!(
+            page.prev_page,
+            Some(AdjacentPageInfo::Condition(
+                YearMonth::new(1989, 8).unwrap()
+            ))
+        );
+    }
+
+    #[tokio::test]
+    async fn test_get_posts_by_year_month_on_sole_month() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let year_month = YearMonth::new(1989, 9).unwrap();
+        let date1 = DateTime::<Utc>::from(year_month);
+        let date2 = date1 + Duration::hours(12);
+        let posts = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+        ];
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+
+        mock_search
+            .expect_find_by_year_month()
+            .withf(move |ym, o, l| ym == &year_month && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: post_ids_clone.len(),
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date2), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+
+        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
+            .await
+            .unwrap();
+
+        assert_eq!(page.condition, &year_month);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 2);
+        assert_eq!(page.posts[0].id, PostId(629));
+        assert_eq!(page.posts[1].id, PostId(630));
+        assert_eq!(page.next_page, None);
+        assert_eq!(page.prev_page, None);
+    }
+}

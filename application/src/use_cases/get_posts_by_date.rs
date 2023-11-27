@@ -488,7 +488,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_get_posts_by_date_on_nonexistent_day() {
+    async fn test_get_posts_by_date_on_empty_day() {
         let mut mock_posts = MockPostsRepository::new();
         let mut mock_search = MockSearchClient::new();
         let date = NaiveDate::from_ymd_opt(1989, 9, 1).unwrap();
