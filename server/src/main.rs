@@ -1,3 +1,4 @@
+use actix_web_lab::middleware::CatchPanic;
 use clap::{ArgAction, Parser};
 use errors::Error;
 use service::Service;
@@ -34,9 +35,13 @@ async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
     let opts = Opts::parse();
     let service = Service::new(&opts)?;
-    HttpServer::new(move || App::new().configure(routers::routing(service.clone())))
-        .bind(format!("{}:{}", &opts.bind, &opts.port))?
-        .run()
-        .await?;
+    HttpServer::new(move || {
+        App::new()
+            .configure(routers::routing(service.clone()))
+            .wrap(CatchPanic::default())
+    })
+    .bind(format!("{}:{}", &opts.bind, &opts.port))?
+    .run()
+    .await?;
     Ok(())
 }

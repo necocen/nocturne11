@@ -17,6 +17,7 @@ actix-files = "0.6.2"
 actix-identity = "0.6.0"
 actix-session = { version = "0.8.0", features = ["cookie-session"] }
 actix-web = "4.4.0"
+actix-web-lab = "0.20.1"
 anyhow = { workspace = true }
 askama = { version = "0.12.1", features = ["mime", "mime_guess"] }
 askama_actix = "0.14.0"
