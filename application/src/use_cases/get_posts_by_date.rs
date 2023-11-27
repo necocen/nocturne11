@@ -1,5 +1,5 @@
 use anyhow::Context as _;
-use chrono::{NaiveDate, TimeZone as _, Utc, Local};
+use chrono::{Local, NaiveDate, Utc};
 
 use crate::{
     adapters::{PostsRepository, SearchClient},
@@ -30,8 +30,11 @@ impl GetPostsByDateUseCase {
             } else {
                 search_client
                     .get_from_date(
-                        Utc.from_local_datetime(&date.and_hms_opt(0, 0, 0).unwrap())
-                            .unwrap(),
+                        date.and_hms_opt(0, 0, 0)
+                            .unwrap()
+                            .and_local_timezone(Local)
+                            .unwrap()
+                            .with_timezone(&Utc),
                         0,
                         1,
                     )
@@ -60,8 +63,11 @@ impl GetPostsByDateUseCase {
             } else {
                 search_client
                     .get_until_date(
-                        Utc.from_local_datetime(&date.and_hms_opt(0, 0, 0).unwrap())
-                            .unwrap(),
+                        date.and_hms_opt(0, 0, 0)
+                            .unwrap()
+                            .and_local_timezone(Local)
+                            .unwrap()
+                            .with_timezone(&Utc),
                         0,
                         1,
                     )
@@ -138,7 +144,7 @@ mod tests {
             .withf(move |d, o, l| d == &date && o == &0 && l == &10)
             .returning(move |_, _, _| {
                 Ok(SearchResult {
-                    total_count: 1,
+                    total_count: post_ids_clone.len(),
                     post_ids: post_ids_clone.clone(),
                 })
             });
@@ -171,7 +177,443 @@ mod tests {
         assert_eq!(page.posts.len(), 2);
         assert_eq!(page.posts[0].id, PostId(629));
         assert_eq!(page.posts[1].id, PostId(630));
-        assert_eq!(page.next_page, Some(AdjacentPageInfo::Condition(NaiveDate::from_ymd_opt(1989, 9, 4).unwrap())));
-        assert_eq!(page.prev_page, Some(AdjacentPageInfo::Condition(NaiveDate::from_ymd_opt(1989, 8, 29).unwrap())));
+        assert_eq!(
+            page.next_page,
+            Some(AdjacentPageInfo::Condition(
+                NaiveDate::from_ymd_opt(1989, 9, 4).unwrap()
+            ))
+        );
+        assert_eq!(
+            page.prev_page,
+            Some(AdjacentPageInfo::Condition(
+                NaiveDate::from_ymd_opt(1989, 8, 29).unwrap()
+            ))
+        );
+    }
+
+    #[tokio::test]
+    async fn test_get_posts_by_date_in_first_day() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let date = NaiveDate::from_ymd_opt(1989, 9, 1).unwrap();
+        let date1 = date
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_local_timezone(Local)
+            .unwrap()
+            .with_timezone(&Utc);
+        let date2 = date1 + Duration::hours(12);
+        let next_date = date1 + Duration::days(3);
+        let posts = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+        ];
+        let next_post = Post::new(
+            PostId(631),
+            "test title3",
+            "test body3",
+            next_date,
+            next_date,
+        );
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+        mock_search
+            .expect_find_by_date()
+            .withf(move |d, o, l| d == &date && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: post_ids_clone.len(),
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date2), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(631)]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(next_post.id))
+            .returning(move |_| Ok(Some(next_post.clone())));
+
+        let page = GetPostsByDateUseCase::execute(&mock_posts, &mock_search, &date, 1)
+            .await
+            .unwrap();
+        assert_eq!(page.condition, &date);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 2);
+        assert_eq!(page.posts[0].id, PostId(629));
+        assert_eq!(page.posts[1].id, PostId(630));
+        assert_eq!(
+            page.next_page,
+            Some(AdjacentPageInfo::Condition(
+                NaiveDate::from_ymd_opt(1989, 9, 4).unwrap()
+            ))
+        );
+        assert_eq!(page.prev_page, None);
+    }
+
+    #[tokio::test]
+    async fn test_get_posts_by_date_in_last_day() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let date = NaiveDate::from_ymd_opt(1989, 9, 1).unwrap();
+        let date1 = date
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_local_timezone(Local)
+            .unwrap()
+            .with_timezone(&Utc);
+        let date2 = date1 + Duration::hours(12);
+        let prev_date = date1 - Duration::days(3);
+        let posts = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+        ];
+        let prev_post = Post::new(
+            PostId(628),
+            "test title4",
+            "test body4",
+            prev_date,
+            prev_date,
+        );
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+        mock_search
+            .expect_find_by_date()
+            .withf(move |d, o, l| d == &date && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: post_ids_clone.len(),
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date2), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(628)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(prev_post.id))
+            .returning(move |_| Ok(Some(prev_post.clone())));
+
+        let page = GetPostsByDateUseCase::execute(&mock_posts, &mock_search, &date, 1)
+            .await
+            .unwrap();
+        assert_eq!(page.condition, &date);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 2);
+        assert_eq!(page.posts[0].id, PostId(629));
+        assert_eq!(page.posts[1].id, PostId(630));
+        assert_eq!(page.next_page, None);
+        assert_eq!(
+            page.prev_page,
+            Some(AdjacentPageInfo::Condition(
+                NaiveDate::from_ymd_opt(1989, 8, 29).unwrap()
+            ))
+        );
+    }
+
+    #[tokio::test]
+    async fn test_get_posts_by_date_with_many_pages() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let date = NaiveDate::from_ymd_opt(1989, 9, 1).unwrap();
+        let date1 = date
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_local_timezone(Local)
+            .unwrap()
+            .with_timezone(&Utc);
+        let date2 = date1 + Duration::hours(12);
+        let prev_date = date1 - Duration::days(3);
+        let posts = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+            Post::new(PostId(631), "test title2", "test body2", date2, date2),
+            Post::new(PostId(632), "test title2", "test body2", date2, date2),
+            Post::new(PostId(633), "test title2", "test body2", date2, date2),
+            Post::new(PostId(634), "test title2", "test body2", date2, date2),
+            Post::new(PostId(635), "test title2", "test body2", date2, date2),
+            Post::new(PostId(636), "test title2", "test body2", date2, date2),
+            Post::new(PostId(637), "test title2", "test body2", date2, date2),
+            Post::new(PostId(638), "test title2", "test body2", date2, date2),
+        ];
+        let posts_in_next_page = vec![
+            Post::new(PostId(639), "test title2", "test body2", date2, date2),
+            Post::new(PostId(640), "test title2", "test body2", date2, date2),
+            Post::new(PostId(641), "test title2", "test body2", date2, date2),
+        ];
+        let prev_post = Post::new(
+            PostId(628),
+            "test title4",
+            "test body4",
+            prev_date,
+            prev_date,
+        );
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+        mock_search
+            .expect_find_by_date()
+            .withf(move |d, o, l| d == &date && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: post_ids_clone.len() + posts_in_next_page.len(),
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(628)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(prev_post.id))
+            .returning(move |_| Ok(Some(prev_post.clone())));
+
+        let page = GetPostsByDateUseCase::execute(&mock_posts, &mock_search, &date, 1)
+            .await
+            .unwrap();
+        assert_eq!(page.condition, &date);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 10);
+        assert_eq!(page.posts[0].id, PostId(629));
+        assert_eq!(page.posts[1].id, PostId(630));
+        assert_eq!(page.posts[9].id, PostId(638));
+        assert_eq!(page.next_page, Some(AdjacentPageInfo::PageIndex(2)));
+        assert_eq!(
+            page.prev_page,
+            Some(AdjacentPageInfo::Condition(
+                NaiveDate::from_ymd_opt(1989, 8, 29).unwrap()
+            ))
+        );
+    }
+
+    #[tokio::test]
+    async fn test_get_posts_by_date_with_many_pages_in_final_page() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let date = NaiveDate::from_ymd_opt(1989, 9, 1).unwrap();
+        let date1 = date
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_local_timezone(Local)
+            .unwrap()
+            .with_timezone(&Utc);
+        let date2 = date1 + Duration::hours(12);
+        let next_date = date1 + Duration::days(3);
+        let posts_in_prev_page = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+            Post::new(PostId(631), "test title2", "test body2", date2, date2),
+            Post::new(PostId(632), "test title2", "test body2", date2, date2),
+            Post::new(PostId(633), "test title2", "test body2", date2, date2),
+            Post::new(PostId(634), "test title2", "test body2", date2, date2),
+            Post::new(PostId(635), "test title2", "test body2", date2, date2),
+            Post::new(PostId(636), "test title2", "test body2", date2, date2),
+            Post::new(PostId(637), "test title2", "test body2", date2, date2),
+            Post::new(PostId(638), "test title2", "test body2", date2, date2),
+        ];
+        let posts = vec![
+            Post::new(PostId(639), "test title2", "test body2", date2, date2),
+            Post::new(PostId(640), "test title2", "test body2", date2, date2),
+            Post::new(PostId(641), "test title2", "test body2", date2, date2),
+        ];
+        let next_post = Post::new(
+            PostId(642),
+            "test title3",
+            "test body3",
+            next_date,
+            next_date,
+        );
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+        mock_search
+            .expect_find_by_date()
+            .withf(move |d, o, l| d == &date && o == &10 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: post_ids_clone.len() + posts_in_prev_page.len(),
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date2), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(642)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(PostId(642)))
+            .returning(move |_| Ok(Some(next_post.clone())));
+
+        let page = GetPostsByDateUseCase::execute(&mock_posts, &mock_search, &date, 2)
+            .await
+            .unwrap();
+        assert_eq!(page.condition, &date);
+        assert_eq!(page.index, 2);
+        assert_eq!(page.posts.len(), 3);
+        assert_eq!(page.posts[0].id, PostId(639));
+        assert_eq!(page.posts[1].id, PostId(640));
+        assert_eq!(page.posts[2].id, PostId(641));
+        assert_eq!(
+            page.next_page,
+            Some(AdjacentPageInfo::Condition(
+                NaiveDate::from_ymd_opt(1989, 9, 4).unwrap()
+            ))
+        );
+        assert_eq!(page.prev_page, Some(AdjacentPageInfo::PageIndex(1)));
+    }
+
+    #[tokio::test]
+    async fn test_get_posts_by_date_on_nonexistent_day() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let date = NaiveDate::from_ymd_opt(1989, 9, 1).unwrap();
+        let date1 = date
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_local_timezone(Local)
+            .unwrap()
+            .with_timezone(&Utc);
+        let next_date = date1 + Duration::days(3);
+        let prev_date = date1 - Duration::days(3);
+        let posts: Vec<Post> = vec![];
+        let next_post = Post::new(
+            PostId(631),
+            "test title3",
+            "test body3",
+            next_date,
+            next_date,
+        );
+        let prev_post = Post::new(
+            PostId(628),
+            "test title4",
+            "test body4",
+            prev_date,
+            prev_date,
+        );
+        mock_search
+            .expect_find_by_date()
+            .withf(move |d, o, l| d == &date && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: 0,
+                    post_ids: vec![],
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == vec![])
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(631)]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(628)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(next_post.id))
+            .returning(move |_| Ok(Some(next_post.clone())));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(prev_post.id))
+            .returning(move |_| Ok(Some(prev_post.clone())));
+
+        let page = GetPostsByDateUseCase::execute(&mock_posts, &mock_search, &date, 1)
+            .await
+            .unwrap();
+        assert_eq!(page.condition, &date);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 0);
+        assert_eq!(
+            page.next_page,
+            Some(AdjacentPageInfo::Condition(
+                NaiveDate::from_ymd_opt(1989, 9, 4).unwrap()
+            ))
+        );
+        assert_eq!(
+            page.prev_page,
+            Some(AdjacentPageInfo::Condition(
+                NaiveDate::from_ymd_opt(1989, 8, 29).unwrap()
+            ))
+        );
+    }
+
+    #[tokio::test]
+    async fn test_get_posts_by_date_in_sole_day() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let date = NaiveDate::from_ymd_opt(1989, 9, 1).unwrap();
+        let date1 = date
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_local_timezone(Local)
+            .unwrap()
+            .with_timezone(&Utc);
+        let date2 = date1 + Duration::hours(12);
+        let posts = vec![
+            Post::new(PostId(629), "test title", "test body", date1, date1),
+            Post::new(PostId(630), "test title2", "test body2", date2, date2),
+        ];
+        let post_ids = posts.iter().map(|p| p.id).collect::<Vec<_>>();
+        let post_ids_clone = post_ids.clone();
+        mock_search
+            .expect_find_by_date()
+            .withf(move |d, o, l| d == &date && o == &0 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: post_ids_clone.len(),
+                    post_ids: post_ids_clone.clone(),
+                })
+            });
+        mock_posts
+            .expect_get_by_ids()
+            .withf(move |ids| ids == post_ids.clone())
+            .returning(move |_| Ok(posts.clone()));
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date2), eq(1), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![]));
+
+        let page = GetPostsByDateUseCase::execute(&mock_posts, &mock_search, &date, 1)
+            .await
+            .unwrap();
+        assert_eq!(page.condition, &date);
+        assert_eq!(page.index, 1);
+        assert_eq!(page.posts.len(), 2);
+        assert_eq!(page.posts[0].id, PostId(629));
+        assert_eq!(page.posts[1].id, PostId(630));
+        assert_eq!(page.next_page, None);
+        assert_eq!(page.prev_page, None);
     }
 }
