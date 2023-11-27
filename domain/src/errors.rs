@@ -3,8 +3,6 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("Not Found")]
-    NotFound,
     #[error(transparent)]
     Export(#[from] ExportError),
     #[error(transparent)]
