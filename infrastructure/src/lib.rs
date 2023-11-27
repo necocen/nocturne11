@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate diesel;
 #[macro_use]
-extern crate log;
-#[macro_use]
 extern crate diesel_migrations;
 
 mod diesel_helpers;
@@ -12,4 +10,3 @@ mod models;
 pub mod posts_repository_impl;
 mod schema;
 pub mod search_client;
-pub mod search_repository_impl;

@@ -1,17 +1,15 @@
 use super::Opts;
 use anyhow::{ensure, Context as _, Result};
+use application::models::Config;
 use config::{builder::DefaultState, ConfigBuilder, File, FileFormat};
-use domain::entities::config::Config;
 use infrastructure::{
     google_auth_cert_repository_impl::GoogleAuthCertRepositoryImpl,
     posts_repository_impl::PostsRepositoryImpl, search_client::SearchClient,
-    search_repository_impl::SearchRepositoryImpl,
 };
 use std::{env, path::PathBuf};
 
 #[derive(Clone)] // FIXME: dieselのConnectionManagerがDebugを実装したらDebugにできる
 pub struct Service {
-    pub search_repository: SearchRepositoryImpl,
     pub posts_repository: PostsRepositoryImpl,
     pub cert_repository: GoogleAuthCertRepositoryImpl,
     pub search_client: SearchClient,
@@ -34,13 +32,11 @@ impl Service {
         let config_toml = include_str!("../../config.toml");
         let config = Self::get_config(config_toml)?;
 
-        let search_repository = SearchRepositoryImpl::new(&es_url)?;
         let posts_repository = PostsRepositoryImpl::new(&pg_url)?;
         let cert_repository = GoogleAuthCertRepositoryImpl::default();
         let search_client = SearchClient::new(&es_url, &pg_url)?;
 
         Ok(Service {
-            search_repository,
             posts_repository,
             cert_repository,
             search_client,

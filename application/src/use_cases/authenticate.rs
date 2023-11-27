@@ -1,8 +1,7 @@
 use anyhow::Context;
-use domain::entities::config::Config;
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 
-use crate::{adapters::GoogleCertsProvider, ApplicationResult};
+use crate::{adapters::GoogleCertsProvider, models::Config, ApplicationResult};
 
 pub struct AuthenticateUseCase;
 

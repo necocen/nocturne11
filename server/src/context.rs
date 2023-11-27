@@ -3,7 +3,7 @@ use actix_web::{
     dev::Payload, error::ErrorInternalServerError, Error, FromRequest, HttpMessage, HttpRequest,
 };
 pub use app_context_service::AppContextService;
-use domain::entities::config::Config;
+use application::models::Config;
 use std::future::{ready, Ready};
 
 #[derive(Clone, Debug)]
