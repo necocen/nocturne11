@@ -1,16 +1,14 @@
 use anyhow::Context;
+use domain::entities::config::Config;
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 
-use crate::{
-    adapters::{AppConfigProvider, GoogleCertsProvider},
-    ApplicationResult,
-};
+use crate::{adapters::GoogleCertsProvider, ApplicationResult};
 
 pub struct AuthenticateUseCase;
 
 impl AuthenticateUseCase {
     pub async fn execute(
-        app_config: &impl AppConfigProvider,
+        app_config: &Config,
         certs: &impl GoogleCertsProvider,
         jwt: &str,
     ) -> ApplicationResult<String> {
@@ -25,11 +23,8 @@ impl AuthenticateUseCase {
         };
         let key = DecodingKey::from_rsa_components(&n, &e)?;
         let mut validation = Validation::new(Algorithm::RS256);
-        let auth_settings = app_config
-            .get_auth_settings()
-            .context("failed to get app config")?;
-        validation.sub = Some(auth_settings.admin_user_id);
-        validation.set_audience([auth_settings.google_client_id].as_ref());
+        validation.sub = Some(app_config.auth.admin_user_id.clone());
+        validation.set_audience([app_config.auth.google_client_id.clone()].as_ref());
         validation.set_issuer(&ISSUERS);
 
         #[derive(serde::Deserialize)]

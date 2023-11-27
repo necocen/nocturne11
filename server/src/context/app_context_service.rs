@@ -1,5 +1,4 @@
 use super::AppContext;
-use crate::Error as AppError;
 use crate::Service;
 use actix_identity::IdentityExt as _;
 use actix_session::SessionExt;
@@ -9,7 +8,6 @@ use actix_web::{
     web::Data,
     Error, HttpMessage,
 };
-use domain::use_cases::get_config;
 use futures_util::future::LocalBoxFuture;
 use std::{
     future::{ready, Ready},
@@ -60,18 +58,13 @@ where
                 .and_then(Result::ok);
             let is_authorized = matches!(req.get_identity().and_then(|id| id.id()), Ok(ref id) if app.authorize(id));
             let is_development = app.is_development;
-            match get_config(&app.config_repository) {
-                Ok(config) => {
-                    req.extensions_mut().insert(AppContext {
-                        is_authorized,
-                        is_development,
-                        config,
-                        message,
-                    });
-                    Box::pin(self.service.call(req))
-                }
-                Err(e) => Box::pin(ready(Err(AppError::Domain(e).into()))),
-            }
+            req.extensions_mut().insert(AppContext {
+                is_authorized,
+                is_development,
+                config: app.config.clone(),
+                message,
+            });
+            Box::pin(self.service.call(req))
         } else {
             Box::pin(ready(Err(ErrorInternalServerError(
                 "Couldn't extract Service from Request.",

@@ -24,6 +24,7 @@ askama_escape = "0.10.3"
 bytes = "1.1.0"
 chrono = { workspace = true }
 clap = { version = "4.4.8", features = ["derive"] }
+config = { version = "0.13.3", default-features = false, features = ["toml"] }
 dotenv = "0.15.0"
 env_logger = "0.10.1"
 futures = { workspace = true }

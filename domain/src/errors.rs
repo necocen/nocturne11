@@ -1,4 +1,3 @@
-use crate::repositories::config::Error as ConfigError;
 use crate::repositories::export_posts::Error as ExportError;
 use thiserror::Error;
 
@@ -6,8 +5,6 @@ use thiserror::Error;
 pub enum Error {
     #[error("Not Found")]
     NotFound,
-    #[error(transparent)]
-    Config(#[from] ConfigError),
     #[error(transparent)]
     Export(#[from] ExportError),
     #[error(transparent)]

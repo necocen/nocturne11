@@ -5,7 +5,6 @@ extern crate log;
 #[macro_use]
 extern crate diesel_migrations;
 
-pub mod config_repository_impl;
 mod diesel_helpers;
 pub mod google_auth_cert_repository_impl;
 pub mod migration;

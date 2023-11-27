@@ -1,18 +1,19 @@
 use super::args::LoginFormParams;
-use crate::{Error, Service};
+use crate::{Error, Service, context::AppContext};
 use actix_identity::Identity;
 use actix_session::Session;
 use actix_web::{http::header, web, HttpMessage, HttpRequest, HttpResponse};
 use application::use_cases::AuthenticateUseCase;
 
 pub async fn login(
+    context: AppContext,
     service: web::Data<Service>,
     request: HttpRequest,
     session: Session,
     form: web::Form<LoginFormParams>,
 ) -> Result<HttpResponse, Error> {
     let user_id = AuthenticateUseCase::execute(
-        &service.config_repository,
+        &context.config,
         &service.cert_repository,
         &form.id_token,
     )
