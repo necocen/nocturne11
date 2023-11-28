@@ -128,11 +128,15 @@ pub fn error_500(res: ServiceResponse<BoxBody>) -> Result<ErrorHandlerResponse<B
 
 impl ResponseError for Error {
     fn status_code(&self) -> StatusCode {
-        use application::errors::ApplicationError::{JwtError, PostNotFound};
+        use application::errors::ApplicationError::{
+            InvalidPageNumber, InvalidYearMonth, JwtError, PostNotFound,
+        };
         match self {
             Self::NoResult(_) => StatusCode::NOT_FOUND,
             Self::Application(PostNotFound) => StatusCode::NOT_FOUND,
             Self::Application(JwtError(_)) => StatusCode::BAD_REQUEST,
+            Self::Application(InvalidPageNumber) => StatusCode::BAD_REQUEST,
+            Self::Application(InvalidYearMonth) => StatusCode::BAD_REQUEST,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
