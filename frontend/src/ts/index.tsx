@@ -1,10 +1,14 @@
-import { createRoot } from 'react-dom/client';
+import { createRoot } from "react-dom/client";
 import { Nav } from "./Nav";
 import { LoginButton, LogoutButton } from "./Login";
 import { Form } from "./Form";
 import { SearchButton } from "./SearchButton";
 
-createRoot(document.getElementById("side-nav")!).render(<Nav />);
+const nav = document.getElementById("side-nav");
+if (nav) {
+    createRoot(nav).render(<Nav />);
+}
+
 const button = document.getElementById("google-login");
 if (button) {
     createRoot(button).render(<LoginButton />);

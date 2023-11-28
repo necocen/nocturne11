@@ -24,15 +24,18 @@ export function Months() {
 
     const years = yearMonths
         ? yearMonths
-              .reduce((acc, { year, month }) => {
-                  const yearData = acc.find((y) => y.year === year);
-                  if (yearData) {
-                      yearData.months.push(month);
-                  } else {
-                      acc.push({ year, months: [month] });
-                  }
-                  return acc;
-              }, [] as { year: number; months: number[] }[])
+              .reduce(
+                  (acc, { year, month }) => {
+                      const yearData = acc.find((y) => y.year === year);
+                      if (yearData) {
+                          yearData.months.push(month);
+                      } else {
+                          acc.push({ year, months: [month] });
+                      }
+                      return acc;
+                  },
+                  [] as { year: number; months: number[] }[],
+              )
               .map((yearData) => ({
                   ...yearData,
                   months: yearData.months.sort((m1, m2) => m1 - m2),

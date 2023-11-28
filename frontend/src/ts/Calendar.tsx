@@ -72,9 +72,9 @@ export function Calendar() {
                                         <a href={days?.includes(day.date()) ? dayjsToPath(day) : undefined}>{day.format("D")}</a>
                                     </td>
                                 );
-                            } else {
-                                return <td key={day.format("YYYY-MM-DD")} />;
                             }
+
+                            return <td key={day.format("YYYY-MM-DD")} />;
                         })}
                     </tr>
                 ))}
