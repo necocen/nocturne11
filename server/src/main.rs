@@ -26,6 +26,9 @@ struct Opts {
     /// 本番環境モード
     #[clap(long("production"), action = ArgAction::SetFalse)]
     is_development: bool,
+    /// マイグレイションを実行する
+    #[clap(long("migrate"), action = ArgAction::SetTrue)]
+    migrate: bool,
 }
 
 #[actix_web::main]

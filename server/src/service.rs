@@ -29,6 +29,10 @@ impl Service {
         let secret_key = env::var("SECRET_KEY")?;
         ensure!(secret_key.len() >= 32, "SECRET_KEY is not long enough.");
 
+        if opts.migrate {
+            infrastructure::migration::migrate(&pg_url)?;
+        }
+
         let config_toml = include_str!("../../config.toml");
         let config = Self::get_config(config_toml)?;
 
