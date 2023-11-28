@@ -383,17 +383,17 @@ impl application::adapters::SearchClient for SearchClient {
         let created_before = Local
             .with_ymd_and_hms(next_year as i32, next_month as u32, 1, 0, 0, 0)
             .unwrap();
-        let results = posts
+        let mut results = posts
             .filter(created_at.ge(created_after))
             .filter(created_at.lt(created_before))
-            .order_by(created_at.asc())
             .select(extract(DatePart::Day, created_at))
             .distinct()
             .get_results::<i32>(&mut self.get_conn()?)
             .context("Failed to get results")?
             .into_iter()
             .map(|d| d as u8)
-            .collect();
+            .collect::<Vec<_>>();
+        results.sort();
         Ok(results)
     }
 
