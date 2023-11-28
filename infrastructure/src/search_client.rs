@@ -292,6 +292,7 @@ impl application::adapters::SearchClient for SearchClient {
         let post_ids = posts
             .filter(created_at.ge(created_after))
             .filter(created_at.lt(created_before))
+            .order_by(created_at.asc())
             .offset(offset as i64)
             .limit(limit as i64)
             .select(id)
@@ -329,6 +330,7 @@ impl application::adapters::SearchClient for SearchClient {
         let post_ids = posts
             .filter(created_at.ge(created_after))
             .filter(created_at.lt(created_before))
+            .order_by(created_at.asc())
             .offset(offset as i64)
             .limit(limit as i64)
             .select(id)
@@ -384,6 +386,7 @@ impl application::adapters::SearchClient for SearchClient {
         let results = posts
             .filter(created_at.ge(created_after))
             .filter(created_at.lt(created_before))
+            .order_by(created_at.asc())
             .select(extract(DatePart::Day, created_at))
             .distinct()
             .get_results::<i32>(&mut self.get_conn()?)
