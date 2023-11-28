@@ -31,7 +31,11 @@ impl SearchPostsUseCase {
         Ok(Page {
             condition: keywords,
             index: page_index,
-            posts: posts.get_by_ids(&result.post_ids).await?,
+            posts: if result.post_ids.is_empty() {
+                vec![]
+            } else {
+                posts.get_by_ids(&result.post_ids).await?
+            },
             next_page,
             prev_page,
         })
