@@ -15,7 +15,7 @@ pub async fn all_posts(
     let page = GetLatestPostsUseCase::execute(
         &service.posts_repository,
         &service.search_client,
-        query.page.unwrap_or(1),
+        query.into_inner().try_into()?,
     )
     .await?;
     Ok(AtomTemplate {
@@ -29,7 +29,7 @@ pub async fn all_posts(
 mod templates {
     use crate::filters;
     use crate::{context::AppContext, presentation::posts::Body};
-    use application::models::Page;
+    use application::models::{Page, PageNumber};
     use askama::Template;
     use chrono::{DateTime, Utc};
     use domain::entities::Post;
@@ -39,7 +39,7 @@ mod templates {
     pub struct AtomTemplate<'a> {
         pub context: AppContext,
         pub updated_at: Option<DateTime<Utc>>,
-        pub page: Page<'a, (), usize>,
+        pub page: Page<'a, (), PageNumber>,
     }
 
     trait PostExt {

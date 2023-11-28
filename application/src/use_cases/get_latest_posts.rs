@@ -1,6 +1,6 @@
 use crate::{
     adapters::{PostsRepository, SearchClient},
-    models::{AdjacentPageInfo, Page},
+    models::{AdjacentPageInfo, Page, PageNumber},
     ApplicationResult,
 };
 
@@ -10,19 +10,21 @@ impl GetLatestPostsUseCase {
     pub async fn execute(
         posts: &impl PostsRepository,
         search_client: &impl SearchClient,
-        page_index: usize,
-    ) -> ApplicationResult<Page<'static, (), usize>> {
+        page_index: PageNumber,
+    ) -> ApplicationResult<Page<'static, (), PageNumber>> {
         let result = search_client
-            .get_latest_posts((page_index - 1) * 10, 10) // TODO: per_page
+            .get_latest_posts((page_index.0 - 1) * 10, 10) // TODO: per_page
             .await?;
 
-        let next_page = if page_index * 10 < result.total_count {
-            Some(AdjacentPageInfo::PageIndex(page_index + 1))
+        let next_page = if page_index.0 * 10 < result.total_count {
+            Some(AdjacentPageInfo::PageIndex(page_index.next()))
         } else {
             None
         };
-        let prev_page = if page_index > 1 {
-            Some(AdjacentPageInfo::PageIndex(page_index - 1))
+        let prev_page = if page_index.0 > 1 {
+            Some(AdjacentPageInfo::PageIndex(
+                page_index.prev().expect("page_index > 1"),
+            ))
         } else {
             None
         };

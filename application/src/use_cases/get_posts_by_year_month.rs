@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 
 use crate::{
     adapters::{PostsRepository, SearchClient},
-    models::{AdjacentPageInfo, Page, YearMonth},
+    models::{AdjacentPageInfo, Page, PageNumber, YearMonth},
     ApplicationResult,
 };
 
@@ -14,10 +14,10 @@ impl GetPostsByYearMonthUseCase {
         posts: &impl PostsRepository,
         search_client: &impl SearchClient,
         year_month: &'a YearMonth,
-        page_index: usize,
-    ) -> ApplicationResult<Page<'a, YearMonth, usize>> {
+        page_index: PageNumber,
+    ) -> ApplicationResult<Page<'a, YearMonth, PageNumber>> {
         let result = search_client
-            .find_by_year_month(year_month, (page_index - 1) * 10, 10) // TODO: per_page
+            .find_by_year_month(year_month, (page_index.0 - 1) * 10, 10) // TODO: per_page
             .await?;
         let result_posts = if result.post_ids.is_empty() {
             vec![]
@@ -25,8 +25,8 @@ impl GetPostsByYearMonthUseCase {
             posts.get_by_ids(&result.post_ids).await?
         };
 
-        let next_page = if page_index * 10 < result.total_count {
-            Some(AdjacentPageInfo::PageIndex(page_index + 1))
+        let next_page = if page_index.0 * 10 < result.total_count {
+            Some(AdjacentPageInfo::PageIndex(page_index.next()))
         } else {
             let next_post_ids = if result.post_ids.is_empty() {
                 search_client
@@ -50,10 +50,10 @@ impl GetPostsByYearMonthUseCase {
                 None
             }
         };
-        let prev_page = if page_index > 1 && result.total_count > 0 {
+        let prev_page = if page_index.0 > 1 && result.total_count > 0 {
             let max_page_index = (result.total_count + 9) / 10;
             Some(AdjacentPageInfo::PageIndex(
-                max_page_index.min(page_index - 1),
+                PageNumber::new(max_page_index.min(page_index.0 - 1)).expect("page_index > 1"),
             ))
         } else {
             let prev_post_ids = if result.post_ids.is_empty() {
@@ -159,11 +159,16 @@ mod tests {
             .with(eq(prev_post.id))
             .returning(move |_| Ok(Some(prev_post.clone())));
 
-        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
-            .await
-            .unwrap();
+        let page = GetPostsByYearMonthUseCase::execute(
+            &mock_posts,
+            &mock_search,
+            &year_month,
+            PageNumber::new(1).unwrap(),
+        )
+        .await
+        .unwrap();
         assert_eq!(page.condition, &year_month);
-        assert_eq!(page.index, 1);
+        assert_eq!(page.index.0, 1);
         assert_eq!(page.posts.len(), 2);
         assert_eq!(page.posts[0].id, PostId(629));
         assert_eq!(page.posts[1].id, PostId(630));
@@ -229,12 +234,17 @@ mod tests {
             .with(eq(next_post.id))
             .returning(move |_| Ok(Some(next_post.clone())));
 
-        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
-            .await
-            .unwrap();
+        let page = GetPostsByYearMonthUseCase::execute(
+            &mock_posts,
+            &mock_search,
+            &year_month,
+            PageNumber::new(1).unwrap(),
+        )
+        .await
+        .unwrap();
 
         assert_eq!(page.condition, &year_month);
-        assert_eq!(page.index, 1);
+        assert_eq!(page.index.0, 1);
         assert_eq!(page.posts.len(), 2);
         assert_eq!(page.posts[0].id, PostId(629));
         assert_eq!(page.posts[1].id, PostId(630));
@@ -295,12 +305,17 @@ mod tests {
             .with(eq(prev_post.id))
             .returning(move |_| Ok(Some(prev_post.clone())));
 
-        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
-            .await
-            .unwrap();
+        let page = GetPostsByYearMonthUseCase::execute(
+            &mock_posts,
+            &mock_search,
+            &year_month,
+            PageNumber::new(1).unwrap(),
+        )
+        .await
+        .unwrap();
 
         assert_eq!(page.condition, &year_month);
-        assert_eq!(page.index, 1);
+        assert_eq!(page.index.0, 1);
         assert_eq!(page.posts.len(), 2);
         assert_eq!(page.posts[0].id, PostId(629));
         assert_eq!(page.posts[1].id, PostId(630));
@@ -370,12 +385,17 @@ mod tests {
             .with(eq(prev_post.id))
             .returning(move |_| Ok(Some(prev_post.clone())));
 
-        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
-            .await
-            .unwrap();
+        let page = GetPostsByYearMonthUseCase::execute(
+            &mock_posts,
+            &mock_search,
+            &year_month,
+            PageNumber::new(1).unwrap(),
+        )
+        .await
+        .unwrap();
 
         assert_eq!(page.condition, &year_month);
-        assert_eq!(page.index, 1);
+        assert_eq!(page.index.0, 1);
         assert_eq!(page.posts.len(), 10);
         assert_eq!(page.posts[0].id, PostId(629));
         assert_eq!(page.posts[1].id, PostId(630));
@@ -387,7 +407,10 @@ mod tests {
         assert_eq!(page.posts[7].id, PostId(636));
         assert_eq!(page.posts[8].id, PostId(637));
         assert_eq!(page.posts[9].id, PostId(638));
-        assert_eq!(page.next_page, Some(AdjacentPageInfo::PageIndex(2)));
+        assert_eq!(
+            page.next_page,
+            Some(AdjacentPageInfo::PageIndex(PageNumber::new(2).unwrap()))
+        );
         assert_eq!(
             page.prev_page,
             Some(AdjacentPageInfo::Condition(
@@ -453,12 +476,17 @@ mod tests {
             .with(eq(PostId(642)))
             .returning(move |_| Ok(Some(next_post.clone())));
 
-        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 2)
-            .await
-            .unwrap();
+        let page = GetPostsByYearMonthUseCase::execute(
+            &mock_posts,
+            &mock_search,
+            &year_month,
+            PageNumber::new(2).unwrap(),
+        )
+        .await
+        .unwrap();
 
         assert_eq!(page.condition, &year_month);
-        assert_eq!(page.index, 2);
+        assert_eq!(page.index.0, 2);
         assert_eq!(page.posts.len(), 3);
         assert_eq!(page.posts[0].id, PostId(639));
         assert_eq!(page.posts[1].id, PostId(640));
@@ -469,7 +497,10 @@ mod tests {
                 YearMonth::new(1989, 11).unwrap()
             ))
         );
-        assert_eq!(page.prev_page, Some(AdjacentPageInfo::PageIndex(1)));
+        assert_eq!(
+            page.prev_page,
+            Some(AdjacentPageInfo::PageIndex(PageNumber::new(1).unwrap()))
+        );
     }
 
     #[tokio::test]
@@ -525,12 +556,17 @@ mod tests {
             .with(eq(prev_post.id))
             .returning(move |_| Ok(Some(prev_post.clone())));
 
-        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
-            .await
-            .unwrap();
+        let page = GetPostsByYearMonthUseCase::execute(
+            &mock_posts,
+            &mock_search,
+            &year_month,
+            PageNumber::new(1).unwrap(),
+        )
+        .await
+        .unwrap();
 
         assert_eq!(page.condition, &year_month);
-        assert_eq!(page.index, 1);
+        assert_eq!(page.index.0, 1);
         assert_eq!(page.posts.len(), 0);
         assert_eq!(
             page.next_page,
@@ -595,12 +631,17 @@ mod tests {
             .with(eq(prev_post.id))
             .returning(move |_| Ok(Some(prev_post.clone())));
 
-        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 2)
-            .await
-            .unwrap();
+        let page = GetPostsByYearMonthUseCase::execute(
+            &mock_posts,
+            &mock_search,
+            &year_month,
+            PageNumber::new(2).unwrap(),
+        )
+        .await
+        .unwrap();
 
         assert_eq!(page.condition, &year_month);
-        assert_eq!(page.index, 2);
+        assert_eq!(page.index.0, 2);
         assert_eq!(page.posts.len(), 0);
         assert_eq!(
             page.next_page,
@@ -652,12 +693,17 @@ mod tests {
             .with(eq(date1), eq(0), eq(1))
             .returning(|_, _, _| Ok(vec![]));
 
-        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 1)
-            .await
-            .unwrap();
+        let page = GetPostsByYearMonthUseCase::execute(
+            &mock_posts,
+            &mock_search,
+            &year_month,
+            PageNumber::new(1).unwrap(),
+        )
+        .await
+        .unwrap();
 
         assert_eq!(page.condition, &year_month);
-        assert_eq!(page.index, 1);
+        assert_eq!(page.index.0, 1);
         assert_eq!(page.posts.len(), 2);
         assert_eq!(page.posts[0].id, PostId(629));
         assert_eq!(page.posts[1].id, PostId(630));
@@ -715,12 +761,17 @@ mod tests {
             .with(eq(prev_post.id))
             .returning(move |_| Ok(Some(prev_post.clone())));
 
-        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 3)
-            .await
-            .unwrap();
+        let page = GetPostsByYearMonthUseCase::execute(
+            &mock_posts,
+            &mock_search,
+            &year_month,
+            PageNumber::new(3).unwrap(),
+        )
+        .await
+        .unwrap();
 
         assert_eq!(page.condition, &year_month);
-        assert_eq!(page.index, 3);
+        assert_eq!(page.index.0, 3);
         assert_eq!(page.posts.len(), 0);
         assert_eq!(
             page.next_page,
@@ -728,6 +779,9 @@ mod tests {
                 YearMonth::new(1989, 11).unwrap()
             ))
         );
-        assert_eq!(page.prev_page, Some(AdjacentPageInfo::PageIndex(1)));
+        assert_eq!(
+            page.prev_page,
+            Some(AdjacentPageInfo::PageIndex(PageNumber::new(1).unwrap()))
+        );
     }
 }

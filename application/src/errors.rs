@@ -4,6 +4,8 @@ pub enum ApplicationError {
     PostNotFound,
     #[error("Invalid YearMonth")]
     InvalidYearMonth,
+    #[error("Invalid PageNumber")]
+    InvalidPageNumber,
     #[error(transparent)]
     JwtError(#[from] jsonwebtoken::errors::Error),
     #[error(transparent)]

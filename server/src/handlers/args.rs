@@ -1,5 +1,8 @@
 use anyhow::anyhow;
-use application::{errors::ApplicationError, models::YearMonth};
+use application::{
+    errors::ApplicationError,
+    models::{PageNumber, YearMonth},
+};
 use chrono::NaiveDate;
 use serde::Deserialize;
 
@@ -38,13 +41,32 @@ impl TryFrom<YearMonthArguments> for YearMonth {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct PageQuery {
-    pub page: Option<usize>,
+    page: Option<usize>,
+}
+
+impl TryFrom<PageQuery> for PageNumber {
+    type Error = ApplicationError;
+    fn try_from(query: PageQuery) -> Result<PageNumber, Self::Error> {
+        match query.page {
+            Some(page) => PageNumber::new(page),
+            None => Ok(PageNumber::default()),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct KeywordsQuery {
-    pub page: Option<usize>,
+    page: Option<usize>,
     pub keywords: Option<String>,
+}
+
+impl KeywordsQuery {
+    pub fn page_index(&self) -> Result<PageNumber, ApplicationError> {
+        match self.page {
+            Some(page) => PageNumber::new(page),
+            None => Ok(PageNumber::default()),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]

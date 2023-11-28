@@ -26,7 +26,7 @@ pub async fn all_posts(
             &service.search_client,
             &service.posts_repository,
             &keywords,
-            query.page.unwrap_or(1),
+            query.page_index()?,
         )
         .await?;
         if page.posts.is_empty() {
@@ -39,7 +39,7 @@ pub async fn all_posts(
         let page = GetLatestPostsUseCase::execute(
             &service.posts_repository,
             &service.search_client,
-            query.page.unwrap_or(1),
+            query.page_index()?,
         )
         .await?;
         if page.posts.is_empty() {
@@ -74,7 +74,7 @@ pub async fn posts_with_date(
         &service.posts_repository,
         &service.search_client,
         &date,
-        query.page.unwrap_or(1),
+        query.into_inner().try_into()?,
     )
     .await?;
     if page.posts.is_empty() {
@@ -96,7 +96,7 @@ pub async fn posts_with_year_month(
         &service.posts_repository,
         &service.search_client,
         &year_month,
-        query.page.unwrap_or(1),
+        query.into_inner().try_into()?,
     )
     .await?;
     if page.posts.is_empty() {
@@ -110,7 +110,7 @@ pub async fn posts_with_year_month(
 mod templates {
     use crate::filters;
     use crate::{context::AppContext, presentation::posts::Body};
-    use application::models::{AdjacentPageInfo, Page, YearMonth};
+    use application::models::{AdjacentPageInfo, Page, PageNumber, YearMonth};
     use askama::Template;
     use chrono::NaiveDate;
     use domain::entities::{Post, PostId};
@@ -120,27 +120,27 @@ mod templates {
     #[template(path = "all_posts.html")]
     pub struct AllPostsTemplate<'a> {
         pub context: AppContext,
-        pub page: Page<'a, (), usize>,
+        pub page: Page<'a, (), PageNumber>,
     }
 
     #[derive(Template)]
     #[template(path = "search_posts.html")]
     pub struct SearchPostsTemplate<'a> {
         pub context: AppContext,
-        pub page: Page<'a, Vec<&'a str>, usize>,
+        pub page: Page<'a, Vec<&'a str>, PageNumber>,
     }
 
     #[derive(Template)]
     #[template(path = "posts.html")]
     pub struct PostsWithYearMonthTemplate<'a> {
         pub context: AppContext,
-        pub page: Page<'a, YearMonth, usize>,
+        pub page: Page<'a, YearMonth, PageNumber>,
     }
     #[derive(Template)]
     #[template(path = "posts.html")]
     pub struct PostsWithDateTemplate<'a> {
         pub context: AppContext,
-        pub page: Page<'a, NaiveDate, usize>,
+        pub page: Page<'a, NaiveDate, PageNumber>,
     }
 
     #[derive(Template)]
@@ -198,7 +198,7 @@ mod templates {
         fn prev_href(&self) -> Option<String>;
     }
 
-    impl ConditionToUrl for Page<'_, (), usize> {
+    impl ConditionToUrl for Page<'_, (), PageNumber> {
         fn next_href(&self) -> Option<String> {
             match self.next_page {
                 Some(AdjacentPageInfo::PageIndex(page)) => Some(format!("/?page={}", page)),
@@ -230,7 +230,7 @@ mod templates {
         }
     }
 
-    impl ConditionToUrl for Page<'_, Vec<&str>, usize> {
+    impl ConditionToUrl for Page<'_, Vec<&str>, PageNumber> {
         fn next_href(&self) -> Option<String> {
             match self.next_page {
                 Some(AdjacentPageInfo::PageIndex(page)) => Some(format!(
@@ -254,7 +254,7 @@ mod templates {
         }
     }
 
-    impl ConditionToUrl for Page<'_, NaiveDate, usize> {
+    impl ConditionToUrl for Page<'_, NaiveDate, PageNumber> {
         fn next_href(&self) -> Option<String> {
             match self.next_page {
                 Some(AdjacentPageInfo::Condition(ref date)) => {
@@ -284,7 +284,7 @@ mod templates {
         }
     }
 
-    impl ConditionToUrl for Page<'_, YearMonth, usize> {
+    impl ConditionToUrl for Page<'_, YearMonth, PageNumber> {
         fn next_href(&self) -> Option<String> {
             match self.next_page {
                 Some(AdjacentPageInfo::Condition(ym)) => Some(format!("/{}", ym.to_string())),
