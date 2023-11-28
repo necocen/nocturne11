@@ -15,3 +15,8 @@ Simple weblog system for my own.
 5. ルートディレクトリで`cargo run --bin migrate`する
 6. `cargo run`する
 7. localhost:4000で起動するはず
+
+
+## TODO
+- improve test coverage
+- CI/CD on GitHub Actions
