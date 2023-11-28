@@ -19,19 +19,23 @@ impl GetPostsByYearMonthUseCase {
         let result = search_client
             .find_by_year_month(year_month, (page_index - 1) * 10, 10) // TODO: per_page
             .await?;
-        let result_posts = posts.get_by_ids(&result.post_ids).await?;
+        let result_posts = if result.post_ids.is_empty() {
+            vec![]
+        } else {
+            posts.get_by_ids(&result.post_ids).await?
+        };
 
         let next_page = if page_index * 10 < result.total_count {
             Some(AdjacentPageInfo::PageIndex(page_index + 1))
         } else {
-            let next_post_ids = if result.total_count > 0 {
+            let next_post_ids = if result.post_ids.is_empty() {
+                search_client
+                    .get_from_date(DateTime::<Utc>::from(*year_month), 0, 1)
+                    .await?
+            } else {
                 let last_post = result_posts.last().unwrap();
                 search_client
                     .get_from_date(last_post.created_at, 1, 1)
-                    .await?
-            } else {
-                search_client
-                    .get_from_date(DateTime::<Utc>::from(*year_month), 0, 1)
                     .await?
             };
             if let Some(next_post_id) = next_post_ids.first() {
@@ -46,17 +50,20 @@ impl GetPostsByYearMonthUseCase {
                 None
             }
         };
-        let prev_page = if page_index > 1 {
-            Some(AdjacentPageInfo::PageIndex(page_index - 1))
+        let prev_page = if page_index > 1 && result.total_count > 0 {
+            let max_page_index = (result.total_count + 9) / 10;
+            Some(AdjacentPageInfo::PageIndex(
+                max_page_index.min(page_index - 1),
+            ))
         } else {
-            let prev_post_ids = if result.total_count > 0 {
+            let prev_post_ids = if result.post_ids.is_empty() {
+                search_client
+                    .get_until_date(DateTime::<Utc>::from(*year_month), 0, 1)
+                    .await?
+            } else {
                 let first_post = result_posts.first().unwrap();
                 search_client
                     .get_until_date(first_post.created_at, 0, 1)
-                    .await?
-            } else {
-                search_client
-                    .get_until_date(DateTime::<Utc>::from(*year_month), 0, 1)
                     .await?
             };
             if let Some(prev_post_id) = prev_post_ids.first() {
@@ -75,7 +82,7 @@ impl GetPostsByYearMonthUseCase {
         Ok(Page {
             condition: year_month,
             index: page_index,
-            posts: posts.get_by_ids(&result.post_ids).await?,
+            posts: result_posts,
             next_page,
             prev_page,
         })
@@ -92,7 +99,7 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     #[tokio::test]
-    async fn get_posts_by_year_month() -> anyhow::Result<()> {
+    async fn get_posts_by_year_month() {
         let mut mock_posts = MockPostsRepository::new();
         let mut mock_search = MockSearchClient::new();
         let year_month = YearMonth::new(1989, 9).unwrap();
@@ -172,7 +179,6 @@ mod tests {
                 YearMonth::new(1989, 8).unwrap()
             ))
         );
-        Ok(())
     }
 
     #[tokio::test]
@@ -541,6 +547,76 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_get_posts_by_year_month_on_empty_month_with_page() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let year_month = YearMonth::new(1989, 9).unwrap();
+        let date1 = DateTime::<Utc>::from(year_month);
+        let next_date = date1 + Duration::days(80);
+        let prev_date = date1 - Duration::days(3);
+        let next_post = Post::new(
+            PostId(631),
+            "test title3",
+            "test body3",
+            next_date,
+            next_date,
+        );
+        let prev_post = Post::new(
+            PostId(628),
+            "test title4",
+            "test body4",
+            prev_date,
+            prev_date,
+        );
+
+        mock_search
+            .expect_find_by_year_month()
+            .withf(move |ym, o, l| ym == &year_month && o == &10 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: 0,
+                    post_ids: vec![],
+                })
+            });
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(631)]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(628)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(next_post.id))
+            .returning(move |_| Ok(Some(next_post.clone())));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(prev_post.id))
+            .returning(move |_| Ok(Some(prev_post.clone())));
+
+        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 2)
+            .await
+            .unwrap();
+
+        assert_eq!(page.condition, &year_month);
+        assert_eq!(page.index, 2);
+        assert_eq!(page.posts.len(), 0);
+        assert_eq!(
+            page.next_page,
+            Some(AdjacentPageInfo::Condition(
+                YearMonth::new(1989, 11).unwrap()
+            ))
+        );
+        assert_eq!(
+            page.prev_page,
+            Some(AdjacentPageInfo::Condition(
+                YearMonth::new(1989, 8).unwrap()
+            ))
+        );
+    }
+
+    #[tokio::test]
     async fn test_get_posts_by_year_month_on_sole_month() {
         let mut mock_posts = MockPostsRepository::new();
         let mut mock_search = MockSearchClient::new();
@@ -587,5 +663,71 @@ mod tests {
         assert_eq!(page.posts[1].id, PostId(630));
         assert_eq!(page.next_page, None);
         assert_eq!(page.prev_page, None);
+    }
+
+    #[tokio::test]
+    async fn test_get_posts_by_year_month_with_empty_page() {
+        let mut mock_posts = MockPostsRepository::new();
+        let mut mock_search = MockSearchClient::new();
+        let year_month = YearMonth::new(1989, 9).unwrap();
+
+        let date1 = DateTime::<Utc>::from(year_month);
+        let next_date = date1 + Duration::days(80);
+        let prev_date = date1 - Duration::days(3);
+        let next_post = Post::new(
+            PostId(631),
+            "test title3",
+            "test body3",
+            next_date,
+            next_date,
+        );
+        let prev_post = Post::new(
+            PostId(628),
+            "test title4",
+            "test body4",
+            prev_date,
+            prev_date,
+        );
+
+        mock_search
+            .expect_find_by_year_month()
+            .withf(move |ym, o, l| ym == &year_month && o == &20 && l == &10)
+            .returning(move |_, _, _| {
+                Ok(SearchResult {
+                    total_count: 2,
+                    post_ids: vec![],
+                })
+            });
+        mock_search
+            .expect_get_from_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(631)]));
+        mock_search
+            .expect_get_until_date()
+            .with(eq(date1), eq(0), eq(1))
+            .returning(|_, _, _| Ok(vec![PostId(628)]));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(next_post.id))
+            .returning(move |_| Ok(Some(next_post.clone())));
+        mock_posts
+            .expect_get_by_id()
+            .with(eq(prev_post.id))
+            .returning(move |_| Ok(Some(prev_post.clone())));
+
+        let page = GetPostsByYearMonthUseCase::execute(&mock_posts, &mock_search, &year_month, 3)
+            .await
+            .unwrap();
+
+        assert_eq!(page.condition, &year_month);
+        assert_eq!(page.index, 3);
+        assert_eq!(page.posts.len(), 0);
+        assert_eq!(
+            page.next_page,
+            Some(AdjacentPageInfo::Condition(
+                YearMonth::new(1989, 11).unwrap()
+            ))
+        );
+        assert_eq!(page.prev_page, Some(AdjacentPageInfo::PageIndex(1)));
     }
 }
