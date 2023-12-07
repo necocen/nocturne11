@@ -41,4 +41,4 @@ urlencoding = "2.1.0"
 pretty_assertions = "1.2.0"
 
 [build-dependencies]
-vergen = { version = "7.5.0", default-features = false, features = ["build", "local_offset"] }
+vergen = { version = "7.5.0", default-features = false, features = ["build", "local_offset", "git"] }

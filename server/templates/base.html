@@ -14,8 +14,8 @@
         <meta name="robots" content="index,follow" />
         <meta name="generator" content="{{ context.config.site.generator }}" />
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-        <link rel="stylesheet" href="/static/main.css" media="(min-width:481px)" />
-        <link rel="stylesheet" href="/static/sp.css" media="only screen and (max-width:480px)" />
+        <link rel="stylesheet" href="/static/main.css?{{ context.config.site.hash }}" media="(min-width:481px)" />
+        <link rel="stylesheet" href="/static/sp.css?{{ context.config.site.hash }}" media="only screen and (max-width:480px)" />
         <link rel="icon" href="/static/favicon.png" />
         <link rel="icon" href="/static/favicon.svg" />
         <link rel="mask-icon" href="/static/mask-icon.svg" color="#333333" />
@@ -67,6 +67,6 @@
                 </address>
             </footer>
         </div>
-        <script type="module" src="/static/index.js"></script>
+        <script type="module" src="/static/index.js?{{ context.config.site.hash }}"></script>
     </body>
 </html>

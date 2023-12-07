@@ -18,6 +18,7 @@ pub struct Site {
     pub about: String,
     pub url: url::Url,
     pub links: Vec<Link>,
+    pub hash: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]

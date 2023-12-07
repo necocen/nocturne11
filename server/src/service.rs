@@ -59,6 +59,7 @@ impl Service {
     fn get_config(config_toml: &str) -> Result<Config> {
         let version = env!("VERGEN_BUILD_SEMVER");
         let timestamp = env!("VERGEN_BUILD_TIMESTAMP");
+        let hash = env!("VERGEN_GIT_SHA_SHORT");
         let config = ConfigBuilder::<DefaultState>::default()
             .add_source(File::from_str(config_toml, FileFormat::Toml))
             .set_override(
@@ -66,6 +67,7 @@ impl Service {
                 format!("Nocturne v{} {}", version, timestamp),
             )
             .context("Failed to set site.generator")?
+            .set_override("site.hash", hash.to_string()).context("Failed to set site.hash")?
             .set_override(
                 "auth.google_client_id",
                 env::var("GOOGLE_OAUTH_CLIENT_ID")
