@@ -1,9 +1,10 @@
-use vergen::{vergen, Config, TimeZone, ShaKind};
+use std::error::Error;
+use vergen::EmitBuilder;
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     // Generate the default 'cargo:' instruction output
-    let mut config = Config::default();
-    *config.build_mut().timezone_mut() = TimeZone::Local;
-    *config.git_mut().sha_kind_mut() = ShaKind::Short;
-    vergen(config).ok();
+    EmitBuilder::builder()
+    .all_build()
+    .all_git().emit()?;
+    Ok(())
 }

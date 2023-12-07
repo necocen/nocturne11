@@ -57,9 +57,9 @@ impl Service {
     }
 
     fn get_config(config_toml: &str) -> Result<Config> {
-        let version = env!("VERGEN_BUILD_SEMVER");
+        let version = env!("CARGO_PKG_VERSION");
         let timestamp = env!("VERGEN_BUILD_TIMESTAMP");
-        let hash = env!("VERGEN_GIT_SHA_SHORT");
+        let hash = env!("VERGEN_GIT_SHA");
         let config = ConfigBuilder::<DefaultState>::default()
             .add_source(File::from_str(config_toml, FileFormat::Toml))
             .set_override(
