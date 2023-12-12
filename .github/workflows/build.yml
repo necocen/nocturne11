@@ -1,0 +1,19 @@
+---
+name: Build image
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: 847190245579.dkr.ecr.ap-northeast-1.amazonaws.com/nocturne:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
