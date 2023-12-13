@@ -62,15 +62,8 @@ COPY --from=deps /usr/lib/x86_64-linux-gnu/* /usr/lib/x86_64-linux-gnu/
 FROM base AS server
 WORKDIR /nocturne
 COPY --from=build-rust /nocturne/target/release/server .
+COPY --from=build-rust /nocturne/target/release/migrate .
+COPY --from=diesel-cli /diesel/bin/diesel .
 COPY --from=build-js /nocturne/dist/assets ./static
 ENTRYPOINT ["./server"]
 CMD ["--bind", "0.0.0.0", "--static", "./static", "--production"]
-
-
-FROM base AS migrate
-WORKDIR /nocturne
-COPY --from=build-rust /nocturne/target/release/migrate .
-COPY --from=diesel-cli /diesel/bin/diesel .
-# なんかdieselのためにCargo.tomlが必要なので置いておく。空でよいがtouchがないのでCOPYする
-COPY ./Cargo.toml .
-ENTRYPOINT ["./migrate"]
