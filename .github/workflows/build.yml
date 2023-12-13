@@ -23,6 +23,8 @@ jobs:
         with:
           registry: ${{ env.REPOSITORY }}
       - uses: docker/setup-buildx-action@v3
+      - shell: bash
+        run: ls -la
       - uses: docker/build-push-action@v5
         with:
           push: true
