@@ -27,7 +27,7 @@ WORKDIR /nocturne
 COPY ./frontend .
 RUN --mount=type=secret,id=VITE_PUBLIC_GOOGLE_CLIENT_ID \
     export VITE_PUBLIC_GOOGLE_CLIENT_ID="$(cat /run/secrets/VITE_PUBLIC_GOOGLE_CLIENT_ID)" && \
-    bun install --frozen-lockfile && bun run build && echo $VITE_PUBLIC_GOOGLE_CLIENT_ID
+    bun install --frozen-lockfile && bun run build
 
 FROM --platform=linux/x86_64 debian:bookworm-slim AS deps
 RUN apt-get update -y && \
