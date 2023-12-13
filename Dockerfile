@@ -25,7 +25,9 @@ RUN cargo install diesel_cli --no-default-features --features postgres --root .
 FROM oven/bun:1.0.13-slim AS build-js
 WORKDIR /nocturne
 COPY ./frontend .
-RUN --mount=type=secret,id=VITE_PUBLIC_GOOGLE_CLIENT_ID VITE_PUBLIC_GOOGLE_CLIENT_ID=$(cat /run/secrets/VITE_PUBLIC_GOOGLE_CLIENT_ID) bun install --frozen-lockfile && bun run build
+RUN --mount=type=secret,id=VITE_PUBLIC_GOOGLE_CLIENT_ID \
+    export VITE_PUBLIC_GOOGLE_CLIENT_ID=$(cat /run/secrets/VITE_PUBLIC_GOOGLE_CLIENT_ID) && \
+    bun install --frozen-lockfile && bun run build
 
 
 FROM --platform=linux/x86_64 debian:bookworm-slim AS deps
