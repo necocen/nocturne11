@@ -1,7 +1,7 @@
 ARG RUST_VERSION=1.76
 
 
-FROM --platform=linux/x86_64 rust:$RUST_VERSION-bookworm AS chef
+FROM rust:$RUST_VERSION-bookworm AS chef
 RUN cargo install cargo-chef@0.1.62
 WORKDIR /nocturne
 
@@ -17,7 +17,7 @@ COPY . .
 RUN cargo build --release
 
 
-FROM --platform=linux/x86_64 rust:$RUST_VERSION-bookworm as diesel-cli
+FROM rust:$RUST_VERSION-bookworm as diesel-cli
 WORKDIR /diesel
 RUN cargo install diesel_cli --no-default-features --features postgres --root .
 
@@ -26,12 +26,17 @@ FROM oven/bun:1.0.30-slim AS build-js
 WORKDIR /nocturne
 COPY ./frontend .
 RUN --mount=type=secret,id=VITE_PUBLIC_GOOGLE_CLIENT_ID \
-    export VITE_PUBLIC_GOOGLE_CLIENT_ID="$(cat /run/secrets/VITE_PUBLIC_GOOGLE_CLIENT_ID)" && \
-    bun install --frozen-lockfile && bun run build
+    export VITE_PUBLIC_GOOGLE_CLIENT_ID="$(cat /run/secrets/VITE_PUBLIC_GOOGLE_CLIENT_ID)" \
+    && bun install --frozen-lockfile \
+    && bun run build
 
-FROM --platform=linux/x86_64 debian:bookworm-slim AS deps
-RUN apt-get update -y && \
-    apt-get install -y \
+FROM debian:bookworm-slim AS deps
+WORKDIR /app
+COPY --from=build-rust /nocturne/target/release/server .
+COPY --from=build-rust /nocturne/target/release/migrate .
+COPY --from=diesel-cli /diesel/bin/diesel .
+RUN apt-get update -y \
+    && apt-get install -y \
     libcom-err2 \
     libffi8 \
     libgmp10 \
@@ -52,19 +57,21 @@ RUN apt-get update -y && \
     libsasl2-2 \
     libtasn1-6 \
     libunistring2 \
-    zlib1g
+    zlib1g \
+    && mkdir /tmp-lib \
+    && ldd /app/server | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/ \
+    && ldd /app/migrate | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/ \
+    && ldd /app/diesel | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/
 
 
 # server
-FROM --platform=linux/x86_64 gcr.io/distroless/cc-debian12 AS base
-COPY --from=deps /usr/lib/x86_64-linux-gnu/* /usr/lib/x86_64-linux-gnu/
-
-
-FROM base AS server
+FROM gcr.io/distroless/cc-debian12 AS server
 WORKDIR /nocturne
+COPY --from=deps /tmp-lib /tmp-lib
 COPY --from=build-rust /nocturne/target/release/server .
 COPY --from=build-rust /nocturne/target/release/migrate .
 COPY --from=diesel-cli /diesel/bin/diesel .
 COPY --from=build-js /nocturne/dist/assets ./static
+ENV LD_LIBRARY_PATH=/tmp-lib
 ENTRYPOINT ["./server"]
 CMD ["--bind", "0.0.0.0", "--static", "./static", "--production"]
