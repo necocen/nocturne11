@@ -22,7 +22,7 @@ WORKDIR /diesel
 RUN cargo install diesel_cli --no-default-features --features postgres --root .
 
 
-FROM oven/bun:1.0.13-slim AS build-js
+FROM oven/bun:1.0.30-slim AS build-js
 WORKDIR /nocturne
 COPY ./frontend .
 RUN --mount=type=secret,id=VITE_PUBLIC_GOOGLE_CLIENT_ID \
