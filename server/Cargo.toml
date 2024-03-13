@@ -12,25 +12,25 @@ build = "build.rs"
 application = { path = "../application" }
 domain = { path = "../domain" }
 infrastructure = { path = "../infrastructure" }
-actix-cors = "0.6.4"
-actix-files = "0.6.2"
-actix-identity = "0.6.0"
-actix-session = { version = "0.8.0", features = ["cookie-session"] }
-actix-web = "4.4.0"
-actix-web-lab = "0.20.1"
+actix-cors = "0.7.0"
+actix-files = "0.6.5"
+actix-identity = "0.7.1"
+actix-session = { version = "0.9.0", features = ["cookie-session"] }
+actix-web = "4.5.1"
+actix-web-lab = "0.20.2"
 anyhow = { workspace = true }
 askama = { version = "0.12.1", features = ["mime", "mime_guess"] }
 askama_actix = "0.14.0"
 askama_escape = "0.10.3"
 bytes = "1.1.0"
 chrono = { workspace = true }
-clap = { version = "4.4.8", features = ["derive"] }
-config = { version = "0.13.3", default-features = false, features = ["toml"] }
+clap = { version = "4.5.2", features = ["derive"] }
+config = { version = "0.14.0", default-features = false, features = ["toml"] }
 dotenv = "0.15.0"
-env_logger = "0.10.1"
+env_logger = "0.11.3"
 futures = { workspace = true }
 futures-util = { workspace = true }
-regex = "1.5.5"
+regex = "1.10.3"
 serde = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
@@ -41,4 +41,4 @@ urlencoding = "2.1.0"
 pretty_assertions = "1.2.0"
 
 [build-dependencies]
-vergen = { version = "8.2.6", features = ["build", "git", "git2"] }
+vergen = { version = "8.3.1", features = ["build", "git", "git2"] }

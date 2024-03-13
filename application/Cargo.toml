@@ -10,7 +10,7 @@ domain = { path = "../domain" }
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 chrono = { workspace = true }
-jsonwebtoken = "9.1.0"
+jsonwebtoken = "9.2.0"
 log = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }

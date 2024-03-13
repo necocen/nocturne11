@@ -10,7 +10,6 @@ edition = "2021"
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 chrono = { workspace = true }
-jsonwebtoken = "9.1.0"
 serde = { workspace = true }
 thiserror = { workspace = true }
 url ={ workspace = true }
