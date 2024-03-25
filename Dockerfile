@@ -37,6 +37,8 @@ COPY --from=build-rust /nocturne/target/release/server .
 COPY --from=build-rust /nocturne/target/release/migrate .
 COPY --from=build-rust /diesel/bin/diesel .
 COPY --from=build-js /nocturne/dist/assets ./static
+COPY ./infrastructure/migrations /nocturne/migrations
+COPY ./infrastructure/diesel.toml /nocturne/diesel.toml
 ENV LD_LIBRARY_PATH=/tmp-lib
 ENTRYPOINT ["./server"]
 CMD ["--bind", "0.0.0.0", "--static", "./static", "--production"]
