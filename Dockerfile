@@ -3,8 +3,9 @@ ARG RUST_VERSION=1.76
 
 FROM rust:$RUST_VERSION-bookworm AS chef
 RUN cargo install cargo-chef@0.1.62
+WORKDIR /diesel
+RUN cargo install diesel_cli@2.1.1 --no-default-features --features postgres --root .
 WORKDIR /nocturne
-
 
 FROM chef AS planner
 COPY . .
@@ -14,13 +15,11 @@ FROM chef as build-rust
 COPY --from=planner /nocturne/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-RUN cargo build --release
-
-
-FROM rust:$RUST_VERSION-bookworm as diesel-cli
-WORKDIR /diesel
-RUN cargo install diesel_cli --no-default-features --features postgres --root .
-
+RUN cargo build --release \
+    && mkdir /tmp-lib \
+    && ldd /nocturne/target/release/server | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/ \
+    && ldd /nocturne/target/release/migrate | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/ \
+    && ldd /diesel/bin/diesel | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/
 
 FROM oven/bun:1.0.30-slim AS build-js
 WORKDIR /nocturne
@@ -30,47 +29,13 @@ RUN --mount=type=secret,id=VITE_PUBLIC_GOOGLE_CLIENT_ID \
     && bun install --frozen-lockfile \
     && bun run build
 
-FROM debian:bookworm-slim AS deps
-WORKDIR /app
-COPY --from=build-rust /nocturne/target/release/server .
-COPY --from=build-rust /nocturne/target/release/migrate .
-COPY --from=diesel-cli /diesel/bin/diesel .
-RUN apt-get update -y \
-    && apt-get install -y \
-    libcom-err2 \
-    libffi8 \
-    libgmp10 \
-    libgnutls30 \
-    libgssapi-krb5-2 \
-    libhogweed6 \
-    libidn2-0 \
-    libk5crypto3 \
-    libkeyutils1 \
-    libkrb5-3 \
-    libkrb5support0 \
-    libldap-2.5-0 \
-    libmariadb3 \
-    libnettle8 \
-    libp11-kit0 \
-    libpq5 \
-    libssl3 \
-    libsasl2-2 \
-    libtasn1-6 \
-    libunistring2 \
-    zlib1g \
-    && mkdir /tmp-lib \
-    && ldd /app/server | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/ \
-    && ldd /app/migrate | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/ \
-    && ldd /app/diesel | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/
-
-
 # server
 FROM gcr.io/distroless/cc-debian12 AS server
 WORKDIR /nocturne
-COPY --from=deps /tmp-lib /tmp-lib
+COPY --from=build-rust /tmp-lib /tmp-lib
 COPY --from=build-rust /nocturne/target/release/server .
 COPY --from=build-rust /nocturne/target/release/migrate .
-COPY --from=diesel-cli /diesel/bin/diesel .
+COPY --from=build-rust /diesel/bin/diesel .
 COPY --from=build-js /nocturne/dist/assets ./static
 ENV LD_LIBRARY_PATH=/tmp-lib
 ENTRYPOINT ["./server"]
