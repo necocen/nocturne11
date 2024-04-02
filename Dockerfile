@@ -18,7 +18,6 @@ COPY . .
 RUN cargo build --release \
     && mkdir /tmp-lib \
     && ldd /nocturne/target/release/server | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/ \
-    && ldd /nocturne/target/release/migrate | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/ \
     && ldd /diesel/bin/diesel | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/
 
 FROM oven/bun:1.0.30-slim AS build-js
@@ -34,7 +33,6 @@ FROM gcr.io/distroless/cc-debian12 AS server
 WORKDIR /nocturne
 COPY --from=build-rust /tmp-lib /tmp-lib
 COPY --from=build-rust /nocturne/target/release/server .
-COPY --from=build-rust /nocturne/target/release/migrate .
 COPY --from=build-rust /diesel/bin/diesel .
 COPY --from=build-js /nocturne/dist/assets ./static
 COPY ./infrastructure/migrations /nocturne/migrations
