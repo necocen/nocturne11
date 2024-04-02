@@ -57,10 +57,7 @@ impl PageNumber {
     }
 
     pub fn prev(self) -> ApplicationResult<Self> {
-        if self.0 == 1 {
-            return Err(ApplicationError::InvalidPageNumber);
-        }
-        Ok(Self(self.0 - 1))
+        Self::new(self.0 - 1)
     }
 }
 

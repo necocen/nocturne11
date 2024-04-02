@@ -67,7 +67,8 @@ impl Service {
                 format!("Nocturne v{} {}", version, timestamp),
             )
             .context("Failed to set site.generator")?
-            .set_override("site.hash", hash.to_string()).context("Failed to set site.hash")?
+            .set_override("site.hash", hash.to_string())
+            .context("Failed to set site.hash")?
             .set_override(
                 "auth.google_client_id",
                 env::var("GOOGLE_OAUTH_CLIENT_ID")
