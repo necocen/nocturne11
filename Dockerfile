@@ -1,7 +1,7 @@
 ARG RUST_VERSION=1.77
+ARG BUN_VERSION=1.1.3
 
-
-FROM rust:$RUST_VERSION-bookworm AS chef
+FROM rust:${RUST_VERSION}-bookworm AS chef
 RUN cargo install cargo-chef@0.1.62
 WORKDIR /diesel
 RUN cargo install diesel_cli@2.1.1 --no-default-features --features postgres --root .
@@ -20,7 +20,7 @@ RUN cargo build --release \
     && ldd /nocturne/target/release/server | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/ \
     && ldd /diesel/bin/diesel | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /tmp-lib/
 
-FROM oven/bun:1.0.30-slim AS build-js
+FROM oven/bun:${BUN_VERSION}-slim AS build-js
 WORKDIR /nocturne
 COPY ./frontend .
 RUN bun install --frozen-lockfile \
