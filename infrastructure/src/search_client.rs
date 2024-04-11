@@ -1,16 +1,17 @@
 use anyhow::Context as _;
 use application::models::{SearchResult, YearMonth};
 use chrono::{DateTime, Local, NaiveDate, TimeZone as _, Utc};
-use diesel::prelude::*;
-use diesel::{r2d2::ConnectionManager, PgConnection};
+use diesel::{prelude::*, r2d2::ConnectionManager, PgConnection};
 use domain::entities::{Post, PostId};
-use elasticsearch::http::transport::{SingleNodeConnectionPool, TransportBuilder};
 use elasticsearch::{
+    http::{
+        transport::{SingleNodeConnectionPool, TransportBuilder},
+        StatusCode,
+    },
     indices::{IndicesCreateParts, IndicesGetParts},
     CreateParts, DeleteParts, Elasticsearch, ExistsParts, SearchParts, UpdateParts,
 };
 use r2d2::{Pool, PooledConnection};
-use reqwest::StatusCode;
 use serde_json::{json, Value};
 
 use crate::diesel_helpers::{extract, DatePart, TimezoneCustomizer};

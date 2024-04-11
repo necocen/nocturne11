@@ -19,7 +19,7 @@ elasticsearch = "7.14.0-alpha.1"
 env_logger = "0.11.3"
 log = { workspace = true }
 r2d2 = "0.8.9"
-reqwest = { version = "0.11.26", features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12.3", features = ["json", "rustls-tls"] }
 serde = { workspace = true }
 serde_json = "1.0.114"
 tokio = { workspace = true }
