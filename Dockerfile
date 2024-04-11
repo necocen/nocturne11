@@ -23,9 +23,7 @@ RUN cargo build --release \
 FROM oven/bun:1.0.30-slim AS build-js
 WORKDIR /nocturne
 COPY ./frontend .
-RUN --mount=type=secret,id=VITE_PUBLIC_GOOGLE_CLIENT_ID \
-    export VITE_PUBLIC_GOOGLE_CLIENT_ID="$(cat /run/secrets/VITE_PUBLIC_GOOGLE_CLIENT_ID)" \
-    && bun install --frozen-lockfile \
+RUN bun install --frozen-lockfile \
     && bun run build
 
 # server

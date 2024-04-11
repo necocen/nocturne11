@@ -6,6 +6,6 @@
     </header>
     <p>
         認証が必要なページです。ログインしてください。
-        <div id="google-login"></div>
+        <div id="google-login" data-client-id="{{ context.config.auth.google_client_id }}"></div>
     </p>
 {%- endblock -%}

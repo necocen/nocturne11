@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 
-export function LoginButton() {
+export function LoginButton({ clientId }: { clientId: string }) {
     const formRef = useRef<HTMLFormElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const loginButtonDivRef = useRef<HTMLDivElement>(null);
@@ -8,7 +8,7 @@ export function LoginButton() {
     useEffect(() => {
         loadScript(() => {
             window.google.accounts.id.initialize({
-                client_id: import.meta.env.VITE_PUBLIC_GOOGLE_CLIENT_ID,
+                client_id: clientId,
                 callback: (response) => {
                     inputRef.current?.setAttribute("value", response.credential);
                     formRef.current?.submit();
@@ -21,7 +21,7 @@ export function LoginButton() {
                 });
             }
         });
-    }, []);
+    }, [clientId]);
 
     return (
         <>

@@ -11,7 +11,8 @@ if (nav) {
 
 const button = document.getElementById("google-login");
 if (button) {
-    createRoot(button).render(<LoginButton />);
+    const clientId = button.dataset.clientId ?? "";
+    createRoot(button).render(<LoginButton clientId={clientId} />);
 }
 
 const logout = document.getElementsByClassName("logout-button");
