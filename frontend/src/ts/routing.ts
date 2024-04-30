@@ -1,5 +1,5 @@
-import { match, compile } from "path-to-regexp";
 import dayjs from "dayjs";
+import { compile, match } from "path-to-regexp";
 
 export function useRouting() {
     const path = window.location.pathname;

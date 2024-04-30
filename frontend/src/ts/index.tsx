@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
-import { Nav } from "./Nav";
-import { LoginButton, LogoutButton } from "./Login";
 import { Form } from "./Form";
+import { LoginButton, LogoutButton } from "./Login";
+import { Nav } from "./Nav";
 import { SearchButton } from "./SearchButton";
 
 const nav = document.getElementById("side-nav");

@@ -1,7 +1,7 @@
-import { useState } from "react";
 import useAxios from "axios-hooks";
-import { useRouting } from "./routing";
 import dayjs from "dayjs";
+import { useState } from "react";
+import { useRouting } from "./routing";
 
 const API_HOST = import.meta.env.MODE === "production" ? "" : "http://localhost:4000";
 
@@ -14,14 +14,18 @@ export function Calendar() {
         {
             data: { days } = { days: undefined },
         },
-    ] = useAxios<{ days?: number[] }>({
+    ] = useAxios<{
+        days?: number[];
+    }>({
         url: `${API_HOST}/api/days/${currentMonth.format("YYYY-MM")}`,
     });
     const [
         {
             data: { yearMonths } = { yearMonths: [] },
         },
-    ] = useAxios<{ yearMonths: { year: number; month: number }[] }>({
+    ] = useAxios<{
+        yearMonths: { year: number; month: number }[];
+    }>({
         url: `${API_HOST}/api/year_months`,
     });
     const months = yearMonths.map(({ year, month }) => dayjs(`${year}-${month}-01`)).sort((a, b) => a.unix() - b.unix());
