@@ -2,9 +2,9 @@ ARG RUST_VERSION=1.77
 ARG BUN_VERSION=1.1.3
 
 FROM rust:${RUST_VERSION}-bookworm AS chef
-RUN cargo install cargo-chef@0.1.62
+RUN cargo install --locked cargo-chef@0.1.62
 WORKDIR /diesel
-RUN cargo install diesel_cli@2.1.1 --no-default-features --features postgres --root .
+RUN cargo install --locked diesel_cli@2.1.1 --no-default-features --features postgres --root .
 WORKDIR /nocturne
 
 FROM chef AS planner
